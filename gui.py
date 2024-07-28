@@ -31,7 +31,7 @@ class GUI:
         self.progress = 0
 
         self.window = ctk.CTk()
-        self.window.geometry("1400x800")
+        self.window.geometry("1420x800")
         self.window.title("Agamine Solar LAMINATE TESTING V 1.0")
         self.window.configure(fg_color = "#D7E1E7")
 
@@ -50,22 +50,20 @@ class GUI:
         self.left_frame.pack(side="left", fill="y")
 
         # Load images
-        self.image_dashboard_ON = PhotoImage(file="images\dashboard_ON.png")
-        self.image_dashboard_OFF = PhotoImage(file="images\dashboard_OFF.png")
+        self.image_dashboard_ON_img = PhotoImage(file="images\dashboard_ON.png")
+        self.image_dashboard_OFF_img = PhotoImage(file="images\dashboard_OFF.png")
 
-        self.image_bk_profiles_OFF = PhotoImage(file="images\Bk_profiles_OFF.png")
-        self.image_bk_profiles_ON = PhotoImage(file="images\Bk_profiles_ON.png")
+        self.image_bk_profiles_OFF_img = PhotoImage(file="images\Bk_profiles_OFF.png")
+        self.image_bk_profiles_ON_img = PhotoImage(file="images\Bk_profiles_ON.png")
 
-        self.image_image_4 = PhotoImage(file="images\\Fram_indicator.png")
-        self.image_image_21 = PhotoImage(file="images\Vertical_line.png")
-        self.image_image_20 = PhotoImage(file=self.relative_to_assets("image_20.png"))
-        
+        self.fram_indicator_img = PhotoImage(file="images\\Fram_indicator.png")
+        self.vertical_line_img = PhotoImage(file="images\Vertical_line.png")        
 
         # Create buttons with images
-        self.dashboard_button = ctk.CTkButton(master=self.left_frame, image=self.image_dashboard_ON, text="DASHBOARD", compound="top", command=self.show_dashboard, fg_color='white', text_color='#0000ff', font=("Arial Rounded MT Bold",14))
+        self.dashboard_button = ctk.CTkButton(master=self.left_frame, image=self.image_dashboard_ON_img, text="DASHBOARD", compound="top", command=self.show_dashboard, fg_color='white', text_color='#0000ff', font=("Arial Rounded MT Bold",14))
         self.dashboard_button.pack(pady=10, padx=0, anchor='w')
 
-        self.bk_profiles_button = ctk.CTkButton(master=self.left_frame, image=self.image_bk_profiles_OFF, text="BK PROFILES", compound="top", command=self.show_bk_profiles, fg_color='white', text_color='#b7b7fc', font=("Arial Rounded MT Bold",14))
+        self.bk_profiles_button = ctk.CTkButton(master=self.left_frame, image=self.image_bk_profiles_OFF_img, text="BK PROFILES", compound="top", command=self.show_bk_profiles, fg_color='white', text_color='#b7b7fc', font=("Arial Rounded MT Bold",14))
         self.bk_profiles_button.pack(pady=10, padx=0, anchor='w')
 
         # Create a frame for the main content
@@ -84,7 +82,7 @@ class GUI:
 
         # Start update loop for maximum power and time
         self.update_max_power()
-        self.update_time()
+        # self.update_time()
 
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)  # Handle window closing event
         self.window.mainloop()
@@ -285,7 +283,7 @@ class GUI:
         self.progress_bar.set(self.progress)
         self.status_label.configure(text="Running...", text_color="orange")
         self.run_button.configure(state = 'disabled')
-        self.run_button.configure(image = self.pause)
+        self.run_button.configure(image = self.test_running_img)
         self.update_progress()
     
     # Function to turn ON the light
@@ -301,15 +299,15 @@ class GUI:
     # Function to show content of dashboard frame if DASHBOARD button is pressed
     def show_dashboard(self):
         self.dashboard_frame.pack(fill="both", expand=True)
-        self.dashboard_button.configure(image = self.image_dashboard_ON, text_color = "#0000ff")
-        self.bk_profiles_button.configure(image = self.image_bk_profiles_OFF, text_color = "#b7b7fc")
+        self.dashboard_button.configure(image = self.image_dashboard_ON_img, text_color = "#0000ff")
+        self.bk_profiles_button.configure(image = self.image_bk_profiles_OFF_img, text_color = "#b7b7fc")
         self.bk_profiles_frame.pack_forget()
 
     # Function to show content of Bk Profiles frame if BK PROFILES button is pressed
     def show_bk_profiles(self):
         self.bk_profiles_frame.pack(fill="both", expand=True)
-        self.dashboard_button.configure(image = self.image_dashboard_OFF, text_color = "#b7b7fc")
-        self.bk_profiles_button.configure(image = self.image_bk_profiles_ON, text_color = "#0000ff")
+        self.dashboard_button.configure(image = self.image_dashboard_OFF_img, text_color = "#b7b7fc")
+        self.bk_profiles_button.configure(image = self.image_bk_profiles_ON_img, text_color = "#0000ff")
 
         self.dashboard_frame.pack_forget()
 
@@ -320,8 +318,8 @@ class GUI:
         canvas = Canvas(
             self.dashboard_frame,
             bg = "#D7E1E7",
-            height = 930,
-            width = 1721,
+            height = 990,
+            width = 1620,
             bd = 0,
             highlightthickness = 0,
             relief = "ridge"
@@ -333,436 +331,184 @@ class GUI:
             file="images\insert_SN.png")
         image_1 = canvas.create_image(
             260.0,
-            48.0,
+            36.0,
             image=self.insert_SN_img
         )
 
+        self.plot_background_img = PhotoImage(
+            file = "images\plot_background.png"
+        )
+        plot_background = canvas.create_image(
+            480,
+            340,
+            image = self.plot_background_img
+        )
+
+        self.data_background_img = PhotoImage(
+            file = "images\data_background.png"
+        )
+        data_background = canvas.create_image(
+            1250,
+            340,
+            image = self.data_background_img
+        )
+
+        self.vol_curr_pow_background_img = PhotoImage(
+            file = "images\\vol_curr_pow_background.png"
+        )
+        plot_background = canvas.create_image(
+            480,
+            640,
+            image = self.vol_curr_pow_background_img
+        )
+
+        self.lamps_background_img = PhotoImage(
+            file = "images\lamps_background.png"
+        )
+        lamp_ON_background = canvas.create_image(
+            1125,
+            640,
+            image = self.lamps_background_img
+        )
+        lamp_OFF_background = canvas.create_image(
+            1380,
+            640,
+            image = self.lamps_background_img
+        )
+
+        self.table_background_img = PhotoImage(
+            file = "images\\table_background.png"
+        )
+        table_background = canvas.create_image(
+            770,
+            875,
+            image = self.table_background_img
+        )
+
+
+
         canvas.create_text(
             40.0,
-            35.0,
+            25.0,
             anchor="nw",
             text="Insert SN",
             fill="black",
             font=("",15)
         )
 
-        canvas.create_text(
-            840.0,
-            649.0,
-            anchor="nw",
-            text="TEST CONDITIONS",
-            fill="#FFFFFF",
-            font=("Arial Rounded MT Bold", 20)
-        )
-
-        image_4 = canvas.create_image(
+        fram_indicator = canvas.create_image(
             4,
             62.0,
-            image=self.image_image_4
+            image=self.fram_indicator_img
         )
 
-        self.image_image_5 = PhotoImage(
-            file=self.relative_to_assets("image_5.png"))
-        image_5 = canvas.create_image(
-            1459.0,
-            62.0,
-            image=self.image_image_5
-        )
-
-        self.image_image_6 = PhotoImage(
-            file=self.relative_to_assets("image_6.png"))
-        image_6 = canvas.create_image(
-            1379.0,
-            62.0,
-            image=self.image_image_6
-        )
-
-        self.image_image_7 = PhotoImage(
-            file=self.relative_to_assets("image_7.png"))
-        image_7 = canvas.create_image(
-            145.0,
-            304.0,
-            image=self.image_image_7
-        )
-
-
-        self.image_image_8 = PhotoImage(
-            file=self.relative_to_assets("image_8.png"))
-        image_8 = canvas.create_image(
-            145.0,
-            548.0,
-            image=self.image_image_8
-        )
-
-        self.image_image_9 = PhotoImage(
-            file=self.relative_to_assets("image_9.png"))
-        image_9 = canvas.create_image(
-            377.0,
-            304.0,
-            image=self.image_image_9
-        )
-
-        self.image_image_10 = PhotoImage(
-            file=self.relative_to_assets("image_10.png"))
-        image_10 = canvas.create_image(
-            377.0,
-            548.0,
-            image=self.image_image_10
-        )
-
-        self.image_image_11 = PhotoImage(
-            file=self.relative_to_assets("image_11.png"))
-        image_11 = canvas.create_image(
-            608.0,
-            304.0,
-            image=self.image_image_11
-        )
-
-        self.image_image_12 = PhotoImage(
-            file=self.relative_to_assets("image_12.png"))
-        image_12 = canvas.create_image(
-            608.0,
-            548.0,
-            image=self.image_image_12
-        )
-        image_12 = canvas.create_image(
-            145.0,
-            800.0,
-            image=self.image_image_12
-        )
-
-        self.image_image_13 = PhotoImage(
-            file=self.relative_to_assets("image_13.png"))
-        image_13 = canvas.create_image(
-            1135.0,
-            793.0,
-            image=self.image_image_13
-        )
-
-        self.image_image_14 = PhotoImage(
-            file=self.relative_to_assets("image_14.png"))
-        image_14 = canvas.create_image(
-            145.0,
-            303.0,
-            image=self.image_image_14
-        )
-        image_14 = canvas.create_image(
-            145.0,
-            799.0,
-            image=self.image_image_14
-        )
-
-
-        self.image_image_15 = PhotoImage(
-            file=self.relative_to_assets("image_15.png"))
-        image_15 = canvas.create_image(
-            145.0,
-            548.0,
-            image=self.image_image_15
-        )
-
-        self.image_image_16 = PhotoImage(
-            file=self.relative_to_assets("image_16.png"))
-        image_16 = canvas.create_image(
-            377.0,
-            303.0,
-            image=self.image_image_16
-        )
-
-        self.image_image_17 = PhotoImage(
-            file=self.relative_to_assets("image_17.png"))
-        image_17 = canvas.create_image(
-            377.0,
-            548.0,
-            image=self.image_image_17
-        )
-
-        self.image_image_18 = PhotoImage(
-            file=self.relative_to_assets("image_18.png"))
-        image_18 = canvas.create_image(
-            609.0,
-            303.0,
-            image=self.image_image_18
-        )
-
-        self.image_image_19 = PhotoImage(
-            file=self.relative_to_assets("image_19.png"))
-        image_19 = canvas.create_image(
-            609.0,
-            548.0,
-            image=self.image_image_19
-        )
-
-        canvas.create_text(
-            131.0,
-            180.0,
-            anchor="nw",
-            text="Isc",
-            fill="#FFFFFF",
-            font=("Poppins Medium", 16)
-        )
-
-        canvas.create_text(
-            354.0,
-            180.0,
-            anchor="nw",
-            text="Voc",
-            fill="#FFFFFF",
-            font=("Poppins Medium", 16)
-        )
-
-        canvas.create_text(
-            589.0,
-            178.0,
-            anchor="nw",
-            text="Imp",
-            fill="#FFFFFF",
-            font=("Poppins Medium", 16)
-        )
-
-        canvas.create_text(
-            579.0,
-            426.0,
-            anchor="nw",
-            text="Status",
-            fill="#FFFFFF",
-            font=("Poppins Medium", 16)
-        )
-
-        canvas.create_text(
-            347.0,
-            422.0,
-            anchor="nw",
-            text="Pmpp",
-            fill="#FFFFFF",
-            font=("Poppins Medium",16)
-        )
-
-        canvas.create_text(
-            125.0,
-            422.0,
-            anchor="nw",
-            text="Vmp",
-            fill="#FFFFFF",
-            font=("Poppins Medium", 16)
-        )
-
-        canvas.create_text(
-            125.0,
-            685.0,
-            anchor="nw",
-            text="FF %",
-            fill="#FFFFFF",
-            font=("Poppins Medium", 16)
-        )
-
-        canvas.create_text(
-            844.0,
-            726.0,
-            anchor="nw",
-            text="Lamps",
-            fill="#FFFFFF",
-            font=("Poppins Medium", 18)
-        )
-
-        canvas.create_text(
-            1168.0,
-            726.0,
-            anchor="nw",
-            text="Time",
-            fill="#FFFFFF",
-            font=("Poppins Medium", 18)
-        )
-
-        canvas.create_text(
-            1168.0,
-            815.0,
-            anchor="nw",
-            text="Date",
-            fill="#FFFFFF",
-            font=("Poppins Medium", 18)
-        )
-
-        canvas.create_text(
-            844.0,
-            815.0,
-            anchor="nw",
-            text="Temperature",
-            fill="#FFFFFF",
-            font=("David", 18)
-        )
-        canvas.create_text(
-            900.0,
-            575.0,
-            anchor="nw",
-            text="Current",
-            fill="#FFFFFF",
-            font=("David", 16)
-        )
-        canvas.create_text(
-            1130.0,
-            575.0,
-            anchor="nw",
-            text="Voltage",
-            fill="#FFFFFF",
-            font=("David", 16)
-        )
-
-        image_20 = canvas.create_image(
-            767.0,
-            126.9999999999996,
-            image=self.image_image_20
-        )
-
-        image_21 = canvas.create_image(
+        vertical_line = canvas.create_image(
             0.0,
             400.0,
-            image=self.image_image_21
+            image=self.vertical_line_img
         )
 
-        self.image_image_22 = PhotoImage(
-            file=self.relative_to_assets("image_22.png"))
+        self.run_test_img = PhotoImage(
+            file="images\\run_test.png")
 
+        self.test_running_img = PhotoImage(
+            file = "images\\test_running.png")
 
-        self.image_image_23 = PhotoImage(
-            file=self.relative_to_assets("image_23.png"))
-        image_23 = canvas.create_image(
-            1142.0,
-            789.0,
-            image=self.image_image_23
-        )
-
-        self.legendVol = PhotoImage(
-            file=self.relative_to_assets("legendVol.png"))
-        image_23 = canvas.create_image(
-            1080.0,
-            590.0,
-            image=self.legendVol
-        )
-
-        self.legendCur = PhotoImage(
-            file=self.relative_to_assets("legendCur.png"))
-        image_23 = canvas.create_image(
-            850.0,
-            590.0,
-            image=self.legendCur
-        )
-
-        self.pause = PhotoImage(
-            file = self.relative_to_assets("Pause.png")
-        )
-        
-
-
-        # Draw chart + animation
-        fig_combined, ax_combined = plt.subplots(figsize=(6.5, 4))
-        fig_combined.patch.set_facecolor("#0C0028")
-        fig_combined.patch.set_edgecolor('#4522A1')
-        fig_combined.patch.set_linewidth(2)
-        canvas_combined = FigureCanvasTkAgg(fig_combined, master=self.dashboard_frame)
-        canvas_combined.draw()
-        canvas_combined.get_tk_widget().place(x=800, y=160)
-        self.ani_combined = animation.FuncAnimation(
-            fig_combined,
-            self.animate_combined,
-            fargs=(ax_combined,),
-            interval=100
-        )
 
         # Add labels to Display Data
-        self.label_max_power_value = Label(
-                self.dashboard_frame,
-                textvariable=self.max_power_var,
-                bg = "#281854",
-                fg="#06F30B",
-                font=("Arial Rounded MT Bold", 15)
-            )
-        self.label_max_power_value.place(x=305, y=528)
+        # self.label_max_power_value = Label(
+        #         self.dashboard_frame,
+        #         textvariable=self.max_power_var,
+        #         bg = "#281854",
+        #         fg="#06F30B",
+        #         font=("Arial Rounded MT Bold", 15)
+        #     )
+        # self.label_max_power_value.place(x=305, y=528)
 
-        self.label_Vmpp_value = Label(
-                self.dashboard_frame,
-                textvariable=self.Vmpp_var,
-                bg="#281854",
-                fg="#06F30B",
-                font=("Arial Rounded MT Bold", 16)
-            )
-        self.label_Vmpp_value.place(x=80, y=528)
+        # self.label_Vmpp_value = Label(
+        #         self.dashboard_frame,
+        #         textvariable=self.Vmpp_var,
+        #         bg="#281854",
+        #         fg="#06F30B",
+        #         font=("Arial Rounded MT Bold", 16)
+        #     )
+        # self.label_Vmpp_value.place(x=80, y=528)
 
-        self.label_Impp_value = Label(
-                self.dashboard_frame,
-                textvariable=self.Impp_var,
-                bg="#281854",
-                fg="#06F30B",
-                font=("Arial Rounded MT Bold", 16)
-            )
-        self.label_Impp_value.place(x=530, y=285)
+        # self.label_Impp_value = Label(
+        #         self.dashboard_frame,
+        #         textvariable=self.Impp_var,
+        #         bg="#281854",
+        #         fg="#06F30B",
+        #         font=("Arial Rounded MT Bold", 16)
+        #     )
+        # self.label_Impp_value.place(x=530, y=285)
         
-        self.label_Isc_value = Label(
-                self.dashboard_frame,
-                textvariable=self.Isc_var,
-                bg="#281854",
-                fg="#06F30B",
-                font=("Arial Rounded MT Bold", 16)
-            )
-        self.label_Isc_value.place(x=80, y=285)
+        # self.label_Isc_value = Label(
+        #         self.dashboard_frame,
+        #         textvariable=self.Isc_var,
+        #         bg="#281854",
+        #         fg="#06F30B",
+        #         font=("Arial Rounded MT Bold", 16)
+        #     )
+        # self.label_Isc_value.place(x=80, y=285)
 
-        self.label_Voc_value = Label(
-                self.dashboard_frame,
-                textvariable=self.Voc_var,
-                bg="#281854",
-                fg="#06F30B",
-                font=("Arial Rounded MT Bold", 16)
-            )
-        self.label_Voc_value.place(x=305, y=285)
+        # self.label_Voc_value = Label(
+        #         self.dashboard_frame,
+        #         textvariable=self.Voc_var,
+        #         bg="#281854",
+        #         fg="#06F30B",
+        #         font=("Arial Rounded MT Bold", 16)
+        #     )
+        # self.label_Voc_value.place(x=305, y=285)
 
-        self.label_FF_value = Label(
-                self.dashboard_frame,
-                textvariable=self.FF_var,
-                bg="#281854",
-                fg="#06F30B",
-                font=("Arial Rounded MT Bold", 16)
-            )
-        self.label_FF_value.place(x=120, y=780)
+        # self.label_FF_value = Label(
+        #         self.dashboard_frame,
+        #         textvariable=self.FF_var,
+        #         bg="#281854",
+        #         fg="#06F30B",
+        #         font=("Arial Rounded MT Bold", 16)
+        #     )
+        # self.label_FF_value.place(x=120, y=780)
 
 
         # Entry Text for serial number of solar module
         self.entry_serialNum = ctk.CTkEntry(master=self.dashboard_frame, placeholder_text="Serial Number",border_width = 0, fg_color = "white", bg_color="white", width=150)
-        self.entry_serialNum.place(x=120, y=25)
+        self.entry_serialNum.place(x=120, y=15)
 
         # RUN TEST button to start test
-        self.run_button = ctk.CTkButton(master=self.dashboard_frame, text = "RUN TEST" ,image=self.image_image_22, command=self.run_test, fg_color='#0C0028', text_color='#FFFFFF', font=("Arial Rounded MT Bold",18))
-        self.run_button.place(x=500, y=25)
+        self.run_button = ctk.CTkButton(master=self.dashboard_frame, text = "RUN TEST" ,image=self.run_test_img, command=self.run_test, fg_color='#D7E1E7', text_color='#FFFFFF', font=("Arial Rounded MT Bold",14),hover="#b7b7fc")
+        self.run_button.place(x=500, y=9)
 
-        # Progress bar to show the progress of the test
-        self.progress_bar = ctk.CTkProgressBar(master=self.dashboard_frame)
-        self.progress_bar.set(self.progress)
-        self.progress_bar.place(x=680, y=45)
+        # # Progress bar to show the progress of the test
+        # self.progress_bar = ctk.CTkProgressBar(master=self.dashboard_frame)
+        # self.progress_bar.set(self.progress)
+        # self.progress_bar.place(x=680, y=45)
 
-        # Progress label to display the percentage
-        self.progress_label = ctk.CTkLabel(master=self.dashboard_frame, text="0%", font=("Arial", 16, "bold"), text_color='#FFFFFF', bg_color="#0C0028")
-        self.progress_label.place(x=900,y=35)
+        # # Progress label to display the percentage
+        # self.progress_label = ctk.CTkLabel(master=self.dashboard_frame, text="0%", font=("Arial", 16, "bold"), text_color='#FFFFFF', bg_color="#0C0028")
+        # self.progress_label.place(x=900,y=35)
 
-        # Status Label to display the state of the test
-        self.status_label = ctk.CTkLabel(master=self.dashboard_frame, text="Waiting", text_color="orange", font=("Arial", 18, "bold"), bg_color="#281854")
-        self.status_label.place(x=450, y=425)
+        # # Status Label to display the state of the test
+        # self.status_label = ctk.CTkLabel(master=self.dashboard_frame, text="Waiting", text_color="orange", font=("Arial", 18, "bold"), bg_color="#281854")
+        # self.status_label.place(x=450, y=425)
 
-        # Time and Date Labels
-        self.time_label = ctk.CTkLabel(master=self.dashboard_frame, text="", text_color="white", font=("David", 18))
-        self.time_label.place(x=1010, y= 577)
-        self.date_label = ctk.CTkLabel(master = self.dashboard_frame, text = "", text_color="White", font=("David", 18))
-        self.date_label.place(x=1010, y=649)
+        # # Time and Date Labels
+        # self.time_label = ctk.CTkLabel(master=self.dashboard_frame, text="", text_color="white", font=("David", 18))
+        # self.time_label.place(x=1010, y= 577)
+        # self.date_label = ctk.CTkLabel(master = self.dashboard_frame, text = "", text_color="White", font=("David", 18))
+        # self.date_label.place(x=1010, y=649)
 
-        # Temperature Label
-        self.temp_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.temp_var, text_color="#06F30B", font=("Arial Rounded MT Bold", 18))
-        self.degree_label = ctk.CTkLabel(master = self.dashboard_frame, text = "°C", text_color="white", font=("Arial Rounded MT Bold", 18))
-        self.temp_label.place(x=810, y=649)
-        self.degree_label.place(x=840,y=649)
+        # # Temperature Label
+        # self.temp_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.temp_var, text_color="#06F30B", font=("Arial Rounded MT Bold", 18))
+        # self.degree_label = ctk.CTkLabel(master = self.dashboard_frame, text = "°C", text_color="white", font=("Arial Rounded MT Bold", 18))
+        # self.temp_label.place(x=810, y=649)
+        # self.degree_label.place(x=840,y=649)
 
-        # Lamps Button
-        self.ON_button = ctk.CTkButton(master = self.dashboard_frame, text="ON", text_color="#06F30B", fg_color='#0C0028', command= self.ON_Lamps, width=20, font=("Arial Rounded MT Bold",18), hover_color='#0C0028')
-        self.ON_button.place(x=770,y=579)
-        self.OFF_button = ctk.CTkButton(master = self.dashboard_frame, text="OFF", text_color="grey", fg_color='#0C0028', command= self.OFF_Lamps, width=20, font=("Arial Rounded MT Bold",18), hover_color='#0C0028')
-        self.OFF_button.place(x=820,y=579)
+        # # Lamps Button
+        # self.ON_button = ctk.CTkButton(master = self.dashboard_frame, text="ON", text_color="#06F30B", fg_color='#0C0028', command= self.ON_Lamps, width=20, font=("Arial Rounded MT Bold",18), hover_color='#0C0028')
+        # self.ON_button.place(x=770,y=579)
+        # self.OFF_button = ctk.CTkButton(master = self.dashboard_frame, text="OFF", text_color="grey", fg_color='#0C0028', command= self.OFF_Lamps, width=20, font=("Arial Rounded MT Bold",18), hover_color='#0C0028')
+        # self.OFF_button.place(x=820,y=579)
 
 
     # Function to Setup content of bk_profiles Frame
@@ -779,21 +525,15 @@ class GUI:
         )
         canvas.place(x = 0, y = 0)
 
-
-        image_20 = canvas.create_image(
-            767.0,
-            126.9999999999996,
-            image=self.image_image_20
-        )
-        image_4 = canvas.create_image(
+        fram_indicator = canvas.create_image(
             4,
             182.0,
-            image=self.image_image_4
+            image=self.fram_indicator_img
         )
-        image_21 = canvas.create_image(
+        vertical_line = canvas.create_image(
             0.0,
             469.0,
-            image=self.image_image_21
+            image=self.vertical_line_img
         )
 
     # Funtion to close the application correctly
