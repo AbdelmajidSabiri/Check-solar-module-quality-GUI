@@ -50,14 +50,14 @@ class GUI:
         self.left_frame.pack(side="left", fill="y")
 
         # Load images
-        self.image_dashboard_ON_img = PhotoImage(file="images\dashboard_ON.png")
-        self.image_dashboard_OFF_img = PhotoImage(file="images\dashboard_OFF.png")
+        self.image_dashboard_ON_img = PhotoImage(file="images\\dashboard_ON.png")
+        self.image_dashboard_OFF_img = PhotoImage(file="images\\dashboard_OFF.png")
 
-        self.image_bk_profiles_OFF_img = PhotoImage(file="images\Bk_profiles_OFF.png")
-        self.image_bk_profiles_ON_img = PhotoImage(file="images\Bk_profiles_ON.png")
+        self.image_bk_profiles_OFF_img = PhotoImage(file="images\\Bk_profiles_OFF.png")
+        self.image_bk_profiles_ON_img = PhotoImage(file="images\\Bk_profiles_ON.png")
 
         self.fram_indicator_img = PhotoImage(file="images\\Fram_indicator.png")
-        self.vertical_line_img = PhotoImage(file="images\Vertical_line.png")        
+        self.vertical_line_img = PhotoImage(file="images\\Vertical_line.png")        
 
         # Create buttons with images
         self.dashboard_button = ctk.CTkButton(master=self.left_frame, image=self.image_dashboard_ON_img, text="DASHBOARD", compound="top", command=self.show_dashboard, fg_color='white', text_color='#0000ff', font=("Arial Rounded MT Bold",14))
@@ -328,7 +328,7 @@ class GUI:
         # Add images and Text
         canvas.place(x = 0, y = 0)
         self.insert_SN_img = PhotoImage(
-            file="images\insert_SN.png")
+            file="images\\insert_SN.png")
         image_1 = canvas.create_image(
             260.0,
             36.0,
@@ -336,7 +336,7 @@ class GUI:
         )
 
         self.plot_background_img = PhotoImage(
-            file = "images\plot_background.png"
+            file = "images\\plot_background.png"
         )
         plot_background = canvas.create_image(
             480,
@@ -345,7 +345,7 @@ class GUI:
         )
 
         self.data_background_img = PhotoImage(
-            file = "images\data_background.png"
+            file = "images\\data_background.png"
         )
         data_background = canvas.create_image(
             1250,
@@ -363,7 +363,7 @@ class GUI:
         )
 
         self.lamps_background_img = PhotoImage(
-            file = "images\lamps_background.png"
+            file = "images\\lamps_background.png"
         )
         lamp_ON_background = canvas.create_image(
             1125,
@@ -384,8 +384,6 @@ class GUI:
             875,
             image = self.table_background_img
         )
-
-
 
         canvas.create_text(
             40.0,
@@ -532,7 +530,7 @@ class GUI:
         )
         vertical_line = canvas.create_image(
             0.0,
-            469.0,
+            400.0,
             image=self.vertical_line_img
         )
 
