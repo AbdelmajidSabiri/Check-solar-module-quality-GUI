@@ -29,6 +29,7 @@ class GUI:
         self.max_power = 0.0
         self.MPP = {"Vmpp" : 0 , "Impp" : 0}
         self.progress = 0
+        self.running = False
 
         self.window = ctk.CTk()
         self.window.geometry("1420x800")
@@ -36,14 +37,13 @@ class GUI:
         self.window.configure(fg_color = "#D7E1E7")
 
         # Create variables for displaying max power and other parameters
-        self.max_power_var = DoubleVar()
-        self.Vmpp_var = StringVar()
-        self.Impp_var = StringVar()
-        self.Isc_var = StringVar()
-        self.Voc_var = StringVar()
-        self.FF_var = StringVar()
-        self.temp_var = StringVar(value="25")
-
+        self.max_power_var = DoubleVar(value=0.00)
+        self.Vmpp_var = DoubleVar(value= 0.00)
+        self.Impp_var = DoubleVar(value= 0.00)
+        self.Isc_var = DoubleVar(value= 0.00)
+        self.Voc_var = DoubleVar(value= 0.00)
+        self.FF_var = DoubleVar(value= 0.00)
+        self.temp_var = DoubleVar(value=25)
 
 
         self.left_frame = ctk.CTkFrame(master=self.window, width=200, corner_radius=0, fg_color='white')
@@ -97,8 +97,8 @@ class GUI:
         self.setup_bk_profiles_content()
 
         # Start update loop for maximum power and time
-        self.update_max_power()
-        # self.update_time()
+        if self.running :
+            self.update_data()
 
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)  # Handle window closing event
         self.window.mainloop()
@@ -127,43 +127,40 @@ class GUI:
             self.MPP["Impp"] = current
         return self.max_power,self.MPP
 
+    def update_data(self) :
+        update_max_power()
+        calculate_isc_voc()
+        calculate_FF()
+        self.window.after(1000, self.update_data)
+
     # Function to update Max Power
     def update_max_power(self):
         # Get max power, Vmpp and Impp
         max_power, MPP = self.GetMaxPower()
-
-        #Format Values
-        max_power_formatted = "{:.8f} W".format(max_power)
-        Vmpp_formatted = "{:.8f} V".format(MPP["Vmpp"])
-        Impp_formatted = "{:.8f} A".format(MPP["Impp"])
+        Vmpp = MPP["Vmpp"]
+        Impp = MPP["Impp"]
         
         #Assign Values to Variables
-        self.max_power_var.set(max_power_formatted)
-        self.Vmpp_var.set(Vmpp_formatted)
-        self.Impp_var.set(Impp_formatted)
+        self.max_power_var.set(max_power)
+        self.Vmpp_var.set(Vmpp)
+        self.Impp_var.set(Impp)
 
-        # Calculate and Update Isc and Voc
-        self.calculate_isc_voc()
-        self.calculate_FF()
-
-        # Update every sec
-        self.window.after(1000, self.update_max_power)
 
     # Calculate Isc and Voc
     def calculate_isc_voc(self):
-        self.isc_value = 0.0
-        self.voc_value = 0.0
+        self.isc_value = 0.00
+        self.voc_value = 0.00
 
         # Get Value of Isc if it found if not make it 0
         Isc_found = False
         for v, i in zip(self.data_list_voltage, self.data_list_current):
             if v == 0:
                 self.isc_value = i
-                self.Isc_var.set("{:.8f} A".format(i))
+                self.Isc_var.set(i)
                 Isc_found = True
                 break
         if not Isc_found :
-            self.Isc_var.set("0.00000000 A")    
+            self.Isc_var.set(0.00)
 
         # Get Value of Voc if it found if not make it 0
         Voc_found = False
@@ -171,12 +168,12 @@ class GUI:
         for v, i in zip(self.data_list_voltage, self.data_list_current):
             if i == 0:
                 self.voc_value = v
-                self.Voc_var.set("{:.8f} V".format(v))
+                self.Voc_var.set(v)
                 Voc_found = True
                 break
 
         if not Voc_found :
-            self.Voc_var.set("0.00000000 V")  
+            self.Voc_var.set(0.00)  
 
 
     def calculate_FF(self) :
@@ -187,9 +184,9 @@ class GUI:
         if isc and voc and maxPower :
             FF = (maxPower / isc * voc) * 100
         else :
-            FF = 0
+            FF = 0.00
 
-        self.FF_var.set(f"{FF} %")
+        self.FF_var.set(FF)
 
 
     # Funtion to update Time
@@ -208,53 +205,49 @@ class GUI:
             if measured_current and voltage :
                 return measured_current, voltage
             else :
-                return 0.0,0.0
+                return 0.00,0.00
         except Exception as e:
             print(f"Error retrieving data: {e}")
-            return 0.0, 0.0
+            return 0.00, 0.00
 
     # Animation function for updating Combined (current & voltage) plot
     def animate_combined(self, i, ax):
-        # Simulated data
-        current = 10 * math.sin(i * 0.1) + random.uniform(-1, 1)
-        voltage = 20 * math.cos(i * 0.1) + random.uniform(-1, 1)
-        # current, voltage = self.get_data()
+        if self.running :
+            # Simulated data
+            current = 10 * math.sin(i * 0.1) + random.uniform(-1, 1)
+            voltage = 20 * math.cos(i * 0.1) + random.uniform(-1, 1)
+            # current, voltage = self.get_data()
 
-        power = current * voltage
+            power = current * voltage
 
-        self.data_list_current.append(current)
-        self.data_list_voltage.append(voltage)
-        self.data_list_power.append(power)
-        self.data_list_current = self.data_list_current[-50:]  # Limit to the last 50 data points
-        self.data_list_voltage = self.data_list_voltage[-50:]   # Limit to the last 50 data points
-        self.data_list_power = self.data_list_power[-50:]
-        
-        ax.clear()
-        ax.set_facecolor('#0C0028')
-                
-        # Plot the current data
-        ax.plot(self.data_list_voltage,self.data_list_current,color='#FEB9FF', linewidth=2.5)
-        ax.fill_between(self.data_list_voltage, self.data_list_current, color='#4B237B', alpha=0.5, edgecolor='none')
-        
-        ax.plot(self.data_list_voltage,self.data_list_power,color='#C48BFF', linewidth=2.5)
-        ax.fill_between(self.data_list_voltage, self.data_list_power, color='#A260E8', alpha=0.5, edgecolor='none')
+            self.data_list_current.append(current)
+            self.data_list_voltage.append(voltage)
+            self.data_list_power.append(power)
+            self.data_list_current = self.data_list_current[-50:]  # Limit to the last 50 data points
+            self.data_list_voltage = self.data_list_voltage[-50:]   # Limit to the last 50 data points
+            self.data_list_power = self.data_list_power[-50:]
+            
+            ax.clear()
+            ax.set_facecolor('#e4e4e4')
+                    
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
 
+            # Plot the current data
+            ax.plot(self.data_list_voltage,self.data_list_current,color='Blue', linewidth=2, label='I-V curve')        
+            ax.plot(self.data_list_voltage,self.data_list_power,color='Red', linewidth=2, label='I-P curve')
 
-        ax.set_ylim([0, 20]) 
+            ax.set_xlabel("Voltage (V)", fontsize=12, fontweight='bold')
+            ax.set_ylabel("Current (A) / Power (W)", fontsize=12, fontweight='bold')
 
-        ax.set_xlabel("Voltage", color='#AD94FF', fontsize = 14)
-        ax.set_ylabel("Current", color='#AD94FF', fontsize = 14)
-        ax.spines['left'].set_color('#FFFFFF')
-        ax.spines['bottom'].set_color('#FFFFFF')
-        ax.spines['top'].set_color('#47289b')
-        ax.spines['right'].set_color('#47289b')
+            ax.tick_params(axis='x', colors='#000000')
+            ax.tick_params(axis='y', colors='#000000')
 
-        ax.tick_params(axis='x', colors='#FFFFFF')
-        ax.tick_params(axis='y', colors='#FFFFFF')
+            ax.xaxis.label.set_color('#000000')
+            ax.yaxis.label.set_color('#000000')
 
-        ax.grid(True, color='#3A3A3A')
-        ax.xaxis.label.set_color('#AD94FF')
-        ax.yaxis.label.set_color('#AD94FF')
+            ax.grid(True, color='#3A3A3A', linestyle='--', linewidth=0.5)
+            ax.legend(loc='upper right')
 
 
         
@@ -271,11 +264,11 @@ class GUI:
         formatted_time = current_date.strftime("%H:%M:%S")
 
         serial_number = self.get_serialNum()
-        Voc = round(float(self.Voc_var.get().split()[0]),4)
-        Isc = round(float(self.Isc_var.get().split()[0]),4)
+        Voc =self.Voc_var.get()
+        Isc = self.Isc_var.get()
         max_power = self.max_power
-        Impp = round(float(self.Impp_var.get().split()[0]),4)
-        Vmpp = round(float(self.Vmpp_var.get().split()[0]),4)
+        Impp = self.Impp_var.get()
+        Vmpp = self.Vmpp_var.get()
         
         CollectData(formatted_date,formatted_time,serial_number,max_power,Vmpp,Impp,Voc,Isc)
         
@@ -287,14 +280,16 @@ class GUI:
             self.progress_label.configure(text=f"{int(self.progress * 100)}%")
             self.window.after(100, self.update_progress)  # Update self.progress every 100 milliseconds
         else:
+            self.running = False
             self.progress_label.configure(text="100%")
             self.status_label.configure(text="  Saved", text_color="#06F30B")
             self.SaveData()
             self.run_button.configure(state = 'normal')
-            self.run_button.configure(image = self.image_image_22)
+            self.run_button.configure(image = self.run_test_img)
 
     # Function to Start Test if RUN TEST button is pressed
     def run_test(self):
+        self.running = True
         self.progress = 0
         self.progress_bar.set(self.progress)
         self.status_label.configure(text="Running...", text_color="orange")
@@ -431,7 +426,6 @@ class GUI:
         canvas.create_text(1390,550, anchor="nw", text="#", fill="#0000FF", font=("Helvetica",12, "bold"))
 
 
-
         canvas.create_text(90,630, anchor="nw", text="Voltage", fill="Black", font=("",13))
         canvas.create_text(360,630, anchor="nw", text="Current", fill="Black", font=("",13))
         canvas.create_text(660,630, anchor="nw", text="Power", fill="Black", font=("",13))
@@ -443,8 +437,20 @@ class GUI:
         canvas.create_text(1193,630, anchor="nw", text="On", fill="#0000FF", font=("Helvetica",14, "bold"))
         canvas.create_text(1449,630, anchor="nw", text="Off", fill="#0000FF", font=("Helvetica",14, "bold"))
 
+        fig_combined, ax_combined = plt.subplots(figsize=(8, 4.5))
+        fig_combined.patch.set_facecolor("white")
+        fig_combined.patch.set_linewidth(2)
 
+        canvas_combined = FigureCanvasTkAgg(fig_combined, master=self.dashboard_frame)
+        canvas_combined.draw()
+        canvas_combined.get_tk_widget().place(x=65, y=95)
 
+        self.ani_combined = animation.FuncAnimation(
+            fig_combined,
+            self.animate_combined,
+            fargs=(ax_combined,),
+            interval=100
+        )
 
 
         # Entry Text for serial number of solar module
