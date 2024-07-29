@@ -272,7 +272,7 @@ class GUI:
             self.window.after(100, self.update_progress)  # Update self.progress every 100 milliseconds
         else:
             self.progress_label.configure(text="100%")
-            self.status_label.configure(text="Saved", text_color="#06F30B")
+            self.status_label.configure(text="  Saved", text_color="#06F30B")
             self.SaveData()
             self.run_button.configure(state = 'normal')
             self.run_button.configure(image = self.image_image_22)
@@ -353,19 +353,25 @@ class GUI:
         table_background = canvas.create_image(    770,875,image = self.table_img)
         fram_indicator = canvas.create_image(      4,62.0,image=self.fram_indicator_img)
         vertical_line = canvas.create_image(       0,400,image=self.vertical_line_img)
-        progress_bar_background = canvas.create_image(        1000, 36, image=self.progress_bar_img )
+        progress_bar_background = canvas.create_image(        1000, 56, image=self.progress_bar_img )
         test_status_background = canvas.create_image(1380,55, image = self.status_img)
         line_data = canvas.create_image(1210, 120, image = self.line_data_img)
         line_data = canvas.create_image(1340, 120, image = self.line_data_img)
         isc_value_background = canvas.create_image(1275, 160, image = self.data_values_img)
-        isc_value_background = canvas.create_image(1275, 210, image = self.data_values_img)
-        isc_value_background = canvas.create_image(1275, 260, image = self.data_values_img)
-        isc_value_background = canvas.create_image(1275, 310, image = self.data_values_img)
-        isc_value_background = canvas.create_image(1275, 360, image = self.data_values_img)
-        isc_value_background = canvas.create_image(1275, 410, image = self.data_values_img)
-        isc_value_background = canvas.create_image(1275, 460, image = self.data_values_img)
-        isc_value_background = canvas.create_image(1275, 510, image = self.data_values_img)
-        isc_value_background = canvas.create_image(1275, 560, image = self.data_values_img)
+        Voc_value_background = canvas.create_image(1275, 210, image = self.data_values_img)
+        Mpp_value_background = canvas.create_image(1275, 260, image = self.data_values_img)
+        Ipm_value_background = canvas.create_image(1275, 310, image = self.data_values_img)
+        Vpm_value_background = canvas.create_image(1275, 360, image = self.data_values_img)
+        FF_value_background = canvas.create_image(1275, 410, image = self.data_values_img)
+        Grade_value_background = canvas.create_image(1275, 460, image = self.data_values_img)
+        temperature_value_background = canvas.create_image(1275, 510, image = self.data_values_img)
+        test_recurrence_background = canvas.create_image(1275, 560, image = self.data_values_img)
+
+        Vol_background = canvas.create_image(230,640, image = self.vol_curr_pow_values_img)
+        Curr_background = canvas.create_image(500,640, image = self.vol_curr_pow_values_img)
+        Pow_background = canvas.create_image(800,640, image = self.vol_curr_pow_values_img)
+
+
         
 
 
@@ -374,6 +380,7 @@ class GUI:
         canvas.create_text(1080,110, anchor="nw", text="Description", fill="#9ea5d2", font=("Helvetica",12, "bold"))
         canvas.create_text(1250,110, anchor="nw", text="Value", fill="#9ea5d2", font=("Helvetica",12, "bold"))
         canvas.create_text(1375,110, anchor="nw", text="Unit", fill="#9ea5d2", font=("Helvetica",12, "bold"))
+
 
         canvas.create_text(1180,150, anchor="nw", text="Isc", fill="#0000FF", font=("",10))
         canvas.create_text(1180,200, anchor="nw", text="Voc", fill="#0000FF", font=("",10))
@@ -384,17 +391,6 @@ class GUI:
         canvas.create_text(1185,450, anchor="nw", text="G", fill="#0000FF", font=("",10))
         canvas.create_text(1185,500, anchor="nw", text="T", fill="#0000FF", font=("",10))
 
-        canvas.create_text(1390,150, anchor="nw", text="A", fill="#0000FF", font=("",10))
-        canvas.create_text(1390,200, anchor="nw", text="V", fill="#0000FF", font=("",10))
-        canvas.create_text(1390,250, anchor="nw", text="W", fill="#0000FF", font=("",10))
-        canvas.create_text(1390,300, anchor="nw", text="A", fill="#0000FF", font=("",10))
-        canvas.create_text(1390,350, anchor="nw", text="V", fill="#0000FF", font=("",10))
-        canvas.create_text(1390,400, anchor="nw", text="%", fill="#0000FF", font=("",10))
-        canvas.create_text(1390,450, anchor="nw", text="⭐", fill="#0000FF", font=("",10))
-        canvas.create_text(1390,500, anchor="nw", text="°C", fill="#0000FF", font=("",10))
-        canvas.create_text(1390,550, anchor="nw", text="#", fill="#0000FF", font=("",10))
-
-
         canvas.create_text(1055,150, anchor="nw", text="Short Circuit Current", fill="Black", font=("",10))
         canvas.create_text(1055,200, anchor="nw", text="Open Circuit Voltage", fill="Black", font=("",10))
         canvas.create_text(1042,251, anchor="nw", text="Maximum Power Point", fill="Black", font=("",10))
@@ -404,6 +400,28 @@ class GUI:
         canvas.create_text(1145,450, anchor="nw", text="Grade", fill="Black", font=("",10))
         canvas.create_text(1108,500, anchor="nw", text="Temperature", fill="Black", font=("",10))
         canvas.create_text(1090,550, anchor="nw", text="Test Recurrence", fill="Black", font=("",10))
+
+        canvas.create_text(1390,150, anchor="nw", text="A", fill="#0000FF", font=("Helvetica",12, "bold"))
+        canvas.create_text(1390,200, anchor="nw", text="V", fill="#0000FF", font=("Helvetica",12, "bold"))
+        canvas.create_text(1390,250, anchor="nw", text="W", fill="#0000FF", font=("Helvetica",12, "bold"))
+        canvas.create_text(1390,300, anchor="nw", text="A", fill="#0000FF", font=("Helvetica",12, "bold"))
+        canvas.create_text(1390,350, anchor="nw", text="V", fill="#0000FF", font=("Helvetica",12, "bold"))
+        canvas.create_text(1390,400, anchor="nw", text="%", fill="#0000FF", font=("Helvetica",12, "bold"))
+        canvas.create_text(1390,450, anchor="nw", text="⭐", fill="#0000FF", font=("Helvetica",12, "bold"))
+        canvas.create_text(1390,500, anchor="nw", text="°C", fill="#0000FF", font=("Helvetica",12, "bold"))
+        canvas.create_text(1390,550, anchor="nw", text="#", fill="#0000FF", font=("Helvetica",12, "bold"))
+
+
+
+        canvas.create_text(90,630, anchor="nw", text="Voltage", fill="Black", font=("",13))
+        canvas.create_text(360,630, anchor="nw", text="Current", fill="Black", font=("",13))
+        canvas.create_text(660,630, anchor="nw", text="Power", fill="Black", font=("",13))
+
+        canvas.create_text(270,630, anchor="nw", text="V", fill="#0000FF", font=("Helvetica",12, "bold"))
+        canvas.create_text(540,630, anchor="nw", text="A", fill="#0000FF", font=("Helvetica",12, "bold"))
+        canvas.create_text(840,630, anchor="nw", text="W", fill="#0000FF", font=("Helvetica",12, "bold"))
+
+
 
 
 
@@ -419,17 +437,17 @@ class GUI:
         self.Add_to_tab_button.place(x=340, y=10)
 
         # Progress bar to show the progress of the test
-        self.progress_bar = ctk.CTkProgressBar(master=self.dashboard_frame, width = 150,progress_color = ("#00d9ff", "#1100ff"))
+        self.progress_bar = ctk.CTkProgressBar(master=self.dashboard_frame, width = 150,height=8.5, bg_color= "white",progress_color = ("#00d9ff", "black"))
         self.progress_bar.set(self.progress)
-        self.progress_bar.place(x=710, y=29)
+        self.progress_bar.place(x=708, y=26)
 
         # Progress label to display the percentage
-        self.progress_label = ctk.CTkLabel(master=self.dashboard_frame, text="0%", font=("Arial", 16, "bold"), text_color='#2021fd', bg_color="white")
-        self.progress_label.place(x=900,y=24)
+        self.progress_label = ctk.CTkLabel(master=self.dashboard_frame, text="0%", font=("Arial", 13, "bold"), text_color='#2021fd', bg_color="white")
+        self.progress_label.place(x=868,y=14)
 
         # Status Label to display the state of the test
-        self.status_label = ctk.CTkLabel(master=self.dashboard_frame, text="Waiting", text_color="orange", font=("Arial", 18, "bold"), bg_color="white")
-        self.status_label.place(x=1350, y=36)
+        self.status_label = ctk.CTkLabel(master=self.dashboard_frame, text="Waiting", text_color="orange", font=("Arial", 14, "bold"), bg_color="white")
+        self.status_label.place(x=1073, y=15)
 
         # # Time and Date Labels
         # self.time_label = ctk.CTkLabel(master=self.dashboard_frame, text="", text_color="white", font=("David", 18))
