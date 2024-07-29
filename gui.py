@@ -188,6 +188,43 @@ class GUI:
 
         self.FF_var.set(FF)
 
+    def configure_plot(self, ax):
+        ax.set_facecolor('#e4e4e4')
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+
+        ax.set_xlabel("Voltage (V)", fontsize=12, fontweight='bold')
+        ax.set_ylabel("Current (A) / Power (W)", fontsize=12, fontweight='bold')
+
+        ax.tick_params(axis='x', colors='#000000')
+        ax.tick_params(axis='y', colors='#000000')
+
+        ax.xaxis.label.set_color('#000000')
+        ax.yaxis.label.set_color('#000000')
+
+        ax.grid(True, color='#3A3A3A', linestyle='--', linewidth=0.5)
+
+    def setup_chart(self) :
+
+        fig_combined, ax_combined = plt.subplots(figsize=(8, 4.5))
+        fig_combined.patch.set_facecolor("white")
+        fig_combined.patch.set_linewidth(2)
+
+        self.configure_plot(ax_combined)
+
+        canvas_combined = FigureCanvasTkAgg(fig_combined, master=self.dashboard_frame)
+        canvas_combined.draw()
+        canvas_combined.get_tk_widget().place(x=65, y=95)
+
+    
+        self.ani_combined = animation.FuncAnimation(
+            fig_combined,
+            self.animate_combined,
+            fargs=(ax_combined,),
+            interval=100
+        )
+
+
 
     # Funtion to update Time
     def update_time(self):
@@ -228,25 +265,13 @@ class GUI:
             self.data_list_power = self.data_list_power[-50:]
             
             ax.clear()
-            ax.set_facecolor('#e4e4e4')
-                    
-            ax.spines['top'].set_visible(False)
-            ax.spines['right'].set_visible(False)
+            self.configure_plot(ax)
 
+                    
             # Plot the current data
             ax.plot(self.data_list_voltage,self.data_list_current,color='Blue', linewidth=2, label='I-V curve')        
             ax.plot(self.data_list_voltage,self.data_list_power,color='Red', linewidth=2, label='I-P curve')
 
-            ax.set_xlabel("Voltage (V)", fontsize=12, fontweight='bold')
-            ax.set_ylabel("Current (A) / Power (W)", fontsize=12, fontweight='bold')
-
-            ax.tick_params(axis='x', colors='#000000')
-            ax.tick_params(axis='y', colors='#000000')
-
-            ax.xaxis.label.set_color('#000000')
-            ax.yaxis.label.set_color('#000000')
-
-            ax.grid(True, color='#3A3A3A', linestyle='--', linewidth=0.5)
             ax.legend(loc='upper right')
 
 
@@ -437,20 +462,8 @@ class GUI:
         canvas.create_text(1193,630, anchor="nw", text="On", fill="#0000FF", font=("Helvetica",14, "bold"))
         canvas.create_text(1449,630, anchor="nw", text="Off", fill="#0000FF", font=("Helvetica",14, "bold"))
 
-        fig_combined, ax_combined = plt.subplots(figsize=(8, 4.5))
-        fig_combined.patch.set_facecolor("white")
-        fig_combined.patch.set_linewidth(2)
 
-        canvas_combined = FigureCanvasTkAgg(fig_combined, master=self.dashboard_frame)
-        canvas_combined.draw()
-        canvas_combined.get_tk_widget().place(x=65, y=95)
-
-        self.ani_combined = animation.FuncAnimation(
-            fig_combined,
-            self.animate_combined,
-            fargs=(ax_combined,),
-            interval=100
-        )
+        self.setup_chart()
 
 
         # Entry Text for serial number of solar module
@@ -483,11 +496,11 @@ class GUI:
         # self.date_label = ctk.CTkLabel(master = self.dashboard_frame, text = "", text_color="White", font=("David", 18))
         # self.date_label.place(x=1010, y=649)
 
-        # # Temperature Label
-        # self.temp_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.temp_var, text_color="#06F30B", font=("Arial Rounded MT Bold", 18))
-        # self.degree_label = ctk.CTkLabel(master = self.dashboard_frame, text = "°C", text_color="white", font=("Arial Rounded MT Bold", 18))
-        # self.temp_label.place(x=810, y=649)
-        # self.degree_label.place(x=840,y=649)
+        # Temperature Label
+        self.temp_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.temp_var, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
+        self.temp_label.place(x=1010, y=400)
+    
+
 
         # Lamps Button
         self.ON_button = ctk.CTkButton(master = self.dashboard_frame, 
