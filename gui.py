@@ -339,8 +339,8 @@ class GUI:
         self.progress_bar_img = PhotoImage(file = "images\\progress_bar_background.png")
         self.status_img = PhotoImage(file = "images\\status.png")
         self.vol_curr_pow_values_img = PhotoImage(file = "images\\vol_curr_pow_values_background.png")
-        self.data_values_img = PhotoImage("images\\data_values_background.png")
-        self.line_data_img = PhotoImage("images\\line.png")
+        self.data_values_img = PhotoImage(file = "images\\data_values_background.png")
+        self.line_data_img = PhotoImage(file = "images\\line.png")
 
 
 
@@ -355,73 +355,56 @@ class GUI:
         vertical_line = canvas.create_image(       0,400,image=self.vertical_line_img)
         progress_bar_background = canvas.create_image(        1000, 36, image=self.progress_bar_img )
         test_status_background = canvas.create_image(1380,55, image = self.status_img)
-        line_data = canvas.create_image(1200, 410, image = self.line_data_img)
-
+        line_data = canvas.create_image(1210, 120, image = self.line_data_img)
+        line_data = canvas.create_image(1340, 120, image = self.line_data_img)
+        isc_value_background = canvas.create_image(1275, 160, image = self.data_values_img)
+        isc_value_background = canvas.create_image(1275, 210, image = self.data_values_img)
+        isc_value_background = canvas.create_image(1275, 260, image = self.data_values_img)
+        isc_value_background = canvas.create_image(1275, 310, image = self.data_values_img)
+        isc_value_background = canvas.create_image(1275, 360, image = self.data_values_img)
+        isc_value_background = canvas.create_image(1275, 410, image = self.data_values_img)
+        isc_value_background = canvas.create_image(1275, 460, image = self.data_values_img)
+        isc_value_background = canvas.create_image(1275, 510, image = self.data_values_img)
+        isc_value_background = canvas.create_image(1275, 560, image = self.data_values_img)
+        
 
 
         canvas.create_text(40,30, anchor="nw", text="Insert SN", fill="black", font=("",15))
         canvas.create_text(1180,25, anchor="nw", text="Test status", fill="black", font=("",15))
-        canvas.create_text(1070,110, anchor="nw", text="Description", fill="#9ea5d2", font=("Bold",12))
-        canvas.create_text(1230,110, anchor="nw", text="Value", fill="#9ea5d2", font=("Bold",12))
-        canvas.create_text(1380,110, anchor="nw", text="Unite", fill="#9ea5d2", font=("Bold",12))
+        canvas.create_text(1080,110, anchor="nw", text="Description", fill="#9ea5d2", font=("Helvetica",12, "bold"))
+        canvas.create_text(1250,110, anchor="nw", text="Value", fill="#9ea5d2", font=("Helvetica",12, "bold"))
+        canvas.create_text(1375,110, anchor="nw", text="Unit", fill="#9ea5d2", font=("Helvetica",12, "bold"))
+
+        canvas.create_text(1180,150, anchor="nw", text="Isc", fill="#0000FF", font=("",10))
+        canvas.create_text(1180,200, anchor="nw", text="Voc", fill="#0000FF", font=("",10))
+        canvas.create_text(1180,250, anchor="nw", text="Mpp", fill="#0000FF", font=("",10))
+        canvas.create_text(1180,300, anchor="nw", text="Ipm", fill="#0000FF", font=("",10))
+        canvas.create_text(1180,350, anchor="nw", text="Vpm", fill="#0000FF", font=("",10))
+        canvas.create_text(1185,400, anchor="nw", text="FF", fill="#0000FF", font=("",10))
+        canvas.create_text(1185,450, anchor="nw", text="G", fill="#0000FF", font=("",10))
+        canvas.create_text(1185,500, anchor="nw", text="T", fill="#0000FF", font=("",10))
+
+        canvas.create_text(1390,150, anchor="nw", text="A", fill="#0000FF", font=("",10))
+        canvas.create_text(1390,200, anchor="nw", text="V", fill="#0000FF", font=("",10))
+        canvas.create_text(1390,250, anchor="nw", text="W", fill="#0000FF", font=("",10))
+        canvas.create_text(1390,300, anchor="nw", text="A", fill="#0000FF", font=("",10))
+        canvas.create_text(1390,350, anchor="nw", text="V", fill="#0000FF", font=("",10))
+        canvas.create_text(1390,400, anchor="nw", text="%", fill="#0000FF", font=("",10))
+        canvas.create_text(1390,450, anchor="nw", text="⭐", fill="#0000FF", font=("",10))
+        canvas.create_text(1390,500, anchor="nw", text="°C", fill="#0000FF", font=("",10))
+        canvas.create_text(1390,550, anchor="nw", text="#", fill="#0000FF", font=("",10))
 
 
+        canvas.create_text(1055,150, anchor="nw", text="Short Circuit Current", fill="Black", font=("",10))
+        canvas.create_text(1055,200, anchor="nw", text="Open Circuit Voltage", fill="Black", font=("",10))
+        canvas.create_text(1042,251, anchor="nw", text="Maximum Power Point", fill="Black", font=("",10))
+        canvas.create_text(1082,301, anchor="nw", text="Current at MPP", fill="Black", font=("",10))
+        canvas.create_text(1082,350, anchor="nw", text="Voltage at MPP", fill="Black", font=("",10))
+        canvas.create_text(1120,400, anchor="nw", text="Fil Factor", fill="Black", font=("",10))
+        canvas.create_text(1145,450, anchor="nw", text="Grade", fill="Black", font=("",10))
+        canvas.create_text(1108,500, anchor="nw", text="Temperature", fill="Black", font=("",10))
+        canvas.create_text(1090,550, anchor="nw", text="Test Recurrence", fill="Black", font=("",10))
 
-
-        # Add labels to Display Data
-        # self.label_max_power_value = Label(
-        #         self.dashboard_frame,
-        #         textvariable=self.max_power_var,
-        #         bg = "#281854",
-        #         fg="#06F30B",
-        #         font=("Arial Rounded MT Bold", 15)
-        #     )
-        # self.label_max_power_value.place(x=305, y=528)
-
-        # self.label_Vmpp_value = Label(
-        #         self.dashboard_frame,
-        #         textvariable=self.Vmpp_var,
-        #         bg="#281854",
-        #         fg="#06F30B",
-        #         font=("Arial Rounded MT Bold", 16)
-        #     )
-        # self.label_Vmpp_value.place(x=80, y=528)
-
-        # self.label_Impp_value = Label(
-        #         self.dashboard_frame,
-        #         textvariable=self.Impp_var,
-        #         bg="#281854",
-        #         fg="#06F30B",
-        #         font=("Arial Rounded MT Bold", 16)
-        #     )
-        # self.label_Impp_value.place(x=530, y=285)
-        
-        # self.label_Isc_value = Label(
-        #         self.dashboard_frame,
-        #         textvariable=self.Isc_var,
-        #         bg="#281854",
-        #         fg="#06F30B",
-        #         font=("Arial Rounded MT Bold", 16)
-        #     )
-        # self.label_Isc_value.place(x=80, y=285)
-
-        # self.label_Voc_value = Label(
-        #         self.dashboard_frame,
-        #         textvariable=self.Voc_var,
-        #         bg="#281854",
-        #         fg="#06F30B",
-        #         font=("Arial Rounded MT Bold", 16)
-        #     )
-        # self.label_Voc_value.place(x=305, y=285)
-
-        # self.label_FF_value = Label(
-        #         self.dashboard_frame,
-        #         textvariable=self.FF_var,
-        #         bg="#281854",
-        #         fg="#06F30B",
-        #         font=("Arial Rounded MT Bold", 16)
-        #     )
-        # self.label_FF_value.place(x=120, y=780)
 
 
         # Entry Text for serial number of solar module
@@ -435,18 +418,18 @@ class GUI:
         self.Add_to_tab_button = ctk.CTkButton(master=self.dashboard_frame, text = "Add to Test Tab" ,image=self.Add_to_tab_img, command=self.run_test, fg_color='#D7E1E7', text_color='#000000', font=("Arial Rounded MT Bold",14),hover="#b7b7fc")
         self.Add_to_tab_button.place(x=340, y=10)
 
-        # # Progress bar to show the progress of the test
-        # self.progress_bar = ctk.CTkProgressBar(master=self.dashboard_frame)
-        # self.progress_bar.set(self.progress)
-        # self.progress_bar.place(x=680, y=45)
+        # Progress bar to show the progress of the test
+        self.progress_bar = ctk.CTkProgressBar(master=self.dashboard_frame, width = 150,progress_color = ("#00d9ff", "#1100ff"))
+        self.progress_bar.set(self.progress)
+        self.progress_bar.place(x=710, y=29)
 
-        # # Progress label to display the percentage
-        # self.progress_label = ctk.CTkLabel(master=self.dashboard_frame, text="0%", font=("Arial", 16, "bold"), text_color='#FFFFFF', bg_color="#0C0028")
-        # self.progress_label.place(x=900,y=35)
+        # Progress label to display the percentage
+        self.progress_label = ctk.CTkLabel(master=self.dashboard_frame, text="0%", font=("Arial", 16, "bold"), text_color='#2021fd', bg_color="white")
+        self.progress_label.place(x=900,y=24)
 
-        # # Status Label to display the state of the test
-        # self.status_label = ctk.CTkLabel(master=self.dashboard_frame, text="Waiting", text_color="orange", font=("Arial", 18, "bold"), bg_color="#281854")
-        # self.status_label.place(x=450, y=425)
+        # Status Label to display the state of the test
+        self.status_label = ctk.CTkLabel(master=self.dashboard_frame, text="Waiting", text_color="orange", font=("Arial", 18, "bold"), bg_color="white")
+        self.status_label.place(x=1350, y=36)
 
         # # Time and Date Labels
         # self.time_label = ctk.CTkLabel(master=self.dashboard_frame, text="", text_color="white", font=("David", 18))
