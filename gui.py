@@ -327,90 +327,45 @@ class GUI:
 
         # Add images and Text
         canvas.place(x = 0, y = 0)
-        self.insert_SN_img = PhotoImage(
-            file="images\\insert_SN.png")
-        image_1 = canvas.create_image(
-            260.0,
-            36.0,
-            image=self.insert_SN_img
-        )
+        self.run_test_img = PhotoImage(file="images\\run_test.png")
+        self.test_running_img = PhotoImage(file = "images\\test_running.png")
+        self.Add_to_tab_img = PhotoImage(file = "images\\Add_to_test_tab.png")
+        self.insert_SN_img = PhotoImage(file="images\\insert_SN.png")
+        self.plot_img = PhotoImage(file = "images\\plot_background.png")
+        self.data_img = PhotoImage(file = "images\\data_background.png")
+        self.vol_curr_pow_img = PhotoImage(file = "images\\vol_curr_pow_background.png")
+        self.lamps_img = PhotoImage(file = "images\\lamps_background.png")
+        self.table_img = PhotoImage(file = "images\\table_background.png")
+        self.progress_bar_img = PhotoImage(file = "images\\progress_bar_background.png")
+        self.status_img = PhotoImage(file = "images\\status.png")
+        self.vol_curr_pow_values_img = PhotoImage(file = "images\\vol_curr_pow_values_background.png")
+        self.data_values_img = PhotoImage("images\\data_values_background.png")
+        self.line_data_img = PhotoImage("images\\line.png")
 
-        self.plot_background_img = PhotoImage(
-            file = "images\\plot_background.png"
-        )
-        plot_background = canvas.create_image(
-            480,
-            340,
-            image = self.plot_background_img
-        )
 
-        self.data_background_img = PhotoImage(
-            file = "images\\data_background.png"
-        )
-        data_background = canvas.create_image(
-            1250,
-            340,
-            image = self.data_background_img
-        )
 
-        self.vol_curr_pow_background_img = PhotoImage(
-            file = "images\\vol_curr_pow_background.png"
-        )
-        plot_background = canvas.create_image(
-            480,
-            640,
-            image = self.vol_curr_pow_background_img
-        )
+        insert_SN_background = canvas.create_image(           260,36,image=self.insert_SN_img)
+        plot_background = canvas.create_image(     480,340,image = self.plot_img)
+        data_background = canvas.create_image(     1250,340,image = self.data_img)
+        plot_background = canvas.create_image(     480,640,image = self.vol_curr_pow_img)
+        lamp_ON_background = canvas.create_image(  1125,640,image = self.lamps_img)
+        lamp_OFF_background = canvas.create_image( 1380,640,image = self.lamps_img)
+        table_background = canvas.create_image(    770,875,image = self.table_img)
+        fram_indicator = canvas.create_image(      4,62.0,image=self.fram_indicator_img)
+        vertical_line = canvas.create_image(       0,400,image=self.vertical_line_img)
+        progress_bar_background = canvas.create_image(        1000, 36, image=self.progress_bar_img )
+        test_status_background = canvas.create_image(1380,55, image = self.status_img)
+        line_data = canvas.create_image(1200, 410, image = self.line_data_img)
 
-        self.lamps_background_img = PhotoImage(
-            file = "images\\lamps_background.png"
-        )
-        lamp_ON_background = canvas.create_image(
-            1125,
-            640,
-            image = self.lamps_background_img
-        )
-        lamp_OFF_background = canvas.create_image(
-            1380,
-            640,
-            image = self.lamps_background_img
-        )
 
-        self.table_background_img = PhotoImage(
-            file = "images\\table_background.png"
-        )
-        table_background = canvas.create_image(
-            770,
-            875,
-            image = self.table_background_img
-        )
 
-        canvas.create_text(
-            40.0,
-            25.0,
-            anchor="nw",
-            text="Insert SN",
-            fill="black",
-            font=("",15)
-        )
+        canvas.create_text(40,30, anchor="nw", text="Insert SN", fill="black", font=("",15))
+        canvas.create_text(1180,25, anchor="nw", text="Test status", fill="black", font=("",15))
+        canvas.create_text(1070,110, anchor="nw", text="Description", fill="#9ea5d2", font=("Bold",12))
+        canvas.create_text(1230,110, anchor="nw", text="Value", fill="#9ea5d2", font=("Bold",12))
+        canvas.create_text(1380,110, anchor="nw", text="Unite", fill="#9ea5d2", font=("Bold",12))
 
-        fram_indicator = canvas.create_image(
-            4,
-            62.0,
-            image=self.fram_indicator_img
-        )
 
-        vertical_line = canvas.create_image(
-            0.0,
-            400.0,
-            image=self.vertical_line_img
-        )
-
-        self.run_test_img = PhotoImage(
-            file="images\\run_test.png")
-
-        self.test_running_img = PhotoImage(
-            file = "images\\test_running.png")
 
 
         # Add labels to Display Data
@@ -474,8 +429,11 @@ class GUI:
         self.entry_serialNum.place(x=120, y=15)
 
         # RUN TEST button to start test
-        self.run_button = ctk.CTkButton(master=self.dashboard_frame, text = "RUN TEST" ,image=self.run_test_img, command=self.run_test, fg_color='#D7E1E7', text_color='#FFFFFF', font=("Arial Rounded MT Bold",14),hover="#b7b7fc")
-        self.run_button.place(x=500, y=9)
+        self.run_button = ctk.CTkButton(master=self.dashboard_frame, text = "RUN TEST" ,image=self.run_test_img, command=self.run_test, fg_color='transparent', text_color='#0000FF', font=("Arial Rounded MT Bold",14),hover="transparent")
+        self.run_button.place(x=540, y=9)
+
+        self.Add_to_tab_button = ctk.CTkButton(master=self.dashboard_frame, text = "Add to Test Tab" ,image=self.Add_to_tab_img, command=self.run_test, fg_color='#D7E1E7', text_color='#000000', font=("Arial Rounded MT Bold",14),hover="#b7b7fc")
+        self.Add_to_tab_button.place(x=340, y=10)
 
         # # Progress bar to show the progress of the test
         # self.progress_bar = ctk.CTkProgressBar(master=self.dashboard_frame)
