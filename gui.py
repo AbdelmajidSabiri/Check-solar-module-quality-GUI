@@ -60,10 +60,26 @@ class GUI:
         self.vertical_line_img = PhotoImage(file="images\\Vertical_line.png")        
 
         # Create buttons with images
-        self.dashboard_button = ctk.CTkButton(master=self.left_frame, image=self.image_dashboard_ON_img, text="DASHBOARD", compound="top", command=self.show_dashboard, fg_color='white', text_color='#0000ff', font=("Arial Rounded MT Bold",14))
+        self.dashboard_button = ctk.CTkButton(master=self.left_frame, 
+                                                image=self.image_dashboard_ON_img, 
+                                                text="DASHBOARD", 
+                                                compound="top", 
+                                                command=self.show_dashboard, 
+                                                fg_color='white', 
+                                                text_color='#0000ff', 
+                                                font=("Arial Rounded MT Bold",14), 
+                                                hover_color="white")
         self.dashboard_button.pack(pady=10, padx=0, anchor='w')
 
-        self.bk_profiles_button = ctk.CTkButton(master=self.left_frame, image=self.image_bk_profiles_OFF_img, text="BK PROFILES", compound="top", command=self.show_bk_profiles, fg_color='white', text_color='#b7b7fc', font=("Arial Rounded MT Bold",14))
+        self.bk_profiles_button = ctk.CTkButton(master=self.left_frame,
+                                                 image=self.image_bk_profiles_OFF_img, 
+                                                 text="BK PROFILES", 
+                                                 compound="top", 
+                                                 command=self.show_bk_profiles, 
+                                                 fg_color='white', 
+                                                 text_color='#b7b7fc', 
+                                                 font=("Arial Rounded MT Bold",14), 
+                                                 hover_color="white")
         self.bk_profiles_button.pack(pady=10, padx=0, anchor='w')
 
         # Create a frame for the main content
@@ -288,13 +304,13 @@ class GUI:
     
     # Function to turn ON the light
     def ON_Lamps(self):
-        self.ON_button.configure(text_color = "#06F30B")
-        self.OFF_button.configure(text_color = "grey")
+        self.ON_button.configure(image = self.lamps_on_img)
+        self.OFF_button.configure(image = self.lamps_button_img)
 
     # Function to turn OFF the light
     def OFF_Lamps(self):
-        self.OFF_button.configure(text_color = "red")
-        self.ON_button.configure(text_color = "grey")
+        self.ON_button.configure(image = self.lamps_button_img)
+        self.OFF_button.configure(image = self.lamps_off_img)
     
     # Function to show content of dashboard frame if DASHBOARD button is pressed
     def show_dashboard(self):
@@ -341,6 +357,9 @@ class GUI:
         self.vol_curr_pow_values_img = PhotoImage(file = "images\\vol_curr_pow_values_background.png")
         self.data_values_img = PhotoImage(file = "images\\data_values_background.png")
         self.line_data_img = PhotoImage(file = "images\\line.png")
+        self.lamps_on_img = PhotoImage(file = "images\\lamps_on.png")
+        self.lamps_off_img = PhotoImage(file = "images\\lamps_off.png")
+        self.lamps_button_img = PhotoImage(file = "images\\lamps_button.png")
 
 
 
@@ -421,6 +440,9 @@ class GUI:
         canvas.create_text(540,630, anchor="nw", text="A", fill="#0000FF", font=("Helvetica",12, "bold"))
         canvas.create_text(840,630, anchor="nw", text="W", fill="#0000FF", font=("Helvetica",12, "bold"))
 
+        canvas.create_text(1193,630, anchor="nw", text="On", fill="#0000FF", font=("Helvetica",14, "bold"))
+        canvas.create_text(1449,630, anchor="nw", text="Off", fill="#0000FF", font=("Helvetica",14, "bold"))
+
 
 
 
@@ -461,11 +483,30 @@ class GUI:
         # self.temp_label.place(x=810, y=649)
         # self.degree_label.place(x=840,y=649)
 
-        # # Lamps Button
-        # self.ON_button = ctk.CTkButton(master = self.dashboard_frame, text="ON", text_color="#06F30B", fg_color='#0C0028', command= self.ON_Lamps, width=20, font=("Arial Rounded MT Bold",18), hover_color='#0C0028')
-        # self.ON_button.place(x=770,y=579)
-        # self.OFF_button = ctk.CTkButton(master = self.dashboard_frame, text="OFF", text_color="grey", fg_color='#0C0028', command= self.OFF_Lamps, width=20, font=("Arial Rounded MT Bold",18), hover_color='#0C0028')
-        # self.OFF_button.place(x=820,y=579)
+        # Lamps Button
+        self.ON_button = ctk.CTkButton(master = self.dashboard_frame, 
+                                        text="Turn Lamps", 
+                                        image = self.lamps_button_img, 
+                                        text_color="Black", 
+                                        fg_color='white', 
+                                        command= self.ON_Lamps, 
+                                        font=("Arial",14), 
+                                        compound = "right",
+                                        hover_color="white",
+                                        bg_color = "white")
+        self.ON_button.place(x=814,y=490)
+
+        self.OFF_button = ctk.CTkButton(master = self.dashboard_frame, 
+                                        text="Turn Lamps", 
+                                        image = self.lamps_off_img, 
+                                        text_color="Black", 
+                                        fg_color='white', 
+                                        compound = "right", 
+                                        command= self.OFF_Lamps,  
+                                        font=("Arial",14),
+                                        hover_color="white",
+                                        bg_color="white")
+        self.OFF_button.place(x=1018,y=490)
 
 
     # Function to Setup content of bk_profiles Frame
