@@ -18,7 +18,6 @@ from datetime import datetime
 
 class GUI:
 
-    ASSETS_PATH = Path(r"C:\Users\dell\GUI-read-Bk-precision-data-V2\build\assets\frame0")
     def __init__(self):
 
         self.bk_device = Bkp8600()
@@ -37,6 +36,9 @@ class GUI:
         self.window.configure(fg_color = "#D7E1E7")
 
         # Create variables for displaying max power and other parameters
+        self.Current_var = DoubleVar(value=0.00)
+        self.Voltage_var =  DoubleVar(value=0.00)
+        self.Power_var = DoubleVar(value=0.00)
         self.max_power_var = DoubleVar(value=0.00)
         self.Vmpp_var = DoubleVar(value= 0.00)
         self.Impp_var = DoubleVar(value= 0.00)
@@ -44,6 +46,7 @@ class GUI:
         self.Voc_var = DoubleVar(value= 0.00)
         self.FF_var = DoubleVar(value= 0.00)
         self.temp_var = DoubleVar(value=25)
+        self.grade_var = StringVar(value="A")
 
 
         self.left_frame = ctk.CTkFrame(master=self.window, width=200, corner_radius=0, fg_color='white')
@@ -97,15 +100,12 @@ class GUI:
         self.setup_bk_profiles_content()
 
         # Start update loop for maximum power and time
-        if self.running :
-            self.update_data()
+
+        self.update_data()
 
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)  # Handle window closing event
         self.window.mainloop()
 
-    @staticmethod
-    def relative_to_assets(path: str) -> Path:
-        return GUI.ASSETS_PATH / Path(path)
 
     # Funtion to Get Max power
     def GetMaxPower(self) :
@@ -128,10 +128,12 @@ class GUI:
         return self.max_power,self.MPP
 
     def update_data(self) :
-        update_max_power()
-        calculate_isc_voc()
-        calculate_FF()
-        self.window.after(1000, self.update_data)
+        if self.running :
+            update_max_power()
+            calculate_isc_voc()
+            calculate_FF()
+            calculate_grade()
+            self.window.after(1000, self.update_data)
 
     # Function to update Max Power
     def update_max_power(self):
@@ -144,7 +146,6 @@ class GUI:
         self.max_power_var.set(max_power)
         self.Vmpp_var.set(Vmpp)
         self.Impp_var.set(Impp)
-
 
     # Calculate Isc and Voc
     def calculate_isc_voc(self):
@@ -173,8 +174,7 @@ class GUI:
                 break
 
         if not Voc_found :
-            self.Voc_var.set(0.00)  
-
+            self.Voc_var.set(0.00)
 
     def calculate_FF(self) :
         isc = self.isc_value
@@ -187,6 +187,10 @@ class GUI:
             FF = 0.00
 
         self.FF_var.set(FF)
+
+    def calculate_grade(self) :
+        pass
+
 
     def configure_plot(self, ax):
         ax.set_facecolor('#e4e4e4')
@@ -257,6 +261,9 @@ class GUI:
 
             power = current * voltage
 
+            self.Current_var.set(round(current,2))
+            self.Voltage_var.set(round(voltage,2))
+            self.Power_var.set(round(power,2))
             self.data_list_current.append(current)
             self.data_list_voltage.append(voltage)
             self.data_list_power.append(power)
@@ -274,8 +281,6 @@ class GUI:
 
             ax.legend(loc='upper right')
 
-
-        
     # Method to get Serial Number
     def get_serialNum(self):
         serial_number = self.entry_serialNum.get()
@@ -455,9 +460,9 @@ class GUI:
         canvas.create_text(360,630, anchor="nw", text="Current", fill="Black", font=("",13))
         canvas.create_text(660,630, anchor="nw", text="Power", fill="Black", font=("",13))
 
-        canvas.create_text(270,630, anchor="nw", text="V", fill="#0000FF", font=("Helvetica",12, "bold"))
-        canvas.create_text(540,630, anchor="nw", text="A", fill="#0000FF", font=("Helvetica",12, "bold"))
-        canvas.create_text(840,630, anchor="nw", text="W", fill="#0000FF", font=("Helvetica",12, "bold"))
+        canvas.create_text(270,627, anchor="nw", text="V", fill="#0000FF", font=("Helvetica",14, "bold"))
+        canvas.create_text(540,627, anchor="nw", text="A", fill="#0000FF", font=("Helvetica",14, "bold"))
+        canvas.create_text(840,627, anchor="nw", text="W", fill="#0000FF", font=("Helvetica",14, "bold"))
 
         canvas.create_text(1193,630, anchor="nw", text="On", fill="#0000FF", font=("Helvetica",14, "bold"))
         canvas.create_text(1449,630, anchor="nw", text="Off", fill="#0000FF", font=("Helvetica",14, "bold"))
@@ -490,15 +495,41 @@ class GUI:
         self.status_label = ctk.CTkLabel(master=self.dashboard_frame, text="Waiting", text_color="orange", font=("Arial", 14, "bold"), bg_color="white")
         self.status_label.place(x=1073, y=15)
 
-        # # Time and Date Labels
-        # self.time_label = ctk.CTkLabel(master=self.dashboard_frame, text="", text_color="white", font=("David", 18))
-        # self.time_label.place(x=1010, y= 577)
-        # self.date_label = ctk.CTkLabel(master = self.dashboard_frame, text = "", text_color="White", font=("David", 18))
-        # self.date_label.place(x=1010, y=649)
-
         # Temperature Label
         self.temp_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.temp_var, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
         self.temp_label.place(x=1010, y=400)
+
+        self.Isc_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Isc_var, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
+        self.Isc_label.place(x=1010, y=120)
+
+        self.Voc_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Voc_var, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
+        self.Voc_label.place(x=1010, y=160)
+
+        self.Mpp_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.max_power_var, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
+        self.Mpp_label.place(x=1010, y=200)
+
+        self.Impp_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Impp_var, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
+        self.Impp_label.place(x=1010, y=240)
+
+        self.Vmpp_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Vmpp_var, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
+        self.Vmpp_label.place(x=1010, y=280)
+        
+        self.FF_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.FF_var, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
+        self.FF_label.place(x=1010, y=320)
+
+        self.grade_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.grade_var, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
+        self.grade_label.place(x=1010, y=360)
+
+        self.Voltage_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Voltage_var, height=5, width=60 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 15,"bold"))
+        self.Voltage_label.place(x=143, y=502)
+
+        self.Current_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Current_var, height=5 ,width=60 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 15,"bold"))
+        self.Current_label.place(x=368, y=502)
+
+        self.Power_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Power_var, height=5, width=60,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 15,"bold"))
+        self.Power_label.place(x=600, y=502)
+
+
     
 
 
