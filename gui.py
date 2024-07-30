@@ -298,7 +298,7 @@ class GUI:
         serial_number = self.get_serialNum()
         Voc =self.Voc_var.get()
         Isc = self.Isc_var.get()
-        max_power = self.max_power
+        max_power = self.max_power_var.get()
         Impp = self.Impp_var.get()
         Vmpp = self.Vmpp_var.get()
         
