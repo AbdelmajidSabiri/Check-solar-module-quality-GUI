@@ -10,7 +10,7 @@ import sys,time
 import math
 import random
 sys.path.append('C:\\Users\\dell\\GUI-read-Bk-precision-data')
-from readData import Add_current, Bkp8600, Add_voltage, Add_serialNum, CollectData
+from readData import Bkp8600, CollectData
 from PIL import Image, ImageTk
 from datetime import datetime
 
@@ -47,6 +47,18 @@ class GUI:
         self.FF_var = DoubleVar(value= 0.00)
         self.temp_var = DoubleVar(value=25)
         self.grade_var = StringVar(value="A")
+
+        self.Current_formated = StringVar(value="0.00")
+        self.Voltage_formated =  StringVar(value="0.00")
+        self.Power_formated = StringVar(value="0.00")
+        self.max_power_formated = StringVar(value="0.00")
+        self.Vmpp_formated = StringVar(value="0.00")
+        self.Impp_formated = StringVar(value="0.00")
+        self.Isc_formated = StringVar(value="0.00")
+        self.Voc_formated = StringVar(value="0.00")
+        self.FF_formated = StringVar(value="0.00")
+
+
 
 
         self.left_frame = ctk.CTkFrame(master=self.window, width=200, corner_radius=0, fg_color='white')
@@ -101,74 +113,56 @@ class GUI:
 
         # Start update loop for maximum power and time
 
-        self.update_data()
-
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)  # Handle window closing event
         self.window.mainloop()
 
 
     # Funtion to Get Max power
-    def GetMaxPower(self) :
+    def update_max_power(self) :
 
-        # Get current and voltage
-        current, voltage = self.get_data()
-        # Assign 0 to power if no data found
-        if current and voltage :
-            power = current * voltage
-        else :
-            power = 0
+        if self.Power_var.get() > self.max_power_var.get():
+            self.max_power_var.set(self.Power_var.get())
+            self.Impp_var.set(self.Current_var.get())
+            self.Vmpp_var.set(self.Voltage_var.get())
 
-        # If other max power found, change the old one and return it
-        if power > self.max_power:
-            self.max_power = power
+            self.max_power_formated.set(f"{self.max_power_var.get():.2f}")
+            self.Impp_formated.set(f"{self.Impp_var.get():.2f}")
+            self.Vmpp_formated.set(f"{self.Vmpp_var.get():.2f}")
 
-            # Take voltage and current of Max Power (Vmpp & Impp)
-            self.MPP["Vmpp"] = voltage
-            self.MPP["Impp"] = current
-        return self.max_power,self.MPP
+
 
     def update_data(self) :
         if self.running :
-            update_max_power()
-            calculate_isc_voc()
-            calculate_FF()
-            calculate_grade()
-            self.window.after(1000, self.update_data)
+            self.update_max_power()
+            self.calculate_isc_voc()
+            self.calculate_FF()
+            self.calculate_grade()
 
-    # Function to update Max Power
-    def update_max_power(self):
-        # Get max power, Vmpp and Impp
-        max_power, MPP = self.GetMaxPower()
-        Vmpp = MPP["Vmpp"]
-        Impp = MPP["Impp"]
-        
-        #Assign Values to Variables
-        self.max_power_var.set(max_power)
-        self.Vmpp_var.set(Vmpp)
-        self.Impp_var.set(Impp)
 
     # Calculate Isc and Voc
     def calculate_isc_voc(self):
-        self.isc_value = 0.00
-        self.voc_value = 0.00
+
 
         # Get Value of Isc if it found if not make it 0
         Isc_found = False
         for v, i in zip(self.data_list_voltage, self.data_list_current):
             if v == 0:
-                self.isc_value = i
                 self.Isc_var.set(i)
                 Isc_found = True
                 break
+
         if not Isc_found :
             self.Isc_var.set(0.00)
+
+        self.Isc_formated.set(f"{self.Isc_var.get():.2f}")
+
+
 
         # Get Value of Voc if it found if not make it 0
         Voc_found = False
 
         for v, i in zip(self.data_list_voltage, self.data_list_current):
             if i == 0:
-                self.voc_value = v
                 self.Voc_var.set(v)
                 Voc_found = True
                 break
@@ -176,10 +170,13 @@ class GUI:
         if not Voc_found :
             self.Voc_var.set(0.00)
 
+        self.Voc_formated.set(f"{self.Voc_var.get():.2f}")
+
+
     def calculate_FF(self) :
-        isc = self.isc_value
-        voc = self.voc_value
-        maxPower = self.max_power
+        isc = self.Isc_var.get()
+        voc = self.Voc_var.get()
+        maxPower = self.max_power_var.get()
 
         if isc and voc and maxPower :
             FF = (maxPower / isc * voc) * 100
@@ -187,10 +184,10 @@ class GUI:
             FF = 0.00
 
         self.FF_var.set(FF)
+        self.FF_formated.set(f"{self.FF_var.get():.2f}")
 
     def calculate_grade(self) :
         pass
-
 
     def configure_plot(self, ax):
         ax.set_facecolor('#e4e4e4')
@@ -228,8 +225,6 @@ class GUI:
             interval=100
         )
 
-
-
     # Funtion to update Time
     def update_time(self):
         current_time = datetime.now().strftime('%H:%M:%S')   
@@ -261,9 +256,16 @@ class GUI:
 
             power = current * voltage
 
-            self.Current_var.set(round(current,2))
-            self.Voltage_var.set(round(voltage,2))
-            self.Power_var.set(round(power,2))
+            self.Current_var.set(current)
+            self.Voltage_var.set(voltage)
+            self.Power_var.set(power)
+            self.Current_formated.set(f"{self.Current_var.get():.2f}")
+            self.Voltage_formated.set(f"{self.Voltage_var.get():.2f}")
+            self.Power_formated.set(f"{self.Power_var.get():.2f}")
+
+
+            self.update_data()
+
             self.data_list_current.append(current)
             self.data_list_voltage.append(voltage)
             self.data_list_power.append(power)
@@ -313,7 +315,6 @@ class GUI:
             self.running = False
             self.progress_label.configure(text="100%")
             self.status_label.configure(text="  Saved", text_color="#06F30B")
-            self.SaveData()
             self.run_button.configure(state = 'normal')
             self.run_button.configure(image = self.run_test_img)
 
@@ -337,6 +338,16 @@ class GUI:
         self.ON_button.configure(image = self.lamps_button_img)
         self.OFF_button.configure(image = self.lamps_off_img)
     
+
+    def show_table(self) :
+        pass
+
+
+
+
+
+
+
     # Function to show content of dashboard frame if DASHBOARD button is pressed
     def show_dashboard(self):
         self.dashboard_frame.pack(fill="both", expand=True)
@@ -479,7 +490,7 @@ class GUI:
         self.run_button = ctk.CTkButton(master=self.dashboard_frame, text = "RUN TEST" ,image=self.run_test_img, command=self.run_test, fg_color='transparent', text_color='#0000FF', font=("Arial Rounded MT Bold",14),hover="transparent")
         self.run_button.place(x=540, y=9)
 
-        self.Add_to_tab_button = ctk.CTkButton(master=self.dashboard_frame, text = "Add to Test Tab" ,image=self.Add_to_tab_img, command=self.run_test, fg_color='#D7E1E7', text_color='#000000', font=("Arial Rounded MT Bold",14),hover="#b7b7fc")
+        self.Add_to_tab_button = ctk.CTkButton(master=self.dashboard_frame, text = "Add to Test Tab" ,image=self.Add_to_tab_img, command=self.SaveData, fg_color='#D7E1E7', text_color='#000000', font=("Arial Rounded MT Bold",14),hover="#b7b7fc")
         self.Add_to_tab_button.place(x=340, y=10)
 
         # Progress bar to show the progress of the test
@@ -496,37 +507,37 @@ class GUI:
         self.status_label.place(x=1073, y=15)
 
         # Temperature Label
-        self.temp_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.temp_var, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
-        self.temp_label.place(x=1010, y=400)
+        self.temp_label = ctk.CTkLabel(master = self.dashboard_frame, text = f"{round(self.temp_var.get(),2)}", height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
+        self.temp_label.place(x=1003, y=400)
 
-        self.Isc_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Isc_var, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
-        self.Isc_label.place(x=1010, y=120)
+        self.Isc_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Isc_formated, height=5 , width=20 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
+        self.Isc_label.place(x=1003, y=120)
 
-        self.Voc_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Voc_var, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
-        self.Voc_label.place(x=1010, y=160)
+        self.Voc_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Voc_formated, height=5 , width=20 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
+        self.Voc_label.place(x=1003, y=160)
 
-        self.Mpp_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.max_power_var, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
-        self.Mpp_label.place(x=1010, y=200)
+        self.Mpp_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.max_power_formated, height=5 , width=20 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
+        self.Mpp_label.place(x=1003, y=200)
 
-        self.Impp_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Impp_var, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
-        self.Impp_label.place(x=1010, y=240)
+        self.Impp_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Impp_formated, height=5 , width=20 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
+        self.Impp_label.place(x=1003, y=240)
 
-        self.Vmpp_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Vmpp_var, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
-        self.Vmpp_label.place(x=1010, y=280)
+        self.Vmpp_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Vmpp_formated, height=5 , width=20 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
+        self.Vmpp_label.place(x=1003, y=280)
         
-        self.FF_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.FF_var, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
-        self.FF_label.place(x=1010, y=320)
+        self.FF_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.FF_formated, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
+        self.FF_label.place(x=1003, y=320)
 
         self.grade_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.grade_var, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
-        self.grade_label.place(x=1010, y=360)
+        self.grade_label.place(x=1003, y=360)
 
-        self.Voltage_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Voltage_var, height=5, width=60 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 15,"bold"))
+        self.Voltage_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Voltage_formated, height=5, width=60 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 15,"bold"))
         self.Voltage_label.place(x=143, y=502)
 
-        self.Current_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Current_var, height=5 ,width=60 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 15,"bold"))
+        self.Current_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Current_formated, height=5 ,width=60 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 15,"bold"))
         self.Current_label.place(x=368, y=502)
 
-        self.Power_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Power_var, height=5, width=60,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 15,"bold"))
+        self.Power_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Power_formated, height=5, width=60,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 15,"bold"))
         self.Power_label.place(x=600, y=502)
 
 
@@ -557,7 +568,6 @@ class GUI:
                                         hover_color="white",
                                         bg_color="white")
         self.OFF_button.place(x=1018,y=490)
-
 
     # Function to Setup content of bk_profiles Frame
     def setup_bk_profiles_content(self):
