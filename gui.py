@@ -1,5 +1,6 @@
 from pathlib import Path
 from tkinter import Tk, Canvas, Entry, Button, PhotoImage,ttk, DoubleVar,Label,StringVar, BooleanVar
+import tkinter as tk
 from tkinter.font import Font
 import customtkinter as ctk
 import matplotlib.pyplot as plt
@@ -35,6 +36,8 @@ class GUI:
         self.window.title("Agamine Solar LAMINATE TESTING V 1.0")
         self.window.configure(fg_color = "#D7E1E7")
 
+
+
         # Create variables for displaying max power and other parameters
         self.Current_var = DoubleVar(value=0.00)
         self.Voltage_var =  DoubleVar(value=0.00)
@@ -47,6 +50,12 @@ class GUI:
         self.FF_var = DoubleVar(value= 0.00)
         self.temp_var = DoubleVar(value=25)
         self.grade_var = StringVar(value="A")
+        self.columns = ["Serial Num","Results","Date", "Test Time",
+                "Mpp", "Imp", "Vmp","Isc",
+                "Voc","FF", 
+                "Grade","Recurrence","Profile"]
+        self.TableData = pd.DataFrame(columns=self.columns)
+
 
         self.Current_formated = StringVar(value="0.00")
         self.Voltage_formated =  StringVar(value="0.00")
@@ -129,14 +138,13 @@ class GUI:
             self.Impp_formated.set(f"{self.Impp_var.get():.2f}")
             self.Vmpp_formated.set(f"{self.Vmpp_var.get():.2f}")
 
-
+    # Function to update data
     def update_data(self) :
         if self.running :
             self.update_max_power()
             self.calculate_isc_voc()
             self.calculate_FF()
             self.calculate_grade()
-
 
     # Calculate Isc and Voc
     def calculate_isc_voc(self):
@@ -171,7 +179,7 @@ class GUI:
 
         self.Voc_formated.set(f"{self.Voc_var.get():.2f}")
 
-
+    # Function to calculate fill factor
     def calculate_FF(self) :
         isc = self.Isc_var.get()
         voc = self.Voc_var.get()
@@ -185,10 +193,9 @@ class GUI:
         self.FF_var.set(FF)
         self.FF_formated.set(f"{self.FF_var.get():.2f}")
 
+    # Function To find Grade
     def calculate_grade(self) :
         pass
-
-
 
     # Funtion to update Time
     def update_time(self):
@@ -211,8 +218,7 @@ class GUI:
             print(f"Error retrieving data: {e}")
             return 0.00, 0.00
 
-
-    # I-V & P-V curvs
+    # Function to set design of plot
     def configure_plot(self, ax):
         ax.set_facecolor('#e4e4e4')
         ax.spines['top'].set_visible(False)
@@ -229,6 +235,7 @@ class GUI:
 
         ax.grid(True, color='#3A3A3A', linestyle='--', linewidth=0.5)
 
+    # Function to animate chart
     def animate_combined(self, i, ax):
         if self.running :
             # Simulated data
@@ -265,6 +272,7 @@ class GUI:
 
             ax.legend(loc='upper right')
 
+    # Function to setup chart
     def setup_chart(self) :
 
         fig_combined, ax_combined = plt.subplots(figsize=(8, 4.5))
@@ -284,7 +292,6 @@ class GUI:
             fargs=(ax_combined,),
             interval=100
         )
-
 
     # Method to get Serial Number
     def get_serialNum(self):
@@ -306,11 +313,41 @@ class GUI:
         Vmpp = self.Vmpp_var.get()
         FF = self.FF_var.get()
         grade = self.grade_var.get()
-        
 
-
-        
         CollectData(formatted_date,formatted_time,serial_number,max_power,Impp,Vmpp,Voc,Isc,FF,grade)
+        
+    # Add data to table
+    def Add_data_table(self) :
+
+        current_date = datetime.now()
+        formatted_date = current_date.strftime("%m/%d/%Y")
+        formatted_time = current_date.strftime("%H:%M:%S")
+
+        serial_number = self.get_serialNum()
+        Voc =self.Voc_formated.get()
+        Isc = self.Isc_formated.get()
+        max_power = self.max_power_formated.get()
+        Impp = self.Impp_formated.get()
+        Vmpp = self.Vmpp_formated.get()
+        FF = self.FF_formated.get()
+        grade = self.grade_var.get()
+
+        new_data = {
+        "Serial Num": [serial_number],
+        "Results" : "Rejected",
+        "Date": [formatted_date],
+        "Test Time": [formatted_time],
+        "Mpp": [max_power],
+        "Imp": [Impp],
+        "Vmp": [Vmpp],
+        "Isc": [Isc],
+        "Voc": [Voc],
+        "FF": [FF],
+        "Grade": [grade],
+        "Recurrence" : 1,
+        "Profile" : "Profile 1"
+        }
+        self.TableData = pd.DataFrame(new_data)
         
     # Keep Updating progress bar
     def update_progress(self):
@@ -325,6 +362,10 @@ class GUI:
             self.status_label.configure(text="  Saved", text_color="#06F30B")
             self.run_button.configure(state = 'normal')
             self.run_button.configure(image = self.run_test_img)
+            self.show_table()
+            self.data_list_voltage =[]
+            self.data_list_current = []
+            self.data_list_power = []
 
     # Function to Start Test if RUN TEST button is pressed
     def run_test(self):
@@ -345,15 +386,18 @@ class GUI:
     def OFF_Lamps(self):
         self.ON_button.configure(image = self.lamps_button_img)
         self.OFF_button.configure(image = self.lamps_off_img)
-    
 
+    #Function to show table
     def show_table(self) :
-        df = pd.read_excel("output.xlsx", sheet_name="Sheet2")  # Replace with your file path and sheet name
-        columns_to_display = ["Serial Number", "Test Result", "Date","Time","Pmpp","Isc","Voc","Pmpp Reference"]
-
-
-
-
+        self.Add_data_table()
+        for index, row in self.TableData.iterrows():
+            self.tree.insert("", "end", values=(
+                row["Serial Num"], row["Results"], row["Date"], row["Test Time"],
+                row["Mpp"], row["Imp"], row["Vmp"], row["Isc"], row["Voc"],
+                row["FF"], row["Grade"], row["Recurrence"],
+                row["Profile"]
+            ))
+    
     # Function to show content of dashboard frame if DASHBOARD button is pressed
     def show_dashboard(self):
         self.dashboard_frame.pack(fill="both", expand=True)
@@ -487,7 +531,6 @@ class GUI:
 
         self.setup_chart()
 
-
         # Entry Text for serial number of solar module
         self.entry_serialNum = ctk.CTkEntry(master=self.dashboard_frame, placeholder_text="Serial Number",border_width = 0, fg_color = "white", bg_color="white", width=150)
         self.entry_serialNum.place(x=120, y=15)
@@ -545,6 +588,39 @@ class GUI:
 
         self.Power_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Power_formated, height=5, width=60,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 15,"bold"))
         self.Power_label.place(x=600, y=502)
+
+
+        style = ttk.Style()
+        style.configure("Custom.Treeview",
+                        rowheight=50,
+                        borderwidth=0,  # Remove borders
+                        background="#D7E1E7",  # Background color of rows
+                        foreground="#000000",  # Text color
+                        font=("Helvetica",11,"normal"))  # Font style
+
+        style.configure("Custom.Treeview.Heading",
+                        borderwidth=0,  # Remove heading borders
+                        relief="flat",
+                        background="#C9D6DC",  # Background color for headings
+                        foreground="#000000",  # Heading text color
+                        font=("Helvetica",12,"bold"))  # Font style for heading
+
+        # Configure selected item style
+        style.map("Custom.Treeview",
+                background=[('selected', '#D0EBF7')],
+                foreground=[('selected', '#0000FF')])
+
+        self.tree = ttk.Treeview(self.dashboard_frame, columns=self.columns, show="headings", height=2, style="Custom.Treeview")
+        self.tree.place(x=60, y=720, width=1405, height=280)
+          # Adjust width as needed
+        for col in self.columns:
+            self.tree.column(col, anchor="center", width=105)
+            self.tree.heading(col, text=col)
+
+
+        self.vsb = ctk.CTkScrollbar(self.tree, orientation="vertical", command=self.tree.yview)
+        self.tree.configure(yscrollcommand=self.vsb.set)
+        self.vsb.pack(side="right", fill="y")
 
 
     
