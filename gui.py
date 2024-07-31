@@ -130,7 +130,6 @@ class GUI:
             self.Vmpp_formated.set(f"{self.Vmpp_var.get():.2f}")
 
 
-
     def update_data(self) :
         if self.running :
             self.update_max_power()
@@ -189,41 +188,7 @@ class GUI:
     def calculate_grade(self) :
         pass
 
-    def configure_plot(self, ax):
-        ax.set_facecolor('#e4e4e4')
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
 
-        ax.set_xlabel("Voltage (V)", fontsize=12, fontweight='bold')
-        ax.set_ylabel("Current (A) / Power (W)", fontsize=12, fontweight='bold')
-
-        ax.tick_params(axis='x', colors='#000000')
-        ax.tick_params(axis='y', colors='#000000')
-
-        ax.xaxis.label.set_color('#000000')
-        ax.yaxis.label.set_color('#000000')
-
-        ax.grid(True, color='#3A3A3A', linestyle='--', linewidth=0.5)
-
-    def setup_chart(self) :
-
-        fig_combined, ax_combined = plt.subplots(figsize=(8, 4.5))
-        fig_combined.patch.set_facecolor("white")
-        fig_combined.patch.set_linewidth(2)
-
-        self.configure_plot(ax_combined)
-
-        canvas_combined = FigureCanvasTkAgg(fig_combined, master=self.dashboard_frame)
-        canvas_combined.draw()
-        canvas_combined.get_tk_widget().place(x=65, y=95)
-
-    
-        self.ani_combined = animation.FuncAnimation(
-            fig_combined,
-            self.animate_combined,
-            fargs=(ax_combined,),
-            interval=100
-        )
 
     # Funtion to update Time
     def update_time(self):
@@ -246,7 +211,24 @@ class GUI:
             print(f"Error retrieving data: {e}")
             return 0.00, 0.00
 
-    # Animation function for updating Combined (current & voltage) plot
+
+    # I-V & P-V curvs
+    def configure_plot(self, ax):
+        ax.set_facecolor('#e4e4e4')
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+
+        ax.set_xlabel("Voltage (V)", fontsize=12, fontweight='bold')
+        ax.set_ylabel("Current (A) / Power (W)", fontsize=12, fontweight='bold')
+
+        ax.tick_params(axis='x', colors='#000000')
+        ax.tick_params(axis='y', colors='#000000')
+
+        ax.xaxis.label.set_color('#000000')
+        ax.yaxis.label.set_color('#000000')
+
+        ax.grid(True, color='#3A3A3A', linestyle='--', linewidth=0.5)
+
     def animate_combined(self, i, ax):
         if self.running :
             # Simulated data
@@ -283,6 +265,27 @@ class GUI:
 
             ax.legend(loc='upper right')
 
+    def setup_chart(self) :
+
+        fig_combined, ax_combined = plt.subplots(figsize=(8, 4.5))
+        fig_combined.patch.set_facecolor("white")
+        fig_combined.patch.set_linewidth(2)
+
+        self.configure_plot(ax_combined)
+
+        canvas_combined = FigureCanvasTkAgg(fig_combined, master=self.dashboard_frame)
+        canvas_combined.draw()
+        canvas_combined.get_tk_widget().place(x=65, y=95)
+
+    
+        self.ani_combined = animation.FuncAnimation(
+            fig_combined,
+            self.animate_combined,
+            fargs=(ax_combined,),
+            interval=100
+        )
+
+
     # Method to get Serial Number
     def get_serialNum(self):
         serial_number = self.entry_serialNum.get()
@@ -301,10 +304,15 @@ class GUI:
         max_power = self.max_power_var.get()
         Impp = self.Impp_var.get()
         Vmpp = self.Vmpp_var.get()
+        FF = self.FF_var.get()
+        grade = self.grade_var.get()
         
-        CollectData(formatted_date,formatted_time,serial_number,max_power,Vmpp,Impp,Voc,Isc)
+
+
         
-    # Keep Updating progress bar, and if it arrives 100%, it Will save data
+        CollectData(formatted_date,formatted_time,serial_number,max_power,Impp,Vmpp,Voc,Isc,FF,grade)
+        
+    # Keep Updating progress bar
     def update_progress(self):
         if self.progress < 1:
             self.progress += 0.01
@@ -340,10 +348,8 @@ class GUI:
     
 
     def show_table(self) :
-        pass
-
-
-
+        df = pd.read_excel("output.xlsx", sheet_name="Sheet2")  # Replace with your file path and sheet name
+        columns_to_display = ["Serial Number", "Test Result", "Date","Time","Pmpp","Isc","Voc","Pmpp Reference"]
 
 
 
