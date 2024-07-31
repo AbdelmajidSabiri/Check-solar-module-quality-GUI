@@ -103,7 +103,7 @@ if __name__ == '__main__':
         del last
 
 
-def CollectData(date, time, serial_number, max_power = 0, Vmpp=0, Impp=0, Voc=0, Isc=0):
+def CollectData(date, time, serial_number, max_power = 0, Impp=0, Vmpp=0, Voc=0, Isc=0, FF = 0, Grade = "A"):
     wb = load_workbook('output.xlsx')
 
 
@@ -130,8 +130,13 @@ def CollectData(date, time, serial_number, max_power = 0, Vmpp=0, Impp=0, Voc=0,
             next_module_number,             #Module Number
             0,                              #Test Result
             max_power,                      #Pmpp
+            Impp,
+            Vmpp,
             Voc,                            #Uoc
             Isc,                            #Isc
+            FF,
+            Grade,
+            0,
             0,                              #Temperature Ambient
             0,                              #Temperature Lamps
             31.0654,                        #Pmpp Reference
