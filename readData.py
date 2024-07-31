@@ -65,11 +65,18 @@ class Bkp8600(object):
             self.instr.write(f"CURRent {current}")
 
     
-    def set_voltage(self, voltage):
+    def set_CV(self,current_limit):
         if self.instrument_found:
-            self.instr.write("INPut ON")  # Turn on the load
+            self.instr.write("*RST")
             self.instr.write("FUNC VOLTage")  # Set the function mode to Constant Voltage (CV)
-            self.instr.write(f"VOLTage {voltage}") 
+            self.instr.write(f"CURR:LIMIT {current_limit}") 
+    
+    def set_voltage(self,voltage) :
+        if self.instrument_found:
+            self.instr.write("INPut ON")
+            self.instr.write(f"VOLT {voltage}")
+
+
 
     def reset_to_manual(self):
         if self.instrument_found:
@@ -130,13 +137,13 @@ def CollectData(date, time, serial_number, max_power = 0, Impp=0, Vmpp=0, Voc=0,
             next_module_number,             #Module Number
             0,                              #Test Result
             max_power,                      #Pmpp
-            Impp,
-            Vmpp,
+            Impp,                           #Imp
+            Vmpp,                           #Vmp
             Voc,                            #Uoc
             Isc,                            #Isc
-            FF,
-            Grade,
-            0,
+            FF,                             #Fil factor
+            Grade,                          #Grade
+            0,                              #Recurrence
             0,                              #Temperature Ambient
             0,                              #Temperature Lamps
             31.0654,                        #Pmpp Reference
