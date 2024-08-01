@@ -50,11 +50,16 @@ class GUI:
         self.FF_var = DoubleVar(value= 0.00)
         self.temp_var = DoubleVar(value=25)
         self.grade_var = StringVar(value="A")
+
+        self.mode_var = tk.StringVar(value="CV")  # Default selection
+
+        
         self.columns = ["Serial Num","Results","Date", "Test Time",
                 "Mpp", "Imp", "Vmp","Isc",
                 "Voc","FF", 
                 "Grade","Recurrence","Profile"]
         self.TableData = pd.DataFrame(columns=self.columns)
+
 
 
         self.Current_formated = StringVar(value="0.00")
@@ -666,9 +671,80 @@ class GUI:
         )
         canvas.place(x = 0, y = 0)
 
-        fram_indicator = canvas.create_image(4,182.0,image=self.fram_indicator_img)
-        vertical_line = canvas.create_image(0.0,400.0,image=self.vertical_line_img)
+
+        self.Bk_profilles_frame_img = PhotoImage(file = "images\\bk_profiles_frame.png")
+        self.Bk_profilles_frame_top_img = PhotoImage(file = "images\\bk_profiles_frame_top.png")
+        self.Bk_profilles_entry_data_img = PhotoImage(file = "images\\bk_profiles_entry_data.png")
+        self.safety_data_frame_img = PhotoImage(file = "images\\safety_data_frame.png")
+        self.set_measurement_frame_img = PhotoImage(file = "images\\set_measurement_precision_frame.png")
+        self.voltage_sweep_frame_img = PhotoImage(file = "images\\voltage_sweep_frame.png")
+        self.current_sweep_frame_img = PhotoImage(file = "images\\current_sweep_frame.png")
+        self.mode_selection_frame_img = PhotoImage(file = "images\\mode_selection_frame.png")
         
+
+
+
+
+
+        fram_indicator = canvas.create_image(4,182,image=self.fram_indicator_img)
+        vertical_line = canvas.create_image(0,400,image=self.vertical_line_img)
+        Bk_profiles_frame = canvas.create_image(800,460,image=self.Bk_profilles_frame_img)
+        Bk_profiles_frame_top = canvas.create_image(800,160,image=self.Bk_profilles_frame_top_img)
+        mode_selection_frame = canvas.create_image(310,360,image=self.mode_selection_frame_img)
+        set_measurement_frame = canvas.create_image(310,640,image=self.set_measurement_frame_img)        
+        voltage_sweep_frame = canvas.create_image(790,363,image=self.voltage_sweep_frame_img)
+        current_sweep_frame = canvas.create_image(790,640,image=self.current_sweep_frame_img)
+        safety_data_frame = canvas.create_image(1275,418,image=self.safety_data_frame_img)
+
+        Bk_profiles_entry_data = canvas.create_image(925,290,image = self.Bk_profilles_entry_data_img)
+        Bk_profiles_entry_data = canvas.create_image(925,340,image = self.Bk_profilles_entry_data_img)
+        Bk_profiles_entry_data = canvas.create_image(925,390,image = self.Bk_profilles_entry_data_img)
+        Bk_profiles_entry_data = canvas.create_image(925,440,image = self.Bk_profilles_entry_data_img)
+
+        Bk_profiles_entry_data = canvas.create_image(925,570,image = self.Bk_profilles_entry_data_img)
+        Bk_profiles_entry_data = canvas.create_image(925,620,image = self.Bk_profilles_entry_data_img)
+        Bk_profiles_entry_data = canvas.create_image(925,670,image = self.Bk_profilles_entry_data_img)
+        Bk_profiles_entry_data = canvas.create_image(925,720,image = self.Bk_profilles_entry_data_img)
+
+
+        Bk_profiles_entry_data = canvas.create_image(440,620,image = self.Bk_profilles_entry_data_img)
+        Bk_profiles_entry_data = canvas.create_image(440,670,image = self.Bk_profilles_entry_data_img)
+
+        
+        Bk_profiles_entry_data = canvas.create_image(1415,350,image = self.Bk_profilles_entry_data_img)
+        Bk_profiles_entry_data = canvas.create_image(1415,400,image = self.Bk_profilles_entry_data_img)
+        Bk_profiles_entry_data = canvas.create_image(1415,450,image = self.Bk_profilles_entry_data_img)
+        Bk_profiles_entry_data = canvas.create_image(1415,500,image = self.Bk_profilles_entry_data_img)
+
+
+
+        canvas.create_text(60,40, anchor="nw", text="BK Profile Settings", fill="black", font=("Helvetica",16,"bold"))
+        canvas.create_text(615,250, anchor="nw", text="Set\nCurrent Sweep", fill="black", font=("Helvetica",12,"bold"))
+        canvas.create_text(615,530, anchor="nw", text="Set\nVoltage Sweep", fill="black", font=("Helvetica",12,"bold"))
+        canvas.create_text(132,530, anchor="nw", text="Set\nMeasurement Precision", fill="black", font=("Helvetica",12,"bold"))
+        canvas.create_text(1090,250, anchor="nw", text="Set\nSafety and Protection", fill="black", font=("Helvetica",12,"bold"))
+        canvas.create_text(125,280, anchor="nw", text="Mode Selection", fill="black", font=("Helvetica",12,"bold"))
+
+        canvas.create_text(770,280, anchor="nw", text="Start Current", fill="black", font=("Helvetica",11,"bold"))
+        canvas.create_text(770,330, anchor="nw", text="Stop Current", fill="black", font=("Helvetica",11,"bold"))
+        canvas.create_text(770,380, anchor="nw", text="Step Size", fill="black", font=("Helvetica",11,"bold"))
+        canvas.create_text(770,430, anchor="nw", text="Dwell Time", fill="black", font=("Helvetica",11,"bold"))
+
+        canvas.create_text(770,560, anchor="nw", text="Start Voltage", fill="black", font=("Helvetica",11,"bold"))
+        canvas.create_text(770,610, anchor="nw", text="Stop Voltage", fill="black", font=("Helvetica",11,"bold"))
+        canvas.create_text(770,660, anchor="nw", text="Step Size", fill="black", font=("Helvetica",11,"bold"))
+        canvas.create_text(770,710, anchor="nw", text="Dwell Time", fill="black", font=("Helvetica",11,"bold"))
+
+        canvas.create_text(1225,340, anchor="nw", text="  Current Limit", fill="black", font=("Helvetica",11,"bold"))
+        canvas.create_text(1225,390, anchor="nw", text="  Voltage Limit", fill="black", font=("Helvetica",11,"bold"))
+        canvas.create_text(1225,440, anchor="nw", text="  Power Limit", fill="black", font=("Helvetica",11,"bold"))
+        canvas.create_text(1225,490, anchor="nw", text="Temperature Limit", fill="black", font=("Helvetica",11,"bold"))
+
+        canvas.create_text(235,610, anchor="nw", text="Current Resolution", fill="black", font=("Helvetica",11,"bold"))
+        canvas.create_text(235,660, anchor="nw", text="Voltage Resolution", fill="black", font=("Helvetica",11,"bold"))
+
+
+
 
     # Funtion to close the application correctly
     def on_closing(self):
