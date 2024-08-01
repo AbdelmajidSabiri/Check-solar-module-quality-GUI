@@ -26,6 +26,7 @@ class GUI:
         self.data_list_current = []
         self.data_list_voltage = []
         self.data_list_power = []
+        self.profiles = []
         self.max_power = 0.0
         self.MPP = {"Vmpp" : 0 , "Impp" : 0}
         self.progress = 0
@@ -503,6 +504,13 @@ class GUI:
         elif self.mode_var.get() == "CR" :
             self.cr_radio.configure(fg_color = "#00ff00")
 
+    
+    def activate_profile(self) :
+        if self.activate_profile_button.cget("text") == "Activated":
+            self.activate_profile_button.configure(image = self.disabled_profile_img, text = "Disabled", text_color='#FF0303')
+        else:
+            self.activate_profile_button.configure(image = self.activate_profile_img,text = "Activated", text_color='#03FF0D')
+
 
     # Funtion to Setup content of Dashboard Frame
     def setup_dashboard_content(self):
@@ -684,17 +692,17 @@ class GUI:
         style = ttk.Style()
         style.configure("Custom.Treeview",
                         rowheight=50,
-                        borderwidth=0,  # Remove borders
-                        background="#D7E1E7",  # Background color of rows
-                        foreground="#000000",  # Text color
-                        font=("Helvetica",11,"normal"))  # Font style
+                        borderwidth=0, 
+                        background="#D7E1E7",
+                        foreground="#000000",
+                        font=("Helvetica",11,"normal"))
 
         style.configure("Custom.Treeview.Heading",
-                        borderwidth=0,  # Remove heading borders
+                        borderwidth=0,  
                         relief="flat",
-                        background="#C9D6DC",  # Background color for headings
-                        foreground="#000000",  # Heading text color
-                        font=("Helvetica",12,"bold"))  # Font style for heading
+                        background="#C9D6DC",  
+                        foreground="#000000", 
+                        font=("Helvetica",12,"bold")) 
 
         # Configure selected item style
         style.map("Custom.Treeview",
@@ -768,6 +776,11 @@ class GUI:
         self.current_sweep_frame_img = PhotoImage(file = "images\\current_sweep_frame.png")
         self.current_sweep_frame_active_img = PhotoImage(file = "images\\current_sweep_frame_active.png")        
         self.mode_selection_frame_img = PhotoImage(file = "images\\mode_selection_frame.png")
+        self.save_profile_img = PhotoImage(file = "images\\save_profile.png")
+        self.delete_profile_img = PhotoImage(file = "images\\delete_profile.png")
+        self.activate_profile_img = PhotoImage(file="images\\activate_profile.png")
+        self.disabled_profile_img = PhotoImage(file = "images\\disabled_profile.png")
+
         
 
 
@@ -810,6 +823,10 @@ class GUI:
 
 
         self.bk_canvas.create_text(60,40, anchor="nw", text="BK Profile Settings", fill="black", font=("Helvetica",16,"bold"))
+        self.bk_canvas.create_text(880,146, anchor="nw", text="Profile", fill="black", font=("Helvetica",14,"bold"))
+
+
+
         self.set_current_sweep = self.bk_canvas.create_text(615,250, anchor="nw", text="Set\nCurrent Sweep", fill="black", font=("Helvetica",12,"bold"))
         self.set_voltage_sweep = self.bk_canvas.create_text(615,530, anchor="nw", text="Set\nVoltage Sweep", fill="#00A3FF", font=("Helvetica",12,"bold"))
         self.bk_canvas.create_text(132,530, anchor="nw", text="Set\nMeasurement Precision", fill="black", font=("Helvetica",12,"bold"))
@@ -898,6 +915,17 @@ class GUI:
             border_width_unchecked=1.5,
         )
         self.cr_radio.place(x=220,y=310)
+
+        self.save_profile_button = ctk.CTkButton(master=self.bk_profiles_frame, text = "Save Profile" ,image=self.save_profile_img, command=self.run_test, fg_color='#BBBBBB',bg_color="#BBBBBB", text_color='black', font=("Helvetica",14, "bold"),hover="transparent",compound="right")
+        self.save_profile_button.place(x=380, y=102)
+
+        self.delete_profile_button = ctk.CTkButton(master=self.bk_profiles_frame, text = "Delete Profile" ,image=self.delete_profile_img, command=self.run_test, fg_color='#BBBBBB',bg_color="#BBBBBB", text_color='black', font=("Helvetica",14, "bold"),hover="transparent",compound="right")
+        self.delete_profile_button.place(x=1060, y=107)
+
+
+        self.activate_profile_button = ctk.CTkButton(master=self.bk_profiles_frame, text = "Activated" ,image=self.activate_profile_img, command=self.activate_profile, fg_color='#BBBBBB',bg_color="#BBBBBB", text_color='#03FF0D', font=("Helvetica",15, "bold"),hover="transparent",compound="right")
+        self.activate_profile_button.place(x=753, y=108)
+
         
         self.entry_start_current = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, fg_color = "#E9E9E9", bg_color="#E9E9E9", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),state = "disabled")
         self.entry_start_current.place(x=711, y=218)
