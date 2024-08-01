@@ -363,6 +363,7 @@ class GUI:
             self.run_button.configure(state = 'normal')
             self.run_button.configure(image = self.run_test_img)
             self.show_table()
+            self.entry_serialNum.delete(0, 'end')
             self.data_list_voltage =[]
             self.data_list_current = []
             self.data_list_power = []
@@ -665,16 +666,9 @@ class GUI:
         )
         canvas.place(x = 0, y = 0)
 
-        fram_indicator = canvas.create_image(
-            4,
-            182.0,
-            image=self.fram_indicator_img
-        )
-        vertical_line = canvas.create_image(
-            0.0,
-            400.0,
-            image=self.vertical_line_img
-        )
+        fram_indicator = canvas.create_image(4,182.0,image=self.fram_indicator_img)
+        vertical_line = canvas.create_image(0.0,400.0,image=self.vertical_line_img)
+        
 
     # Funtion to close the application correctly
     def on_closing(self):
