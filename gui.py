@@ -91,23 +91,23 @@ class GUI:
                             "voltage resolution" : DoubleVar(value = 0.1),
                             "active profile" : 1,  
                             }]
-        self.new_profile = {
-                            "start voltage" : DoubleVar(value = 0),
-                            "stop voltage" : DoubleVar(value = 0),
-                            "step size voltage" : DoubleVar(value = 0),
-                            "dwell time voltage" : DoubleVar(value = 0),
-                            "start current" : DoubleVar(value = 0),
-                            "stop current" : DoubleVar(value = 0),
-                            "step size current" : DoubleVar(value = 0),
-                            "dwell time current" : DoubleVar(value = 0),
-                            "current limit" : DoubleVar(value = 0),
-                            "voltage limit" : DoubleVar(value = 0),
-                            "power limit" : DoubleVar(value = 0),
-                            "temperature limit" : DoubleVar(value = 0),
-                            "current resolution" : DoubleVar(value = 0),
-                            "voltage resolution" : DoubleVar(value = 0),
-                            "active profile" : 0, 
-                            }
+        # self.new_profile = {
+        #                     "start voltage" : DoubleVar(value = 0),
+        #                     "stop voltage" : DoubleVar(value = 0),
+        #                     "step size voltage" : DoubleVar(value = 0),
+        #                     "dwell time voltage" : DoubleVar(value = 0),
+        #                     "start current" : DoubleVar(value = 0),
+        #                     "stop current" : DoubleVar(value = 0),
+        #                     "step size current" : DoubleVar(value = 0),
+        #                     "dwell time current" : DoubleVar(value = 0),
+        #                     "current limit" : DoubleVar(value = 0),
+        #                     "voltage limit" : DoubleVar(value = 0),
+        #                     "power limit" : DoubleVar(value = 0),
+        #                     "temperature limit" : DoubleVar(value = 0),
+        #                     "current resolution" : DoubleVar(value = 0),
+        #                     "voltage resolution" : DoubleVar(value = 0),
+        #                     "active profile" : 0, 
+        #                     }
         self.selected_option = tk.StringVar(value="Profile 1")
         self.selected_profile = self.profiles[0]
         
@@ -457,7 +457,6 @@ class GUI:
         self.process_next_voltage(voltages, index + 1)
 
 
-    
     # Function to turn ON the light
     def ON_Lamps(self):
         self.ON_button.configure(image = self.lamps_on_img)
@@ -569,6 +568,26 @@ class GUI:
         elif self.mode_var.get() == "CR" :
             self.cr_radio.configure(fg_color = "#00ff00")
     
+    def initialize_new_profile(self):
+
+        return {
+            "start voltage": tk.DoubleVar(value=0),
+            "stop voltage": tk.DoubleVar(value=0),
+            "step size voltage": tk.DoubleVar(value=0),
+            "dwell time voltage": tk.DoubleVar(value=0),
+            "start current": tk.DoubleVar(value=0),
+            "stop current": tk.DoubleVar(value=0),
+            "step size current": tk.DoubleVar(value=0),
+            "dwell time current": tk.DoubleVar(value=0),
+            "current limit": tk.DoubleVar(value=0),
+            "voltage limit": tk.DoubleVar(value=0),
+            "power limit": tk.DoubleVar(value=0),
+            "temperature limit": tk.DoubleVar(value=0),
+            "current resolution": tk.DoubleVar(value=0),
+            "voltage resolution": tk.DoubleVar(value=0),
+            "active profile": 0,
+        }
+    
     def check_profile(self) :
         if self.selected_option.get() == "Profile 1" or self.selected_option.get() == "Profile 2" :
             self.entry_start_current.configure(state = "readonly")
@@ -602,7 +621,10 @@ class GUI:
             self.entry_power_limit.configure(state = "normal")
             self.entry_temperature_limit.configure(state = "normal")
             self.entry_current_resolution.configure(state = "normal")
-            self.entry_voltage_resolution.configure(state = "normal")            
+            self.entry_voltage_resolution.configure(state = "normal")   
+
+            self.save_profile_button.configure(state = "normal",image = self.save_profile_img)
+         
 
     def change_profile(self, selected_value):
         if self.selected_option.get().startswith("Profile") :
@@ -610,10 +632,22 @@ class GUI:
             self.selected_profile = self.profiles[selected_index]
             self.update_entries()
         else:
-            self.selected_profile = self.new_profile
-            self.update_entries()
+            self.new_profile = self.initialize_new_profile()
+            self.selected_profile = self.new_profile.copy()
+            self.update_entries() 
 
         self.check_profile()
+
+    def save_profile(self) :
+        self.profiles.append(self.selected_profile)
+        last_profile_number = int(self.options_list[-2].split()[1])
+        self.options_list.insert(-1,"Profile " + str(last_profile_number+1))
+
+        self.option_menu.configure(values=self.options_list)
+
+
+    def delete_profile(self) :
+        pass
 
     def activate_profile(self) :
         if self.activate_profile_button.cget("text") == "Activated":
@@ -1056,8 +1090,8 @@ class GUI:
         )
         self.cr_radio.place(x=220,y=310)
 
-        self.save_profile_button = ctk.CTkButton(master=self.bk_profiles_frame, text = "Save Profile" ,image=self.save_profile_img, command=self.run_test, fg_color='#BBBBBB',bg_color="#BBBBBB", text_color='black', font=("Helvetica",14, "bold"),hover="transparent",compound="right")
-        self.delete_profile_button = ctk.CTkButton(master=self.bk_profiles_frame, text = "Delete Profile" ,image=self.delete_profile_img, command=self.run_test, fg_color='#BBBBBB',bg_color="#BBBBBB", text_color='black', font=("Helvetica",14, "bold"),hover="transparent",compound="right")
+        self.save_profile_button = ctk.CTkButton(master=self.bk_profiles_frame, text = "Save Profile" ,image=self.save_profile_img, command=self.save_profile, fg_color='#BBBBBB',bg_color="#BBBBBB", text_color='black', font=("Helvetica",14, "bold"),hover="transparent",compound="right")
+        self.delete_profile_button = ctk.CTkButton(master=self.bk_profiles_frame, text = "Delete Profile" ,image=self.delete_profile_img, command=self.delete_profile, fg_color='#BBBBBB',bg_color="#BBBBBB", text_color='black', font=("Helvetica",14, "bold"),hover="transparent",compound="right")
         self.activate_profile_button = ctk.CTkButton(master=self.bk_profiles_frame, text = "Activated" ,image=self.activate_profile_img, command=self.activate_profile, fg_color='#BBBBBB',bg_color="#BBBBBB", text_color='#03FF0D', font=("Helvetica",15, "bold"),hover="transparent",compound="right")
         self.save_profile_button.place(x=380, y=102)
         self.delete_profile_button.place(x=1060, y=107)
