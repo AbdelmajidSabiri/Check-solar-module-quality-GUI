@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import pandas as pd
+import numpy as np
 import sys,time
 import math
 import random
@@ -64,7 +65,7 @@ class GUI:
                             "start current" : DoubleVar(value = 0.1),
                             "stop current" : DoubleVar(value = 30),
                             "step size current" : DoubleVar(value = 0.1),
-                            "dwell time current" : DoubleVar(value = 10),
+                            "dwell time current" : DoubleVar(value = 0.1),
                             "current limit" : DoubleVar(value = 12),
                             "voltage limit" : DoubleVar(value = 20),
                             "power limit" : DoubleVar(value = 240),
@@ -81,7 +82,7 @@ class GUI:
                             "start current" : DoubleVar(value = 0.1),
                             "stop current" : DoubleVar(value = 50),
                             "step size current" : DoubleVar(value = 0.1),
-                            "dwell time current" : DoubleVar(value = 10),
+                            "dwell time current" : DoubleVar(value = 0.1),
                             "current limit" : DoubleVar(value = 12),
                             "voltage limit" : DoubleVar(value = 20),
                             "power limit" : DoubleVar(value = 900),
@@ -265,79 +266,50 @@ class GUI:
             return 0.00, 0.00
 
     # Function to set design of plot
-    def configure_plot(self, ax):
-        ax.set_facecolor('#e4e4e4')
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
+    def configure_plot(self):
+        self.ax.set_facecolor('#e4e4e4')
+        self.ax.spines['top'].set_visible(False)
+        self.ax.spines['right'].set_visible(False)
 
-        ax.set_xlabel("Voltage (V)", fontsize=12, fontweight='bold')
-        ax.set_ylabel("Current (A) / Power (W)", fontsize=12, fontweight='bold')
+        self.ax.set_xlabel("Voltage (V)", fontsize=12, fontweight='bold')
+        self.ax.set_ylabel("Current (A) / Power (W)", fontsize=12, fontweight='bold')
 
-        ax.tick_params(axis='x', colors='#000000')
-        ax.tick_params(axis='y', colors='#000000')
+        self.ax.tick_params(axis='x', colors='#000000')
+        self.ax.tick_params(axis='y', colors='#000000')
 
-        ax.xaxis.label.set_color('#000000')
-        ax.yaxis.label.set_color('#000000')
+        self.ax.xaxis.label.set_color('#000000')
+        self.ax.yaxis.label.set_color('#000000')
 
-        ax.grid(True, color='#3A3A3A', linestyle='--', linewidth=0.5)
+        self.ax.grid(True, color='#3A3A3A', linestyle='--', linewidth=0.5)
 
     # Function to animate chart
-    def animate_combined(self, i, ax):
+    def animate_chart(self,current,voltage):
         if self.running :
-            # Simulated data
-            current = 10 * math.sin(i * 0.1) + random.uniform(-1, 1)
-            voltage = 20 * math.cos(i * 0.1) + random.uniform(-1, 1)
-            # current, voltage = self.get_data()
-
-            power = current * voltage
-
-            self.Current_var.set(current)
-            self.Voltage_var.set(voltage)
-            self.Power_var.set(power)
-            self.Current_formated.set(f"{self.Current_var.get():.2f}")
-            self.Voltage_formated.set(f"{self.Voltage_var.get():.2f}")
-            self.Power_formated.set(f"{self.Power_var.get():.2f}")
-
-
-            self.update_data()
-
-            self.data_list_current.append(current)
-            self.data_list_voltage.append(voltage)
-            self.data_list_power.append(power)
-            self.data_list_current = self.data_list_current[-50:]  # Limit to the last 50 data points
-            self.data_list_voltage = self.data_list_voltage[-50:]   # Limit to the last 50 data points
-            self.data_list_power = self.data_list_power[-50:]
             
-            ax.clear()
-            self.configure_plot(ax)
-
+            self.ax.clear()
+            self.configure_plot()
                     
             # Plot the current data
-            ax.plot(self.data_list_voltage,self.data_list_current,color='Blue', linewidth=2, label='I-V curve')        
-            ax.plot(self.data_list_voltage,self.data_list_power,color='Red', linewidth=2, label='I-P curve')
+            self.ax.plot(self.data_list_voltage,self.data_list_current,color='Blue', linewidth=2, label='I-V curve')        
+            self.ax.plot(self.data_list_voltage,self.data_list_power,color='Red', linewidth=2, label='I-P curve')
 
-            ax.legend(loc='upper right')
+            self.ax.legend(loc='upper right')
+
+            self.canvas_chart.draw()
+
 
     # Function to setup chart
     def setup_chart(self) :
 
-        fig_combined, ax_combined = plt.subplots(figsize=(8, 4.5))
-        fig_combined.patch.set_facecolor("white")
-        fig_combined.patch.set_linewidth(2)
+        self.fig_chart, self.ax = plt.subplots(figsize=(8, 4.5))
+        self.fig_chart.patch.set_facecolor("white")
+        self.fig_chart.patch.set_linewidth(2)
 
-        self.configure_plot(ax_combined)
+        self.configure_plot()
 
-        canvas_combined = FigureCanvasTkAgg(fig_combined, master=self.dashboard_frame)
-        canvas_combined.draw()
-        canvas_combined.get_tk_widget().place(x=65, y=95)
-
-    
-        self.ani_combined = animation.FuncAnimation(
-            fig_combined,
-            self.animate_combined,
-            fargs=(ax_combined,),
-            interval=100
-        )
+        self.canvas_chart = FigureCanvasTkAgg(self.fig_chart, master=self.dashboard_frame)
+        self.canvas_chart.draw()
+        self.canvas_chart.get_tk_widget().place(x=65, y=95)
 
     # Method to get Serial Number
     def get_serialNum(self):
@@ -420,9 +392,76 @@ class GUI:
         self.progress = 0
         self.progress_bar.set(self.progress)
         self.status_label.configure(text="Running...", text_color="orange")
-        self.run_button.configure(state = 'disabled')
-        self.run_button.configure(image = self.test_running_img)
-        self.update_progress()
+        self.run_button.configure(state='disabled')
+        self.run_button.configure(image=self.test_running_img)
+
+        if self.mode_var.get() == "CV":
+            start_voltage = self.selected_profile["start voltage"].get()
+            stop_voltage = self.selected_profile["stop voltage"].get()
+            step_size_voltage = self.selected_profile["step size voltage"].get()
+            dwell_time_voltage = self.selected_profile["dwell time voltage"].get()
+            self.plot_interval = dwell_time_voltage
+
+            self.data_list_current.clear()
+            self.data_list_voltage.clear()
+            self.data_list_power.clear()
+
+            voltages = np.arange(start_voltage, stop_voltage + step_size_voltage, step_size_voltage)
+
+            self.process_next_voltage(voltages,0)
+
+
+    def process_next_voltage(self,voltages,index):
+        if not self.running  or index >= len(voltages) :
+            self.running = False
+            self.progress_label.configure(text="100%")
+            self.status_label.configure(text="  Saved", text_color="#06F30B")
+            self.run_button.configure(state='normal')
+            self.run_button.configure(image=self.run_test_img)
+            self.show_table()
+            self.entry_serialNum.delete(0, 'end')
+            return
+
+        voltage = voltages[index]
+        self.bk_device.set_voltage(voltage)
+
+        # Schedule the next update
+        self.dashboard_frame.after(int(self.plot_interval * 10), lambda: self.update_data_and_plot(voltages,index))
+
+    def update_data_and_plot(self,voltages,index):
+        if not self.running:
+            return
+
+        # current, _ = self.get_data()
+        current = 2
+        voltage = voltages[index]
+        # current = 10 * math.sin(voltage * 0.1) + random.uniform(-1, 1)
+        # voltage2 = 20 * math.cos(voltage * 0.1) + random.uniform(-1, 1)
+        power = current * voltage
+
+        self.Current_var.set(current)
+        self.Voltage_var.set(voltage)
+        self.Power_var.set(power)
+        self.Current_formated.set(f"{self.Current_var.get():.2f}")
+        self.Voltage_formated.set(f"{self.Voltage_var.get():.2f}")
+        self.Power_formated.set(f"{self.Power_var.get():.2f}")
+        
+        self.update_data()
+
+        self.data_list_voltage.append(voltage)
+        self.data_list_current.append(current)
+        self.data_list_power.append(power)
+
+        self.progress += 1 / len(voltages)
+        self.progress_bar.set(self.progress)
+        self.progress_label.configure(text=f"{int(self.progress * 100)}%")
+
+        self.animate_chart(current, voltage)
+
+        self.process_next_voltage(voltages, index + 1)
+
+
+
     
     # Function to turn ON the light
     def ON_Lamps(self):
@@ -551,16 +590,15 @@ class GUI:
             self.entry_temperature_limit.configure(state = "readonly")
             self.entry_current_resolution.configure(state = "readonly")
             self.entry_voltage_resolution.configure(state = "readonly")
-            
 
-
+            self.save_profile_button.configure(state = "disabled",image = self.save_profile_disabled_img)
+            self.bk_canvas.create_text(450,146, anchor="nw", text="Save Profile", fill="#999999",font=("Helvetica",14, "bold"))
 
     def change_profile(self, selected_value):
         selected_index = int(selected_value.split()[-1]) - 1
         self.selected_profile = self.profiles[selected_index]
         self.update_entries()
 
-    
     def activate_profile(self) :
         if self.activate_profile_button.cget("text") == "Activated":
             self.activate_profile_button.configure(image = self.disabled_profile_img, text = "Disabled", text_color='#FF0303')
@@ -848,6 +886,7 @@ class GUI:
         self.current_sweep_frame_active_img = PhotoImage(file = "images\\current_sweep_frame_active.png")        
         self.mode_selection_frame_img = PhotoImage(file = "images\\mode_selection_frame.png")
         self.save_profile_img = PhotoImage(file = "images\\save_profile.png")
+        self.save_profile_disabled_img = PhotoImage(file = "images\\save_profile_disabled.png")
         self.delete_profile_img = PhotoImage(file = "images\\delete_profile.png")
         self.activate_profile_img = PhotoImage(file="images\\activate_profile.png")
         self.disabled_profile_img = PhotoImage(file = "images\\disabled_profile.png")
