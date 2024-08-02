@@ -27,7 +27,7 @@ class GUI:
         self.data_list_current = []
         self.data_list_voltage = []
         self.data_list_power = []
-        self.options_list = ["Profile 1", "Profile 2"]
+        self.options_list = ["Profile 1", "Profile 2","Add Profile"]
         
         self.max_power = 0.0
         self.MPP = {"Vmpp" : 0 , "Impp" : 0}
@@ -57,7 +57,7 @@ class GUI:
 
         self.mode_var = tk.StringVar(value="CV")  # Default selection
 
-        self.profiles = [{  "name" : StringVar(value="Profile 1"),
+        self.profiles = [{
                             "start voltage" : DoubleVar(value = 0.1),
                             "stop voltage" : DoubleVar(value = 30),
                             "step size voltage" : DoubleVar(value = 0.1),
@@ -74,7 +74,7 @@ class GUI:
                             "voltage resolution" : DoubleVar(value = 0.1),
                             "active profile" : 1,
                             },
-                            {"name" : StringVar(value="Profile 2"),
+                            {
                             "start voltage" : DoubleVar(value = 0.1),
                             "stop voltage" : DoubleVar(value = 20),
                             "step size voltage" : DoubleVar(value = 0.2),
@@ -91,7 +91,23 @@ class GUI:
                             "voltage resolution" : DoubleVar(value = 0.1),
                             "active profile" : 1,  
                             }]
-
+        self.new_profile = {
+                            "start voltage" : DoubleVar(value = 0),
+                            "stop voltage" : DoubleVar(value = 0),
+                            "step size voltage" : DoubleVar(value = 0),
+                            "dwell time voltage" : DoubleVar(value = 0),
+                            "start current" : DoubleVar(value = 0),
+                            "stop current" : DoubleVar(value = 0),
+                            "step size current" : DoubleVar(value = 0),
+                            "dwell time current" : DoubleVar(value = 0),
+                            "current limit" : DoubleVar(value = 0),
+                            "voltage limit" : DoubleVar(value = 0),
+                            "power limit" : DoubleVar(value = 0),
+                            "temperature limit" : DoubleVar(value = 0),
+                            "current resolution" : DoubleVar(value = 0),
+                            "voltage resolution" : DoubleVar(value = 0),
+                            "active profile" : 0, 
+                            }
         self.selected_option = tk.StringVar(value="Profile 1")
         self.selected_profile = self.profiles[0]
         
@@ -297,7 +313,6 @@ class GUI:
 
             self.canvas_chart.draw()
 
-
     # Function to setup chart
     def setup_chart(self) :
 
@@ -367,25 +382,6 @@ class GUI:
         }
         self.TableData = pd.DataFrame(new_data)
         
-    # Keep Updating progress bar
-    def update_progress(self):
-        if self.progress < 1:
-            self.progress += 0.01
-            self.progress_bar.set(self.progress)
-            self.progress_label.configure(text=f"{int(self.progress * 100)}%")
-            self.window.after(100, self.update_progress)  # Update self.progress every 100 milliseconds
-        else:
-            self.running = False
-            self.progress_label.configure(text="100%")
-            self.status_label.configure(text="  Saved", text_color="#06F30B")
-            self.run_button.configure(state = 'normal')
-            self.run_button.configure(image = self.run_test_img)
-            self.show_table()
-            self.entry_serialNum.delete(0, 'end')
-            self.data_list_voltage =[]
-            self.data_list_current = []
-            self.data_list_power = []
-
     # Function to Start Test if RUN TEST button is pressed
     def run_test(self):
         self.running = True
@@ -459,7 +455,6 @@ class GUI:
         self.animate_chart(current, voltage)
 
         self.process_next_voltage(voltages, index + 1)
-
 
 
     
@@ -593,11 +588,32 @@ class GUI:
 
             self.save_profile_button.configure(state = "disabled",image = self.save_profile_disabled_img)
             self.bk_canvas.create_text(450,146, anchor="nw", text="Save Profile", fill="#999999",font=("Helvetica",14, "bold"))
+        else :
+            self.entry_start_current.configure(state = "normal")
+            self.entry_stop_current.configure(state = "normal")
+            self.entry_step_size_current.configure(state = "normal")
+            self.entry_dwell_time_current.configure(state = "normal")
+            self.entry_start_voltage.configure(state = "normal")
+            self.entry_stop_voltage.configure(state = "normal")
+            self.entry_step_size_voltage.configure(state = "normal")
+            self.entry_dwell_time_voltage.configure(state = "normal")
+            self.entry_current_limit.configure(state = "normal")
+            self.entry_voltage_limit.configure(state = "normal")
+            self.entry_power_limit.configure(state = "normal")
+            self.entry_temperature_limit.configure(state = "normal")
+            self.entry_current_resolution.configure(state = "normal")
+            self.entry_voltage_resolution.configure(state = "normal")            
 
     def change_profile(self, selected_value):
-        selected_index = int(selected_value.split()[-1]) - 1
-        self.selected_profile = self.profiles[selected_index]
-        self.update_entries()
+        if self.selected_option.get().startswith("Profile") :
+            selected_index = int(selected_value.split()[-1]) - 1
+            self.selected_profile = self.profiles[selected_index]
+            self.update_entries()
+        else:
+            self.selected_profile = self.new_profile
+            self.update_entries()
+
+        self.check_profile()
 
     def activate_profile(self) :
         if self.activate_profile_button.cget("text") == "Activated":
