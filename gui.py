@@ -26,7 +26,8 @@ class GUI:
         self.data_list_current = []
         self.data_list_voltage = []
         self.data_list_power = []
-        self.profiles = []
+        self.options_list = ["Profile 1", "Profile 2"]
+        
         self.max_power = 0.0
         self.MPP = {"Vmpp" : 0 , "Impp" : 0}
         self.progress = 0
@@ -55,7 +56,45 @@ class GUI:
 
         self.mode_var = tk.StringVar(value="CV")  # Default selection
 
+        self.profiles = [{  "name" : StringVar(value="Profile 1"),
+                            "start voltage" : DoubleVar(value = 0.1),
+                            "stop voltage" : DoubleVar(value = 30),
+                            "step size voltage" : DoubleVar(value = 0.1),
+                            "dwell time voltage" : DoubleVar(value = 10),
+                            "start current" : DoubleVar(value = 0.1),
+                            "stop current" : DoubleVar(value = 30),
+                            "step size current" : DoubleVar(value = 0.1),
+                            "dwell time current" : DoubleVar(value = 10),
+                            "current limit" : DoubleVar(value = 12),
+                            "voltage limit" : DoubleVar(value = 20),
+                            "power limit" : DoubleVar(value = 240),
+                            "temperature limit" : DoubleVar(value = 30),
+                            "current resolution" : DoubleVar(value = 0.1),
+                            "voltage resolution" : DoubleVar(value = 0.1),
+                            "active profile" : 1,
+                            },
+                            {"name" : StringVar(value="Profile 2"),
+                            "start voltage" : DoubleVar(value = 0.1),
+                            "stop voltage" : DoubleVar(value = 20),
+                            "step size voltage" : DoubleVar(value = 0.2),
+                            "dwell time voltage" : DoubleVar(value = 10),
+                            "start current" : DoubleVar(value = 0.1),
+                            "stop current" : DoubleVar(value = 50),
+                            "step size current" : DoubleVar(value = 0.1),
+                            "dwell time current" : DoubleVar(value = 10),
+                            "current limit" : DoubleVar(value = 12),
+                            "voltage limit" : DoubleVar(value = 20),
+                            "power limit" : DoubleVar(value = 900),
+                            "temperature limit" : DoubleVar(value = 30),
+                            "current resolution" : DoubleVar(value = 0.1),
+                            "voltage resolution" : DoubleVar(value = 0.1),
+                            "active profile" : 1,  
+                            }]
+
+        self.selected_option = tk.StringVar(value="Profile 1")
+        self.selected_profile = self.profiles[0]
         
+
         self.columns = ["Serial Num","Results","Date", "Test Time",
                 "Mpp", "Imp", "Vmp","Isc",
                 "Voc","FF", 
@@ -442,20 +481,16 @@ class GUI:
             self.bk_canvas.itemconfig(self.Bk_profiles_entry_data_step_size_current, image=self.Bk_profilles_entry_data_img)
             self.bk_canvas.itemconfig(self.Bk_profiles_entry_data_dwell_time_current, image=self.Bk_profilles_entry_data_img)
 
-            self.entry_start_voltage.configure(state="normal",fg_color = "#D1FCFF", bg_color = "#D1FCFF")
-            self.entry_stop_voltage.configure(state="normal",fg_color = "#D1FCFF", bg_color = "#D1FCFF")
-            self.entry_step_size_voltage.configure(state="normal",fg_color = "#D1FCFF", bg_color = "#D1FCFF")
-            self.entry_dwell_time_voltage.configure(state="normal",fg_color = "#D1FCFF", bg_color = "#D1FCFF")
+            self.entry_start_voltage.place(x=711, y=443)
+            self.entry_stop_voltage.place(x=711, y=483)
+            self.entry_step_size_voltage.place(x=711, y=523)
+            self.entry_dwell_time_voltage.place(x=711, y=563)
 
 
-            self.entry_start_current.delete(0, tk.END)
-            self.entry_start_current.configure(state="disabled",fg_color = "#E9E9E9", bg_color = "#E9E9E9")
-            self.entry_stop_current.delete(0, tk.END)
-            self.entry_stop_current.configure(state="disabled",fg_color = "#E9E9E9", bg_color = "#E9E9E9")
-            self.entry_step_size_current.delete(0, tk.END)
-            self.entry_step_size_current.configure(state="disabled",fg_color = "#E9E9E9", bg_color = "#E9E9E9")
-            self.entry_dwell_time_current.delete(0, tk.END)
-            self.entry_dwell_time_current.configure(state="disabled",fg_color = "#E9E9E9", bg_color = "#E9E9E9")
+            self.entry_start_current.place_forget()
+            self.entry_stop_current.place_forget()
+            self.entry_step_size_current.place_forget()
+            self.entry_dwell_time_current.place_forget()
 
 
 
@@ -481,19 +516,15 @@ class GUI:
             self.bk_canvas.itemconfig(self.Bk_profiles_entry_data_dwell_time_current, image=self.Bk_profilles_entry_data_active_img)
 
 
-            self.entry_start_voltage.delete(0, tk.END)
-            self.entry_start_voltage.configure(state="disabled", fg_color = "#E9E9E9", bg_color = "#E9E9E9")
-            self.entry_stop_voltage.delete(0, tk.END)
-            self.entry_stop_voltage.configure(state="disabled",fg_color = "#E9E9E9", bg_color = "#E9E9E9")
-            self.entry_step_size_voltage.delete(0, tk.END)
-            self.entry_step_size_voltage.configure(state="disabled",fg_color = "#E9E9E9", bg_color = "#E9E9E9")
-            self.entry_dwell_time_voltage.delete(0, tk.END)
-            self.entry_dwell_time_voltage.configure(state="disabled",fg_color = "#E9E9E9", bg_color = "#E9E9E9")
+            self.entry_start_voltage.place_forget()
+            self.entry_stop_voltage.place_forget()
+            self.entry_step_size_voltage.place_forget()
+            self.entry_dwell_time_voltage.place_forget()
 
-            self.entry_start_current.configure(state="normal",fg_color = "#D1FCFF", bg_color = "#D1FCFF")
-            self.entry_stop_current.configure(state="normal",fg_color = "#D1FCFF", bg_color = "#D1FCFF")
-            self.entry_step_size_current.configure(state="normal",fg_color = "#D1FCFF", bg_color = "#D1FCFF")
-            self.entry_dwell_time_current.configure(state="normal",fg_color = "#D1FCFF", bg_color = "#D1FCFF")
+            self.entry_start_current.place(x=711, y=218)
+            self.entry_stop_current.place(x=711, y=258)
+            self.entry_step_size_current.place(x=711, y=298)
+            self.entry_dwell_time_current.place(x=711, y=338)
 
 
 
@@ -503,6 +534,31 @@ class GUI:
 
         elif self.mode_var.get() == "CR" :
             self.cr_radio.configure(fg_color = "#00ff00")
+    
+    def check_profile(self) :
+        if self.selected_option.get() == "Profile 1" or self.selected_option.get() == "Profile 2" :
+            self.entry_start_current.configure(state = "readonly")
+            self.entry_stop_current.configure(state = "readonly")
+            self.entry_step_size_current.configure(state = "readonly")
+            self.entry_dwell_time_current.configure(state = "readonly")
+            self.entry_start_voltage.configure(state = "readonly")
+            self.entry_stop_voltage.configure(state = "readonly")
+            self.entry_step_size_voltage.configure(state = "readonly")
+            self.entry_dwell_time_voltage.configure(state = "readonly")
+            self.entry_current_limit.configure(state = "readonly")
+            self.entry_voltage_limit.configure(state = "readonly")
+            self.entry_power_limit.configure(state = "readonly")
+            self.entry_temperature_limit.configure(state = "readonly")
+            self.entry_current_resolution.configure(state = "readonly")
+            self.entry_voltage_resolution.configure(state = "readonly")
+            
+
+
+
+    def change_profile(self, selected_value):
+        selected_index = int(selected_value.split()[-1]) - 1
+        self.selected_profile = self.profiles[selected_index]
+        self.update_entries()
 
     
     def activate_profile(self) :
@@ -510,7 +566,22 @@ class GUI:
             self.activate_profile_button.configure(image = self.disabled_profile_img, text = "Disabled", text_color='#FF0303')
         else:
             self.activate_profile_button.configure(image = self.activate_profile_img,text = "Activated", text_color='#03FF0D')
-
+    
+    def update_entries(self):
+        self.entry_start_current.configure(textvariable = self.selected_profile["start current"] )
+        self.entry_stop_current.configure(textvariable = self.selected_profile["stop current"])
+        self.entry_step_size_current.configure(textvariable = self.selected_profile["step size current"] )
+        self.entry_dwell_time_current.configure(textvariable = self.selected_profile["dwell time current"] )
+        self.entry_start_voltage.configure(textvariable = self.selected_profile["start voltage"] )
+        self.entry_stop_voltage.configure(textvariable = self.selected_profile["stop voltage"] )
+        self.entry_step_size_voltage.configure(textvariable = self.selected_profile["step size voltage"] )
+        self.entry_dwell_time_voltage.configure(textvariable = self.selected_profile["dwell time voltage"] )
+        self.entry_current_limit.configure(textvariable = self.selected_profile["current limit"] )
+        self.entry_voltage_limit.configure(textvariable = self.selected_profile["voltage limit"] )
+        self.entry_power_limit.configure(textvariable = self.selected_profile["power limit"] )
+        self.entry_temperature_limit.configure(textvariable = self.selected_profile["temperature limit"] )
+        self.entry_current_resolution.configure(textvariable = self.selected_profile["current resolution"] )
+        self.entry_voltage_resolution.configure(textvariable = self.selected_profile["voltage resolution"] )
 
     # Funtion to Setup content of Dashboard Frame
     def setup_dashboard_content(self):
@@ -851,6 +922,20 @@ class GUI:
         self.bk_canvas.create_text(235,610, anchor="nw", text="Current Resolution", fill="black", font=("Helvetica",11,"bold"))
         self.bk_canvas.create_text(235,660, anchor="nw", text="Voltage Resolution", fill="black", font=("Helvetica",11,"bold"))
 
+    
+        self.option_menu = ctk.CTkOptionMenu(self.bk_profiles_frame, 
+                                            values=self.options_list, 
+                                            variable=self.selected_option,
+                                            command = self.change_profile,
+                                            corner_radius=20,
+                                            fg_color = "#f6f7f9",
+                                            bg_color= "#BBBBBB",
+                                            text_color = "black",
+                                            font = ("Helvetica",11,"bold"),
+                                            button_color = "#f6f7f9",
+                                            button_hover_color = "#E9E9E9")
+        self.option_menu.place(x=150,y=113)
+
         self.cv_radio = ctk.CTkRadioButton(
             self.bk_profiles_frame,
             text="Constant Voltage CV",
@@ -917,65 +1002,43 @@ class GUI:
         self.cr_radio.place(x=220,y=310)
 
         self.save_profile_button = ctk.CTkButton(master=self.bk_profiles_frame, text = "Save Profile" ,image=self.save_profile_img, command=self.run_test, fg_color='#BBBBBB',bg_color="#BBBBBB", text_color='black', font=("Helvetica",14, "bold"),hover="transparent",compound="right")
-        self.save_profile_button.place(x=380, y=102)
-
         self.delete_profile_button = ctk.CTkButton(master=self.bk_profiles_frame, text = "Delete Profile" ,image=self.delete_profile_img, command=self.run_test, fg_color='#BBBBBB',bg_color="#BBBBBB", text_color='black', font=("Helvetica",14, "bold"),hover="transparent",compound="right")
-        self.delete_profile_button.place(x=1060, y=107)
-
-
         self.activate_profile_button = ctk.CTkButton(master=self.bk_profiles_frame, text = "Activated" ,image=self.activate_profile_img, command=self.activate_profile, fg_color='#BBBBBB',bg_color="#BBBBBB", text_color='#03FF0D', font=("Helvetica",15, "bold"),hover="transparent",compound="right")
+        self.save_profile_button.place(x=380, y=102)
+        self.delete_profile_button.place(x=1060, y=107)
         self.activate_profile_button.place(x=753, y=108)
 
         
-        self.entry_start_current = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, fg_color = "#E9E9E9", bg_color="#E9E9E9", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),state = "disabled")
-        self.entry_start_current.place(x=711, y=218)
 
-        self.entry_stop_current = ctk.CTkEntry(master=self.bk_profiles_frame,border_width =0, fg_color = "#E9E9E9", bg_color="#E9E9E9", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),state = "disabled")
-        self.entry_stop_current.place(x=711, y=258)
+        self.entry_start_current = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0 ,textvariable= self.selected_profile["start current"],fg_color = "#D1FCFF", bg_color="#D1FCFF", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"))
+        self.entry_stop_current = ctk.CTkEntry(master=self.bk_profiles_frame,border_width =0, textvariable= self.selected_profile["stop current"],fg_color = "#D1FCFF", bg_color="#D1FCFF", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"))
+        self.entry_step_size_current = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, textvariable= self.selected_profile["step size current"],fg_color = "#D1FCFF", bg_color="#D1FCFF", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"))
+        self.entry_dwell_time_current = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, textvariable= self.selected_profile["dwell time current"],fg_color = "#D1FCFF", bg_color="#D1FCFF", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"))
 
-        self.entry_step_size_current = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, fg_color = "#E9E9E9", bg_color="#E9E9E9", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),state = "disabled")
-        self.entry_step_size_current.place(x=711, y=298)
-
-        self.entry_dwell_time_current = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, fg_color = "#E9E9E9", bg_color="#E9E9E9", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),state = "disabled")
-        self.entry_dwell_time_current.place(x=711, y=338)
-
-
-
-
-        self.entry_start_voltage = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, fg_color = "#D1FCFF", bg_color="#D1FCFF", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
+        self.entry_start_voltage = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, textvariable= self.selected_profile["start voltage"],fg_color = "#D1FCFF", bg_color="#D1FCFF", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
+        self.entry_stop_voltage = ctk.CTkEntry(master=self.bk_profiles_frame,border_width =0,textvariable= self.selected_profile["stop voltage"], fg_color = "#D1FCFF", bg_color="#D1FCFF", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
+        self.entry_step_size_voltage = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0,textvariable= self.selected_profile["step size voltage"], fg_color = "#D1FCFF", bg_color="#D1FCFF", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
+        self.entry_dwell_time_voltage = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, textvariable= self.selected_profile["dwell time voltage"],fg_color = "#D1FCFF", bg_color="#D1FCFF", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
         self.entry_start_voltage.place(x=711, y=443)
-
-        self.entry_stop_voltage = ctk.CTkEntry(master=self.bk_profiles_frame,border_width =0, fg_color = "#D1FCFF", bg_color="#D1FCFF", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
         self.entry_stop_voltage.place(x=711, y=483)
-
-        self.entry_step_size_voltage = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, fg_color = "#D1FCFF", bg_color="#D1FCFF", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
         self.entry_step_size_voltage.place(x=711, y=523)
-
-        self.entry_dwell_time_voltage = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, fg_color = "#D1FCFF", bg_color="#D1FCFF", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
         self.entry_dwell_time_voltage.place(x=711, y=563)
 
-
-
-        self.entry_current_limit = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, fg_color = "#D1FCFF", bg_color = "#D1FCFF", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
-        self.entry_current_limit.place(x=1103, y=266)
-        
-        self.entry_voltage_limit = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, fg_color = "#D1FCFF", bg_color = "#D1FCFF", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
-        self.entry_voltage_limit.place(x=1103, y=306)
-        
-        self.entry_power_limit = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, fg_color = "#D1FCFF", bg_color = "#D1FCFF", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
-        self.entry_power_limit.place(x=1103, y=346)
-        
-        self.entry_temperature_limit = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, fg_color = "#D1FCFF", bg_color = "#D1FCFF", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
+        self.entry_current_limit = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, textvariable= self.selected_profile["current limit"],fg_color = "#D1FCFF", bg_color = "#D1FCFF", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
+        self.entry_voltage_limit = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, textvariable= self.selected_profile["voltage limit"],fg_color = "#D1FCFF", bg_color = "#D1FCFF", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
+        self.entry_power_limit = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, textvariable= self.selected_profile["power limit"],fg_color = "#D1FCFF", bg_color = "#D1FCFF", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
+        self.entry_temperature_limit = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, textvariable= self.selected_profile["temperature limit"],fg_color = "#D1FCFF", bg_color = "#D1FCFF", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
         self.entry_temperature_limit.place(x=1103, y=386)
+        self.entry_power_limit.place(x=1103, y=346)
+        self.entry_voltage_limit.place(x=1103, y=306)
+        self.entry_current_limit.place(x=1103, y=266)
 
-
-
-        self.entry_current_resolution = ctk.CTkEntry(master=self.bk_profiles_frame,border_width =0, fg_color = "#D1FCFF", bg_color = "#D1FCFF", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
+        self.entry_current_resolution = ctk.CTkEntry(master=self.bk_profiles_frame,border_width =0, textvariable= self.selected_profile["current resolution"],fg_color = "#D1FCFF", bg_color = "#D1FCFF", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
+        self.entry_voltage_resolution = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, textvariable= self.selected_profile["voltage resolution"],fg_color = "#D1FCFF", bg_color = "#D1FCFF", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
         self.entry_current_resolution.place(x=323, y=483)
-
-        self.entry_voltage_resolution = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, fg_color = "#D1FCFF", bg_color = "#D1FCFF", width=55, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
         self.entry_voltage_resolution.place(x=323, y=523)
 
+        self.check_profile()
 
     # Funtion to close the application correctly
     def on_closing(self):
