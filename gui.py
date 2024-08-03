@@ -1,5 +1,5 @@
 from pathlib import Path
-from tkinter import Tk, Canvas, Entry, Button, PhotoImage,ttk, DoubleVar,Label,StringVar, BooleanVar
+from tkinter import Tk, Canvas, Entry, Button, PhotoImage,ttk, DoubleVar,Label,StringVar, BooleanVar,messagebox,simpledialog
 import tkinter as tk
 from tkinter.font import Font
 import customtkinter as ctk
@@ -353,6 +353,8 @@ class GUI:
         grade = self.grade_var.get()
 
         CollectData(formatted_date,formatted_time,serial_number,max_power,Impp,Vmpp,Voc,Isc,FF,grade)
+        messagebox.showinfo("Information", "              Test Data Saved                ")
+
         
     # Add data to table
     def Add_data_table(self) :
@@ -387,14 +389,16 @@ class GUI:
         }
         self.TableData = pd.DataFrame(new_data)
         
+
     # Function to Start Test if RUN TEST button is pressed
     def run_test(self):
         self.running = True
         self.progress = 0
         self.progress_bar.set(self.progress)
         self.status_label.configure(text="Running...", text_color="orange")
-        self.run_button.configure(state='disabled')
-        self.run_button.configure(image=self.test_running_img)
+        self.run_button.configure(state='disabled' ,image=self.test_running_img)
+        self.save_test_button.configure(state = "disabled", image = self.save_test_disabled_img)
+
 
         if self.mode_var.get() == "CV":
             start_voltage = self.working_profile["start voltage"].get()
@@ -411,13 +415,13 @@ class GUI:
 
             self.process_next_voltage(voltages,0)
 
-
     def process_next_voltage(self,voltages,index):
         if not self.running  or index >= len(voltages) :
             self.running = False
             self.progress_label.configure(text="100%")
             self.status_label.configure(text="  Saved", text_color="#06F30B")
             self.run_button.configure(state='normal',image=self.run_test_img)
+            self.save_test_button.configure(state = "normal", image = self.save_test_img)
             self.show_table()
             return
 
@@ -631,6 +635,7 @@ class GUI:
 
 
     def change_profile(self, selected_value):
+
         if self.selected_option.get().startswith("Profile") :
             self.selected_index = int(selected_value.split()[-1]) - 1
             self.selected_profile = self.profiles[self.selected_index]
@@ -645,12 +650,16 @@ class GUI:
                 self.activate_profile_button.configure(image = self.disabled_profile_img, text = "Disabled", text_color='#FF0303')
                 self.update_entries()
         else:
-            
-            self.activate_profile_button.configure(image = self.disabled_profile_img, text = "Disabled", text_color='#FF0303')
-            self.new_profile = self.initialize_new_profile()
-            self.selected_profile = self.new_profile.copy()
-            self.update_entries() 
-
+            if self.prompt_for_password():
+                self.activate_profile_button.configure(image = self.disabled_profile_img, text = "Disabled", text_color='#FF0303')
+                self.new_profile = self.initialize_new_profile()
+                self.selected_profile = self.new_profile.copy()
+                self.update_entries()
+            else :
+                self.selected_option.set("Profile 1")
+                self.selected_profile = self.profiles[0]
+                self.update_entries()
+                
         self.check_profile()
 
     def save_profile(self) :
@@ -697,6 +706,13 @@ class GUI:
         self.entry_current_resolution.configure(textvariable = self.selected_profile["current resolution"] )
         self.entry_voltage_resolution.configure(textvariable = self.selected_profile["voltage resolution"] )
 
+    def prompt_for_password(self):
+        password = simpledialog.askstring("Password", "\n\n\t\t\tEnter password:\t\t\t\t\n")
+        if password == "agamine":
+            return True
+        else:
+            return False
+
     # Funtion to Setup content of Dashboard Frame
     def setup_dashboard_content(self):
         
@@ -716,7 +732,8 @@ class GUI:
         self.run_test_img = PhotoImage(file="images\\run_test.png")
         self.run_test_disabled_img = PhotoImage(file="images\\run_test_disabled.png")
         self.test_running_img = PhotoImage(file = "images\\test_running.png")
-        self.Add_to_tab_img = PhotoImage(file = "images\\Add_to_test_tab.png")
+        self.save_test_img = PhotoImage(file = "images\\save_test.png")
+        self.save_test_disabled_img = PhotoImage(file = "images\\save_test_disabled.png")
         self.insert_SN_img = PhotoImage(file="images\\insert_SN.png")
         self.plot_img = PhotoImage(file = "images\\plot_background.png")
         self.data_img = PhotoImage(file = "images\\data_background.png")
@@ -817,15 +834,15 @@ class GUI:
         self.setup_chart()
 
         # Entry Text for serial number of solar module
-        self.entry_serialNum = ctk.CTkEntry(master=self.dashboard_frame, placeholder_text="Serial Number",textvariable=self.serial_num_var ,border_width = 0, fg_color = "white", bg_color="white", width=150,validate="key",validatecommand=(self.dashboard_frame.register(self.validate_serial), "%P"))
+        self.entry_serialNum = ctk.CTkEntry(master=self.dashboard_frame, placeholder_text="Serial Number",textvariable=self.serial_num_var ,border_width = 0, fg_color = "white", bg_color="white", width=180,validate="key",validatecommand=(self.dashboard_frame.register(self.validate_serial), "%P"))
         self.entry_serialNum.place(x=120, y=15)
 
         # RUN TEST button to start test
         self.run_button = ctk.CTkButton(master=self.dashboard_frame,text = "RUN TEST",image=self.run_test_disabled_img, command=self.run_test, fg_color='transparent', text_color='#0000FF', font=("Arial Rounded MT Bold",14),hover="transparent",state='disabled')
         self.run_button.place(x=540, y=9)
 
-        self.Add_to_tab_button = ctk.CTkButton(master=self.dashboard_frame, text = "Add to Test Tab" ,image=self.Add_to_tab_img, command=self.SaveData, fg_color='#D7E1E7', text_color='#000000', font=("Arial Rounded MT Bold",14),hover="#b7b7fc")
-        self.Add_to_tab_button.place(x=340, y=10)
+        self.save_test_button = ctk.CTkButton(master=self.dashboard_frame, text = "SAVE TEST" ,image=self.save_test_disabled_img, command=self.SaveData, fg_color='#D7E1E7', text_color='#000000', font=("Arial Rounded MT Bold",14),hover="#b7b7fc",state='disabled')
+        self.save_test_button.place(x=340, y=15)
 
         # Progress bar to show the progress of the test
         self.progress_bar = ctk.CTkProgressBar(master=self.dashboard_frame, width = 150,height=8.5, bg_color= "white",progress_color = ("#00d9ff", "black"))
@@ -1118,8 +1135,8 @@ class GUI:
         )
         self.cr_radio.place(x=220,y=310)
 
-        self.save_profile_button = ctk.CTkButton(master=self.bk_profiles_frame, text = "Save Profile" ,image=self.save_profile_img, command=self.save_profile, fg_color='#BBBBBB',bg_color="#BBBBBB", text_color='black', font=("Helvetica",14, "bold"),hover="transparent",compound="right")
-        self.delete_profile_button = ctk.CTkButton(master=self.bk_profiles_frame, text = "Delete Profile" ,image=self.delete_profile_img, command=self.delete_profile, fg_color='#BBBBBB',bg_color="#BBBBBB", text_color='black', font=("Helvetica",14, "bold"),hover="transparent",compound="right")
+        self.save_profile_button = ctk.CTkButton(master=self.bk_profiles_frame, text = "Save Profile" ,image=self.save_profile_img, command=self.save_profile, fg_color='#BBBBBB',bg_color="#BBBBBB", text_color='black', font=("Helvetica",14, "bold"),hover="transparent",compound="right",text_color_disabled = "#999999")
+        self.delete_profile_button = ctk.CTkButton(master=self.bk_profiles_frame, text = "Delete Profile" ,image=self.delete_profile_img, command=self.delete_profile, fg_color='#BBBBBB',bg_color="#BBBBBB", text_color='black', font=("Helvetica",14, "bold"),hover="transparent",compound="right",text_color_disabled = "#999999")
         self.activate_profile_button = ctk.CTkButton(master=self.bk_profiles_frame, text = "Activated" ,image=self.activate_profile_img, command=self.activate_profile, fg_color='#BBBBBB',bg_color="#BBBBBB", text_color='#03FF0D', font=("Helvetica",15, "bold"),hover="transparent",compound="right")
         self.save_profile_button.place(x=380, y=102)
         self.delete_profile_button.place(x=1060, y=107)
