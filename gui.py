@@ -89,27 +89,13 @@ class GUI:
                             "temperature limit" : DoubleVar(value = 30),
                             "current resolution" : DoubleVar(value = 0.1),
                             "voltage resolution" : DoubleVar(value = 0.1),
-                            "active profile" : 1,  
+                            "active profile" : 0,  
                             }]
-        # self.new_profile = {
-        #                     "start voltage" : DoubleVar(value = 0),
-        #                     "stop voltage" : DoubleVar(value = 0),
-        #                     "step size voltage" : DoubleVar(value = 0),
-        #                     "dwell time voltage" : DoubleVar(value = 0),
-        #                     "start current" : DoubleVar(value = 0),
-        #                     "stop current" : DoubleVar(value = 0),
-        #                     "step size current" : DoubleVar(value = 0),
-        #                     "dwell time current" : DoubleVar(value = 0),
-        #                     "current limit" : DoubleVar(value = 0),
-        #                     "voltage limit" : DoubleVar(value = 0),
-        #                     "power limit" : DoubleVar(value = 0),
-        #                     "temperature limit" : DoubleVar(value = 0),
-        #                     "current resolution" : DoubleVar(value = 0),
-        #                     "voltage resolution" : DoubleVar(value = 0),
-        #                     "active profile" : 0, 
-        #                     }
+
         self.selected_option = tk.StringVar(value="Profile 1")
-        self.selected_profile = self.profiles[0]
+        self.selected_index = 0
+        self.selected_profile = self.profiles[self.selected_index]
+        self.working_profile = self.profiles[self.selected_index]
         
 
         self.columns = ["Serial Num","Results","Date", "Test Time",
@@ -392,10 +378,10 @@ class GUI:
         self.run_button.configure(image=self.test_running_img)
 
         if self.mode_var.get() == "CV":
-            start_voltage = self.selected_profile["start voltage"].get()
-            stop_voltage = self.selected_profile["stop voltage"].get()
-            step_size_voltage = self.selected_profile["step size voltage"].get()
-            dwell_time_voltage = self.selected_profile["dwell time voltage"].get()
+            start_voltage = self.working_profile["start voltage"].get()
+            stop_voltage = self.working_profile["stop voltage"].get()
+            step_size_voltage = self.working_profile["step size voltage"].get()
+            dwell_time_voltage = self.working_profile["dwell time voltage"].get()
             self.plot_interval = dwell_time_voltage
 
             self.data_list_current.clear()
@@ -606,7 +592,6 @@ class GUI:
             self.entry_voltage_resolution.configure(state = "readonly")
 
             self.save_profile_button.configure(state = "disabled",image = self.save_profile_disabled_img)
-            self.bk_canvas.create_text(450,146, anchor="nw", text="Save Profile", fill="#999999",font=("Helvetica",14, "bold"))
         else :
             self.entry_start_current.configure(state = "normal")
             self.entry_stop_current.configure(state = "normal")
@@ -628,10 +613,21 @@ class GUI:
 
     def change_profile(self, selected_value):
         if self.selected_option.get().startswith("Profile") :
-            selected_index = int(selected_value.split()[-1]) - 1
-            self.selected_profile = self.profiles[selected_index]
-            self.update_entries()
+            self.selected_index = int(selected_value.split()[-1]) - 1
+            self.selected_profile = self.profiles[self.selected_index]
+
+            if self.selected_profile["active profile"] == 1 :
+
+                self.activate_profile_button.configure(image = self.activate_profile_img,text = "Activated", text_color='#03FF0D')
+                self.update_entries()
+                self.working_profile = self.selected_profile
+            else :
+                self.selected_profile = self.profiles[self.selected_index]
+                self.activate_profile_button.configure(image = self.disabled_profile_img, text = "Disabled", text_color='#FF0303')
+                self.update_entries()
         else:
+            
+            self.activate_profile_button.configure(image = self.disabled_profile_img, text = "Disabled", text_color='#FF0303')
             self.new_profile = self.initialize_new_profile()
             self.selected_profile = self.new_profile.copy()
             self.update_entries() 
@@ -642,7 +638,6 @@ class GUI:
         self.profiles.append(self.selected_profile)
         last_profile_number = int(self.options_list[-2].split()[1])
         self.options_list.insert(-1,"Profile " + str(last_profile_number+1))
-
         self.option_menu.configure(values=self.options_list)
 
 
@@ -650,11 +645,15 @@ class GUI:
         pass
 
     def activate_profile(self) :
-        if self.activate_profile_button.cget("text") == "Activated":
+        if self.selected_profile["active profile"] == 1:
             self.activate_profile_button.configure(image = self.disabled_profile_img, text = "Disabled", text_color='#FF0303')
+            self.selected_profile["active profile"] = 0
+            self.working_profile = self.profiles[0]
         else:
             self.activate_profile_button.configure(image = self.activate_profile_img,text = "Activated", text_color='#03FF0D')
-    
+            self.selected_profile["active profile"] = 1
+            self.working_profile = self.selected_profile
+
     def update_entries(self):
         self.entry_start_current.configure(textvariable = self.selected_profile["start current"] )
         self.entry_stop_current.configure(textvariable = self.selected_profile["stop current"])
