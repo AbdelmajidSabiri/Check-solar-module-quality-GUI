@@ -54,6 +54,7 @@ class GUI:
         self.FF_var = DoubleVar(value= 0.00)
         self.temp_var = DoubleVar(value=25)
         self.grade_var = StringVar(value="A")
+        self.serial_num_var = StringVar()
 
         self.mode_var = tk.StringVar(value="CV")  # Default selection
 
@@ -314,8 +315,26 @@ class GUI:
 
     # Method to get Serial Number
     def get_serialNum(self):
-        serial_number = self.entry_serialNum.get()
-        return serial_number
+        return self.serial_num_var.get()
+
+    def validate_serial(self, new_value):
+        if new_value.isdigit():
+            if len(new_value) > 8:
+                self.run_button.configure(state="disabled", image=self.run_test_disabled_img)
+
+            elif len(new_value) == 8:
+                self.run_button.configure(state="normal", image=self.run_test_img)
+
+            else:
+                self.run_button.configure(state="disabled", image=self.run_test_disabled_img)
+            return True
+
+        elif new_value == "":
+            return True
+
+        else :
+            self.run_button.configure(state="disabled", image=self.run_test_disabled_img)
+            return False
 
     # Function to Get Data and send it to CollectData function That Add it to excel file
     def SaveData(self) :
@@ -398,10 +417,8 @@ class GUI:
             self.running = False
             self.progress_label.configure(text="100%")
             self.status_label.configure(text="  Saved", text_color="#06F30B")
-            self.run_button.configure(state='normal')
-            self.run_button.configure(image=self.run_test_img)
+            self.run_button.configure(state='normal',image=self.run_test_img)
             self.show_table()
-            self.entry_serialNum.delete(0, 'end')
             return
 
         voltage = voltages[index]
@@ -650,7 +667,7 @@ class GUI:
 
             self.selected_option.set(self.options_list[0])
             self.option_menu.configure(values = self.options_list)
-            
+
             self.change_profile("Profile 1")
 
 
@@ -697,6 +714,7 @@ class GUI:
         # Add images and Text
         canvas.place(x = 0, y = 0)
         self.run_test_img = PhotoImage(file="images\\run_test.png")
+        self.run_test_disabled_img = PhotoImage(file="images\\run_test_disabled.png")
         self.test_running_img = PhotoImage(file = "images\\test_running.png")
         self.Add_to_tab_img = PhotoImage(file = "images\\Add_to_test_tab.png")
         self.insert_SN_img = PhotoImage(file="images\\insert_SN.png")
@@ -799,11 +817,11 @@ class GUI:
         self.setup_chart()
 
         # Entry Text for serial number of solar module
-        self.entry_serialNum = ctk.CTkEntry(master=self.dashboard_frame, placeholder_text="Serial Number",border_width = 0, fg_color = "white", bg_color="white", width=150)
+        self.entry_serialNum = ctk.CTkEntry(master=self.dashboard_frame, placeholder_text="Serial Number",textvariable=self.serial_num_var ,border_width = 0, fg_color = "white", bg_color="white", width=150,validate="key",validatecommand=(self.dashboard_frame.register(self.validate_serial), "%P"))
         self.entry_serialNum.place(x=120, y=15)
 
         # RUN TEST button to start test
-        self.run_button = ctk.CTkButton(master=self.dashboard_frame, text = "RUN TEST" ,image=self.run_test_img, command=self.run_test, fg_color='transparent', text_color='#0000FF', font=("Arial Rounded MT Bold",14),hover="transparent")
+        self.run_button = ctk.CTkButton(master=self.dashboard_frame,text = "RUN TEST",image=self.run_test_disabled_img, command=self.run_test, fg_color='transparent', text_color='#0000FF', font=("Arial Rounded MT Bold",14),hover="transparent",state='disabled')
         self.run_button.place(x=540, y=9)
 
         self.Add_to_tab_button = ctk.CTkButton(master=self.dashboard_frame, text = "Add to Test Tab" ,image=self.Add_to_tab_img, command=self.SaveData, fg_color='#D7E1E7', text_color='#000000', font=("Arial Rounded MT Bold",14),hover="#b7b7fc")
