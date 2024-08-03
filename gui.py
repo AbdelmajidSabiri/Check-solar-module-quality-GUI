@@ -59,11 +59,11 @@ class GUI:
 
         self.profiles = [{
                             "start voltage" : DoubleVar(value = 0.1),
-                            "stop voltage" : DoubleVar(value = 30),
+                            "stop voltage" : DoubleVar(value = 10),
                             "step size voltage" : DoubleVar(value = 0.1),
                             "dwell time voltage" : DoubleVar(value = 10),
                             "start current" : DoubleVar(value = 0.1),
-                            "stop current" : DoubleVar(value = 30),
+                            "stop current" : DoubleVar(value = 15),
                             "step size current" : DoubleVar(value = 0.1),
                             "dwell time current" : DoubleVar(value = 0.1),
                             "current limit" : DoubleVar(value = 12),
@@ -592,6 +592,7 @@ class GUI:
             self.entry_voltage_resolution.configure(state = "readonly")
 
             self.save_profile_button.configure(state = "disabled",image = self.save_profile_disabled_img)
+            self.delete_profile_button.configure(state = "disabled", image = self.delete_profile_disabled_img)
         else :
             self.entry_start_current.configure(state = "normal")
             self.entry_stop_current.configure(state = "normal")
@@ -609,7 +610,8 @@ class GUI:
             self.entry_voltage_resolution.configure(state = "normal")   
 
             self.save_profile_button.configure(state = "normal",image = self.save_profile_img)
-         
+            self.delete_profile_button.configure(state = "normal", image = self.delete_profile_img)
+
 
     def change_profile(self, selected_value):
         if self.selected_option.get().startswith("Profile") :
@@ -642,7 +644,15 @@ class GUI:
 
 
     def delete_profile(self) :
-        pass
+        if self.selected_option.get().startswith("Profile") :
+            self.profiles.pop(self.selected_index)
+            self.options_list.pop(self.options_list.index(self.selected_option.get()))
+
+            self.selected_option.set(self.options_list[0])
+            self.option_menu.configure(values = self.options_list)
+            
+            self.change_profile("Profile 1")
+
 
     def activate_profile(self) :
         if self.selected_profile["active profile"] == 1:
@@ -937,6 +947,7 @@ class GUI:
         self.save_profile_img = PhotoImage(file = "images\\save_profile.png")
         self.save_profile_disabled_img = PhotoImage(file = "images\\save_profile_disabled.png")
         self.delete_profile_img = PhotoImage(file = "images\\delete_profile.png")
+        self.delete_profile_disabled_img = PhotoImage(file = "images\\delete_profile_disabled.png")
         self.activate_profile_img = PhotoImage(file="images\\activate_profile.png")
         self.disabled_profile_img = PhotoImage(file = "images\\disabled_profile.png")
 
