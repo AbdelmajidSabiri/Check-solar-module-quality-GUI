@@ -58,10 +58,10 @@ class GUI:
 
         self.mode_var = tk.StringVar(value="CV")  # Default selection
 
-        self.profiles = [{
+        self.profiles = [{  "name" : "Profile 1",
                             "start voltage" : DoubleVar(value = 0.1),
                             "stop voltage" : DoubleVar(value = 10),
-                            "step size voltage" : DoubleVar(value = 0.1),
+                            "step size voltage" : DoubleVar(value = 0.2),
                             "dwell time voltage" : DoubleVar(value = 10),
                             "start current" : DoubleVar(value = 0.1),
                             "stop current" : DoubleVar(value = 15),
@@ -75,9 +75,9 @@ class GUI:
                             "voltage resolution" : DoubleVar(value = 0.1),
                             "active profile" : 1,
                             },
-                            {
+                            {"name" : "Profile 2",
                             "start voltage" : DoubleVar(value = 0.1),
-                            "stop voltage" : DoubleVar(value = 20),
+                            "stop voltage" : DoubleVar(value = 15),
                             "step size voltage" : DoubleVar(value = 0.2),
                             "dwell time voltage" : DoubleVar(value = 10),
                             "start current" : DoubleVar(value = 0.1),
@@ -354,8 +354,12 @@ class GUI:
 
         CollectData(formatted_date,formatted_time,serial_number,max_power,Impp,Vmpp,Voc,Isc,FF,grade)
         messagebox.showinfo("Information", "              Test Data Saved                ")
+    
+    def calculate_recurrence(self, serial_number):
+        recurrence_count = (self.TableData["Serial Num"] == serial_number).sum()
 
-        
+        return recurrence_count + 1
+            
     # Add data to table
     def Add_data_table(self) :
 
@@ -371,24 +375,28 @@ class GUI:
         Vmpp = self.Vmpp_formated.get()
         FF = self.FF_formated.get()
         grade = self.grade_var.get()
+        recurrence_count = self.calculate_recurrence(serial_number)
 
         new_data = {
-        "Serial Num": [serial_number],
+        "Serial Num": serial_number,
         "Results" : "Rejected",
-        "Date": [formatted_date],
-        "Test Time": [formatted_time],
-        "Mpp": [max_power],
-        "Imp": [Impp],
-        "Vmp": [Vmpp],
-        "Isc": [Isc],
-        "Voc": [Voc],
-        "FF": [FF],
-        "Grade": [grade],
-        "Recurrence" : 1,
-        "Profile" : "Profile 1"
+        "Date": formatted_date,
+        "Test Time": formatted_time,
+        "Mpp": max_power,
+        "Imp": Impp,
+        "Vmp": Vmpp,
+        "Isc": Isc,
+        "Voc": Voc,
+        "FF": FF,
+        "Grade": grade,
+        "Recurrence" : recurrence_count,
+        "Profile" : self.working_profile["name"]
         }
-        self.TableData = pd.DataFrame(new_data)
-        
+
+        new_row = pd.DataFrame([new_data])
+        self.TableData = pd.concat([self.TableData, new_row], ignore_index=True)
+
+
 
     # Function to Start Test if RUN TEST button is pressed
     def run_test(self):
@@ -477,6 +485,9 @@ class GUI:
     #Function to show table
     def show_table(self) :
         self.Add_data_table()
+
+        self.tree.delete(*self.tree.get_children())
+
         for index, row in self.TableData.iterrows():
             self.tree.insert("", "end", values=(
                 row["Serial Num"], row["Results"], row["Date"], row["Test Time"],
@@ -499,7 +510,6 @@ class GUI:
         self.bk_profiles_button.configure(image = self.image_bk_profiles_ON_img, text_color = "#0000ff")
 
         self.dashboard_frame.pack_forget()
-
 
     def mode_changed(self) :
         if self.mode_var.get() == "CV" :
@@ -575,9 +585,12 @@ class GUI:
         elif self.mode_var.get() == "CR" :
             self.cr_radio.configure(fg_color = "#00ff00")
     
+
+
     def initialize_new_profile(self):
 
         return {
+            "name" : self.selected_option.get(),
             "start voltage": tk.DoubleVar(value=0),
             "stop voltage": tk.DoubleVar(value=0),
             "step size voltage": tk.DoubleVar(value=0),
@@ -633,7 +646,6 @@ class GUI:
             self.save_profile_button.configure(state = "normal",image = self.save_profile_img)
             self.delete_profile_button.configure(state = "normal", image = self.delete_profile_img)
 
-
     def change_profile(self, selected_value):
 
         if self.selected_option.get().startswith("Profile") :
@@ -663,11 +675,14 @@ class GUI:
         self.check_profile()
 
     def save_profile(self) :
-        self.profiles.append(self.selected_profile)
-        last_profile_number = int(self.options_list[-2].split()[1])
-        self.options_list.insert(-1,"Profile " + str(last_profile_number+1))
-        self.option_menu.configure(values=self.options_list)
 
+        last_profile_number = int(self.options_list[-2].split()[1])
+        new_profile_name = "Profile " + str(last_profile_number+1)
+        self.selected_profile["name"] = new_profile_name
+
+        self.profiles.append(self.selected_profile)
+        self.options_list.insert(-1, new_profile_name)
+        self.option_menu.configure(values=self.options_list)
 
     def delete_profile(self) :
         if self.selected_option.get().startswith("Profile") :
@@ -678,7 +693,6 @@ class GUI:
             self.option_menu.configure(values = self.options_list)
 
             self.change_profile("Profile 1")
-
 
     def activate_profile(self) :
         if self.selected_profile["active profile"] == 1:
@@ -705,6 +719,8 @@ class GUI:
         self.entry_temperature_limit.configure(textvariable = self.selected_profile["temperature limit"] )
         self.entry_current_resolution.configure(textvariable = self.selected_profile["current resolution"] )
         self.entry_voltage_resolution.configure(textvariable = self.selected_profile["voltage resolution"] )
+
+
 
     def prompt_for_password(self):
         password = simpledialog.askstring("Password", "\n\n\t\t\tEnter password:\t\t\t\t\n")
