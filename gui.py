@@ -11,6 +11,8 @@ import pandas as pd
 import numpy as np
 import sys,time
 import os
+import math
+import random
 sys.path.append('C:\\Users\\dell\\GUI-read-Bk-precision-data')
 from PIL import Image, ImageTk
 from datetime import datetime
@@ -103,9 +105,9 @@ class GUI:
 
         self.bk_device = Bkp8600()
         self.bk_device.initialize()
-        self.data_list_current = []
-        self.data_list_voltage = []
-        self.data_list_voltage2 = []
+
+        self.data_list_current_measured = []
+        self.data_list_voltage_measured = []
         self.data_list_power = []
         self.options_list = ["Profile 1", "Profile 2","Add Profile"]
         
@@ -275,22 +277,21 @@ class GUI:
         if self.running :
             self.update_max_power()
             self.calculate_isc_voc()
-            self.calculate_FF()
             self.calculate_grade()
 
     # Calculate Isc and Voc
     def calculate_isc_voc(self):
 
-        if self.data_list_current:
-            self.Isc_var.set(max(self.data_list_current))
+        if self.data_list_current_measured:
+            self.Isc_var.set(max(self.data_list_current_measured))
         else :
             self.Isc_var.set(0.00)
 
         self.Isc_formated.set(f"{self.Isc_var.get():.2f}")
 
 
-        if self.data_list_voltage:
-            self.Voc_var.set(max(self.data_list_voltage2))
+        if self.data_list_voltage_measured:
+            self.Voc_var.set(max(self.data_list_voltage_measured))
         else :
             self.Voc_var.set(0.00)
 
@@ -353,15 +354,15 @@ class GUI:
         self.ax.grid(True, color='#3A3A3A', linestyle='--', linewidth=0.5)
 
     # Function to animate chart
-    def animate_chart(self,current,voltage):
+    def animate_chart(self,current_measured,voltage_measured):
         if self.running :
             
             self.ax.clear()
             self.configure_plot()
                     
             # Plot the current data
-            self.ax.plot(self.data_list_voltage,self.data_list_current,color='Blue', linewidth=2, label='I-V curve')        
-            self.ax.plot(self.data_list_voltage,self.data_list_power,color='Red', linewidth=2, label='I-P curve')
+            self.ax.plot(self.data_list_voltage_measured,self.data_list_current_measured,color='Blue', linewidth=2, label='I-V curve')        
+            self.ax.plot(self.data_list_voltage_measured,self.data_list_power,color='Red', linewidth=2, label='I-P curve')
 
             self.ax.legend(loc='upper right')
 
@@ -560,9 +561,8 @@ class GUI:
             self.plot_interval = dwell_time_voltage
             self.bk_device.set_CV(current_limit)
 
-            self.data_list_current.clear()
-            self.data_list_voltage.clear()
-            self.data_list_voltage2.clear()
+            self.data_list_voltage_measured.clear()
+            self.data_list_current_measured.clear()
             self.data_list_power.clear()
 
             voltages = np.arange(start_voltage, stop_voltage + step_size_voltage, step_size_voltage)
@@ -575,6 +575,7 @@ class GUI:
             self.progress_label.configure(text="100%")
             self.status_label.configure(text="  Saved", text_color="#06F30B")
             self.run_button.configure(state='normal',image=self.run_test_img)
+            self.calculate_FF()
             self.show_table()
             self.SaveData()
             return
@@ -590,22 +591,23 @@ class GUI:
             return
 
         # current, _ = self.get_data()
-        current,voltage2 = self.get_data()
+        # current_measured,voltage_measured = self.get_data()
         voltage = voltages[index]
+        current_measured = 10 * math.sin(2 * 0.1) + random.uniform(-1, 1)
+        voltage_measured = 20 * math.cos(2 * 0.1) + random.uniform(-1, 1)
 
-        power = current * voltage
+        power = current_measured * voltage_measured
+        
 
-        self.Current_var.set(current)
-        self.Voltage_var.set(voltage)
+        self.Current_var.set(current_measured)
+        self.Voltage_var.set(voltage_measured)
         self.Power_var.set(power)
         self.Current_formated.set(f"{self.Current_var.get():.2f}")
         self.Voltage_formated.set(f"{self.Voltage_var.get():.2f}")
         self.Power_formated.set(f"{self.Power_var.get():.2f}")
         
-        self.data_list_voltage.append(voltage)
-        self.data_list_voltage2.append(voltage2)
-
-        self.data_list_current.append(current)
+        self.data_list_voltage_measured.append(voltage_measured)
+        self.data_list_current_measured.append(current_measured)
         self.data_list_power.append(power)
 
         self.update_data()
@@ -614,7 +616,7 @@ class GUI:
         self.progress_bar.set(self.progress)
         self.progress_label.configure(text=f"{int(self.progress * 100)}%")
 
-        self.animate_chart(current, voltage)
+        self.animate_chart(current_measured, voltage_measured)
 
         self.process_next_voltage(voltages, index + 1)
 
