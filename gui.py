@@ -252,7 +252,10 @@ class GUI:
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)  # Handle window closing event
         self.window.mainloop()
 
-
+    def get_image_path(self, image_name):
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        image_path = os.path.join(script_dir, 'images', image_name)
+        return image_path
 
     # Funtion to Get Max power
     def update_max_power(self) :
@@ -900,25 +903,25 @@ class GUI:
 
         # Add images and Text
         canvas.place(x = 0, y = 0)
-        self.run_test_img = PhotoImage(file="images\\run_test.png")
-        self.run_test_disabled_img = PhotoImage(file="images\\run_test_disabled.png")
-        self.test_running_img = PhotoImage(file = "images\\test_running.png")
-        self.save_test_img = PhotoImage(file = "images\\save_test.png")
-        self.save_test_disabled_img = PhotoImage(file = "images\\save_test_disabled.png")
-        self.insert_SN_img = PhotoImage(file="images\\insert_SN.png")
-        self.plot_img = PhotoImage(file = "images\\plot_background.png")
-        self.data_img = PhotoImage(file = "images\\data_background.png")
-        self.vol_curr_pow_img = PhotoImage(file = "images\\vol_curr_pow_background.png")
-        self.lamps_img = PhotoImage(file = "images\\lamps_background.png")
-        self.table_img = PhotoImage(file = "images\\table_background.png")
-        self.progress_bar_img = PhotoImage(file = "images\\progress_bar_background.png")
-        self.status_img = PhotoImage(file = "images\\status.png")
-        self.vol_curr_pow_values_img = PhotoImage(file = "images\\vol_curr_pow_values_background.png")
-        self.data_values_img = PhotoImage(file = "images\\data_values_background.png")
-        self.line_data_img = PhotoImage(file = "images\\line.png")
-        self.lamps_on_img = PhotoImage(file = "images\\lamps_on.png")
-        self.lamps_off_img = PhotoImage(file = "images\\lamps_off.png")
-        self.lamps_button_img = PhotoImage(file = "images\\lamps_button.png")
+        self.run_test_img = PhotoImage(file = self.get_image_path("run_test.png"))
+        self.run_test_disabled_img = PhotoImage(file=self.get_image_path("run_test_disabled.png"))
+        self.test_running_img = PhotoImage(file = self.get_image_path("test_running.png"))
+        self.save_test_img = PhotoImage(file = self.get_image_path("save_test.png"))
+        self.save_test_disabled_img = PhotoImage(file = self.get_image_path("save_test_disabled.png"))
+        self.insert_SN_img = PhotoImage(file=self.get_image_path("insert_SN.png"))
+        self.plot_img = PhotoImage(file = self.get_image_path("plot_background.png"))
+        self.data_img = PhotoImage(file = self.get_image_path("data_background.png"))
+        self.vol_curr_pow_img = PhotoImage(file = self.get_image_path("vol_curr_pow_background.png"))
+        self.lamps_img = PhotoImage(file = self.get_image_path("lamps_background.png"))
+        self.table_img = PhotoImage(file = self.get_image_path("table_background.png"))
+        self.progress_bar_img = PhotoImage(file = self.get_image_path("progress_bar_background.png"))
+        self.status_img = PhotoImage(file = self.get_image_path("status.png"))
+        self.vol_curr_pow_values_img = PhotoImage(file = self.get_image_path("vol_curr_pow_values_background.png"))
+        self.data_values_img = PhotoImage(file = self.get_image_path("data_values_background.png"))
+        self.line_data_img = PhotoImage(file = self.get_image_path("line.png"))
+        self.lamps_on_img = PhotoImage(file = self.get_image_path("lamps_on.png"))
+        self.lamps_off_img = PhotoImage(file = self.get_image_path("lamps_off.png"))
+        self.lamps_button_img = PhotoImage(file = self.get_image_path("lamps_button.png"))
 
 
 
@@ -1139,23 +1142,23 @@ class GUI:
         self.bk_canvas.place(x = 0, y = 0)
 
 
-        self.Bk_profilles_frame_img = PhotoImage(file = "images\\bk_profiles_frame.png")
-        self.Bk_profilles_frame_top_img = PhotoImage(file = "images\\bk_profiles_frame_top.png")
-        self.Bk_profilles_entry_data_img = PhotoImage(file = "images\\bk_profiles_entry_data.png")
-        self.Bk_profilles_entry_data_active_img = PhotoImage(file = "images\\bk_profiles_entry_data_active.png")
-        self.safety_data_frame_img = PhotoImage(file = "images\\safety_data_frame.png")
-        self.set_measurement_frame_img = PhotoImage(file = "images\\set_measurement_precision_frame.png")
-        self.voltage_sweep_frame_img = PhotoImage(file = "images\\voltage_sweep_frame.png")
-        self.voltage_sweep_frame_active_img = PhotoImage(file = "images\\voltage_sweep_frame_active.png")
-        self.current_sweep_frame_img = PhotoImage(file = "images\\current_sweep_frame.png")
-        self.current_sweep_frame_active_img = PhotoImage(file = "images\\current_sweep_frame_active.png")        
-        self.mode_selection_frame_img = PhotoImage(file = "images\\mode_selection_frame.png")
-        self.save_profile_img = PhotoImage(file = "images\\save_profile.png")
-        self.save_profile_disabled_img = PhotoImage(file = "images\\save_profile_disabled.png")
-        self.delete_profile_img = PhotoImage(file = "images\\delete_profile.png")
-        self.delete_profile_disabled_img = PhotoImage(file = "images\\delete_profile_disabled.png")
-        self.activate_profile_img = PhotoImage(file="images\\activate_profile.png")
-        self.disabled_profile_img = PhotoImage(file = "images\\disabled_profile.png")
+        self.Bk_profilles_frame_img = PhotoImage(file = self.get_image_path("bk_profiles_frame.png"))
+        self.Bk_profilles_frame_top_img = PhotoImage(file = self.get_image_path("bk_profiles_frame_top.png"))
+        self.Bk_profilles_entry_data_img = PhotoImage(file = self.get_image_path("bk_profiles_entry_data.png"))
+        self.Bk_profilles_entry_data_active_img = PhotoImage(file = self.get_image_path("bk_profiles_entry_data_active.png"))
+        self.safety_data_frame_img = PhotoImage(file = self.get_image_path("safety_data_frame.png"))
+        self.set_measurement_frame_img = PhotoImage(file = self.get_image_path("set_measurement_precision_frame.png"))
+        self.voltage_sweep_frame_img = PhotoImage(file =self.get_image_path("voltage_sweep_frame.png"))
+        self.voltage_sweep_frame_active_img = PhotoImage(file = self.get_image_path("voltage_sweep_frame_active.png"))
+        self.current_sweep_frame_img = PhotoImage(file = self.get_image_path("current_sweep_frame.png"))
+        self.current_sweep_frame_active_img = PhotoImage(file = self.get_image_path("current_sweep_frame_active.png"))       
+        self.mode_selection_frame_img = PhotoImage(file = self.get_image_path("mode_selection_frame.png"))
+        self.save_profile_img = PhotoImage(file = self.get_image_path("save_profile.png"))
+        self.save_profile_disabled_img = PhotoImage(file = self.get_image_path("save_profile_disabled.png"))
+        self.delete_profile_img = PhotoImage(file = self.get_image_path("delete_profile.png"))
+        self.delete_profile_disabled_img = PhotoImage(file = self.get_image_path("delete_profile_disabled.png"))
+        self.activate_profile_img = PhotoImage(file=self.get_image_path("activate_profile.png"))
+        self.disabled_profile_img = PhotoImage(file = self.get_image_path("disabled_profile.png"))
 
         
 
