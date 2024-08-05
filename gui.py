@@ -2,8 +2,8 @@ from pathlib import Path
 from tkinter import Tk, Canvas, Entry, Button, PhotoImage,ttk, DoubleVar,Label,StringVar, BooleanVar,messagebox,simpledialog
 import tkinter as tk
 from tkinter.font import Font
-import pyvisa
 import customtkinter as ctk
+import pyvisa
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -105,6 +105,7 @@ class GUI:
         self.bk_device.initialize()
         self.data_list_current = []
         self.data_list_voltage = []
+        self.data_list_voltage2 = []
         self.data_list_power = []
         self.options_list = ["Profile 1", "Profile 2","Add Profile"]
         
@@ -139,8 +140,8 @@ class GUI:
 
         self.profiles = [{  "name" : "Profile 1",
                             "start voltage" : DoubleVar(value = 0.1),
-                            "stop voltage" : DoubleVar(value = 10),
-                            "step size voltage" : DoubleVar(value = 0.2),
+                            "stop voltage" : DoubleVar(value = 32),
+                            "step size voltage" : DoubleVar(value = 0.1),
                             "dwell time voltage" : DoubleVar(value = 10),
                             "start current" : DoubleVar(value = 0.1),
                             "stop current" : DoubleVar(value = 15),
@@ -201,14 +202,14 @@ class GUI:
         self.left_frame.pack(side="left", fill="y")
 
         # Load images
-        self.image_dashboard_ON_img = PhotoImage(file="images\\dashboard_ON.png")
-        self.image_dashboard_OFF_img = PhotoImage(file="images\\dashboard_OFF.png")
+        self.image_dashboard_ON_img = PhotoImage(file=self.get_image_path("dashboard_ON.png"))
+        self.image_dashboard_OFF_img = PhotoImage(file=self.get_image_path("dashboard_OFF.png"))
 
-        self.image_bk_profiles_OFF_img = PhotoImage(file="images\\Bk_profiles_OFF.png")
-        self.image_bk_profiles_ON_img = PhotoImage(file="images\\Bk_profiles_ON.png")
+        self.image_bk_profiles_OFF_img = PhotoImage(file=self.get_image_path("Bk_profiles_OFF.png"))
+        self.image_bk_profiles_ON_img = PhotoImage(file=self.get_image_path("Bk_profiles_ON.png"))
 
-        self.fram_indicator_img = PhotoImage(file="images\\Fram_indicator.png")
-        self.vertical_line_img = PhotoImage(file="images\\Vertical_line.png")        
+        self.fram_indicator_img = PhotoImage(file=self.get_image_path("Fram_indicator.png"))
+        self.vertical_line_img = PhotoImage(file=self.get_image_path("Vertical_line.png"))
 
         # Create buttons with images
         self.dashboard_button = ctk.CTkButton(master=self.left_frame, 
@@ -280,32 +281,17 @@ class GUI:
     # Calculate Isc and Voc
     def calculate_isc_voc(self):
 
-
-        # Get Value of Isc if it found if not make it 0
-        Isc_found = False
-        for v, i in zip(self.data_list_voltage, self.data_list_current):
-            if v == 0:
-                self.Isc_var.set(i)
-                Isc_found = True
-                break
-
-        if not Isc_found :
+        if self.data_list_current:
+            self.Isc_var.set(max(self.data_list_current))
+        else :
             self.Isc_var.set(0.00)
 
         self.Isc_formated.set(f"{self.Isc_var.get():.2f}")
 
 
-
-        # Get Value of Voc if it found if not make it 0
-        Voc_found = False
-
-        for v, i in zip(self.data_list_voltage, self.data_list_current):
-            if i == 0:
-                self.Voc_var.set(v)
-                Voc_found = True
-                break
-
-        if not Voc_found :
+        if self.data_list_voltage:
+            self.Voc_var.set(max(self.data_list_voltage2))
+        else :
             self.Voc_var.set(0.00)
 
         self.Voc_formated.set(f"{self.Voc_var.get():.2f}")
@@ -317,7 +303,7 @@ class GUI:
         maxPower = self.max_power_var.get()
 
         if isc and voc and maxPower :
-            FF = (maxPower / isc * voc) * 100
+            FF = (maxPower/(isc * voc)) * 100
         else :
             FF = 0.00
 
@@ -477,8 +463,8 @@ class GUI:
         last_id = sheet.cell(row=sheet.max_row, column=1).value
         last_module_number = sheet.cell(row=sheet.max_row, column=2).value 
 
-        next_id = int(last_id) + 1 if last_id is not None and last_id.isdigit() else 1
-        next_module_number = int(last_module_number) + 1 if last_module_number is not None and last_module_number.isdigit() else 312
+        next_id = int(last_id) + 1 if last_id is not None and str(last_id).isdigit() else 1
+        next_module_number = int(last_module_number) + 1 if last_module_number is not None and str(last_module_number).isdigit() else 312
 
         row = (next_id,                        # ID
             next_module_number,             # Module Number
@@ -563,7 +549,6 @@ class GUI:
         self.progress_bar.set(self.progress)
         self.status_label.configure(text="Running...", text_color="orange")
         self.run_button.configure(state='disabled' ,image=self.test_running_img)
-        self.save_test_button.configure(state = "disabled", image = self.save_test_disabled_img)
 
 
         if self.mode_var.get() == "CV":
@@ -571,10 +556,13 @@ class GUI:
             stop_voltage = self.working_profile["stop voltage"].get()
             step_size_voltage = self.working_profile["step size voltage"].get()
             dwell_time_voltage = self.working_profile["dwell time voltage"].get()
+            current_limit = self.working_profile["current limit"].get()
             self.plot_interval = dwell_time_voltage
+            self.bk_device.set_CV(current_limit)
 
             self.data_list_current.clear()
             self.data_list_voltage.clear()
+            self.data_list_voltage2.clear()
             self.data_list_power.clear()
 
             voltages = np.arange(start_voltage, stop_voltage + step_size_voltage, step_size_voltage)
@@ -587,8 +575,8 @@ class GUI:
             self.progress_label.configure(text="100%")
             self.status_label.configure(text="  Saved", text_color="#06F30B")
             self.run_button.configure(state='normal',image=self.run_test_img)
-            self.save_test_button.configure(state = "normal", image = self.save_test_img)
             self.show_table()
+            self.SaveData()
             return
 
         voltage = voltages[index]
@@ -602,10 +590,9 @@ class GUI:
             return
 
         # current, _ = self.get_data()
-        current = 2
+        current,voltage2 = self.get_data()
         voltage = voltages[index]
-        # current = 10 * math.sin(voltage * 0.1) + random.uniform(-1, 1)
-        # voltage2 = 20 * math.cos(voltage * 0.1) + random.uniform(-1, 1)
+
         power = current * voltage
 
         self.Current_var.set(current)
@@ -615,11 +602,13 @@ class GUI:
         self.Voltage_formated.set(f"{self.Voltage_var.get():.2f}")
         self.Power_formated.set(f"{self.Power_var.get():.2f}")
         
-        self.update_data()
-
         self.data_list_voltage.append(voltage)
+        self.data_list_voltage2.append(voltage2)
+
         self.data_list_current.append(current)
         self.data_list_power.append(power)
+
+        self.update_data()
 
         self.progress += 1 / len(voltages)
         self.progress_bar.set(self.progress)
@@ -906,8 +895,6 @@ class GUI:
         self.run_test_img = PhotoImage(file = self.get_image_path("run_test.png"))
         self.run_test_disabled_img = PhotoImage(file=self.get_image_path("run_test_disabled.png"))
         self.test_running_img = PhotoImage(file = self.get_image_path("test_running.png"))
-        self.save_test_img = PhotoImage(file = self.get_image_path("save_test.png"))
-        self.save_test_disabled_img = PhotoImage(file = self.get_image_path("save_test_disabled.png"))
         self.insert_SN_img = PhotoImage(file=self.get_image_path("insert_SN.png"))
         self.plot_img = PhotoImage(file = self.get_image_path("plot_background.png"))
         self.data_img = PhotoImage(file = self.get_image_path("data_background.png"))
@@ -925,7 +912,7 @@ class GUI:
 
 
 
-        insert_SN_background = canvas.create_image(           260,36,image=self.insert_SN_img)
+        insert_SN_background = canvas.create_image(           300,55,image=self.insert_SN_img)
         plot_background = canvas.create_image(     480,340,image = self.plot_img)
         data_background = canvas.create_image(     1250,340,image = self.data_img)
         plot_background = canvas.create_image(     480,640,image = self.vol_curr_pow_img)
@@ -1008,15 +995,13 @@ class GUI:
         self.setup_chart()
 
         # Entry Text for serial number of solar module
-        self.entry_serialNum = ctk.CTkEntry(master=self.dashboard_frame, placeholder_text="Serial Number",textvariable=self.serial_num_var ,border_width = 0, fg_color = "white", bg_color="white", width=180,validate="key",validatecommand=(self.dashboard_frame.register(self.validate_serial), "%P"))
+        self.entry_serialNum = ctk.CTkEntry(master=self.dashboard_frame, placeholder_text="Serial Number",textvariable=self.serial_num_var ,border_width = 0, fg_color = "white", bg_color="white", width=230,validate="key",validatecommand=(self.dashboard_frame.register(self.validate_serial), "%P"),font=("Helvetica",14, "bold"))
         self.entry_serialNum.place(x=120, y=15)
 
         # RUN TEST button to start test
         self.run_button = ctk.CTkButton(master=self.dashboard_frame,text = "RUN TEST",image=self.run_test_disabled_img, command=self.run_test, fg_color='transparent', text_color='#0000FF', font=("Arial Rounded MT Bold",14),hover="transparent",state='disabled')
         self.run_button.place(x=540, y=9)
 
-        self.save_test_button = ctk.CTkButton(master=self.dashboard_frame, text = "SAVE TEST" ,image=self.save_test_disabled_img, command=self.SaveData, fg_color='#D7E1E7', text_color='#000000', font=("Arial Rounded MT Bold",14),hover="#b7b7fc",state='disabled')
-        self.save_test_button.place(x=340, y=15)
 
         # Progress bar to show the progress of the test
         self.progress_bar = ctk.CTkProgressBar(master=self.dashboard_frame, width = 150,height=8.5, bg_color= "white",progress_color = ("#00d9ff", "black"))
