@@ -2,6 +2,7 @@ from pathlib import Path
 from tkinter import Tk, Canvas, Entry, Button, PhotoImage,ttk, DoubleVar,Label,StringVar, BooleanVar,messagebox,simpledialog
 import tkinter as tk
 from tkinter.font import Font
+import pyvisa
 import customtkinter as ctk
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -9,13 +10,91 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import pandas as pd
 import numpy as np
 import sys,time
-import math
-import random
+import os
 sys.path.append('C:\\Users\\dell\\GUI-read-Bk-precision-data')
-from readData import Bkp8600, CollectData
 from PIL import Image, ImageTk
 from datetime import datetime
+from openpyxl import load_workbook, Workbook
 
+
+class Bkp8600(object):
+    def __init__(self, resource=None):
+        self.rm = pyvisa.ResourceManager()
+        self.instr = None 
+        self.instrument_found = False
+        if resource:
+            try:
+                self.instr = self.rm.open_resource(resource, timeout=10000)
+                self.instrument_found = True
+            except pyvisa.VisaIOError:
+                print(f"Error: Unable to open resource {resource}.")
+        else:
+            instruments = self.rm.list_resources()
+            for r in instruments:
+                try:
+                    instr = self.rm.open_resource(r)
+                    if instr.query("*IDN?").startswith("B&K Precision"):
+                        self.instr = instr
+                        self.instrument_found = True
+                        break
+                except pyvisa.VisaIOError:
+                    pass
+            if not self.instrument_found:
+                print("No BK Precision instrument found.")
+
+    def get_description(self):
+        if self.instrument_found:
+            return self.instr.query("*IDN?")
+
+    def get_current(self):
+        if self.instrument_found:
+            return float(self.instr.query(":MEASure:CURRent?"))
+
+    def get_voltage(self):
+        if self.instrument_found:
+            return float(self.instr.query(":MEASure:VOLTage?"))
+    
+    def get_resistance(self):
+        if self.instrument_found:
+            return float(self.instr.query(":MEASure:RESistance?"))
+
+    def get_power(self):
+        if self.instrument_found:
+            return float(self.instr.query(":MEASure:POWer?"))
+
+    def initialize(self):
+        if self.instrument_found:
+            self.instr.write("SYSTem:REMote")
+            self.instr.write("INPut OFF")
+            self.instr.write("*RST")
+            self.instr.write("*CLS")
+            self.instr.write("*SRE 0")
+            self.instr.write("*ESE 0")
+
+    def set_current(self, current):
+        if self.instrument_found:
+            self.instr.write("INPut ON")
+            self.instr.write("FUNC CURRent")
+            self.instr.write(f"CURRent {current}")
+
+    
+    def set_CV(self,current_limit):
+        if self.instrument_found:
+            self.instr.write("*RST")
+            self.instr.write("FUNC VOLTage")  # Set the function mode to Constant Voltage (CV)
+            self.instr.write(f"CURR:LIMIT {current_limit}") 
+    
+    def set_voltage(self,voltage) :
+        if self.instrument_found:
+            self.instr.write("INPut ON")
+            self.instr.write(f"VOLT {voltage}")
+
+
+
+    def reset_to_manual(self):
+        if self.instrument_found:
+            self.instr.write("INPut OFF")
+            self.instr.write("SYSTem:LOCal")
 
 
 class GUI:
@@ -118,8 +197,6 @@ class GUI:
         self.FF_formated = StringVar(value="0.00")
 
 
-
-
         self.left_frame = ctk.CTkFrame(master=self.window, width=200, corner_radius=0, fg_color='white')
         self.left_frame.pack(side="left", fill="y")
 
@@ -174,6 +251,7 @@ class GUI:
 
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)  # Handle window closing event
         self.window.mainloop()
+
 
 
     # Funtion to Get Max power
@@ -352,9 +430,86 @@ class GUI:
         FF = self.FF_var.get()
         grade = self.grade_var.get()
 
-        CollectData(formatted_date,formatted_time,serial_number,max_power,Impp,Vmpp,Voc,Isc,FF,grade)
+        self.CollectData(formatted_date,formatted_time,serial_number,max_power,Impp,Vmpp,Voc,Isc,FF,grade)
         messagebox.showinfo("Information", "              Test Data Saved                ")
     
+    def create_excel_file_if_not_exists(self,excel_file_path):
+        if not os.path.exists(excel_file_path):
+            wb = Workbook()
+
+            ws = wb.active
+            ws.title = "Sheet2"
+
+            headers = ["ID", "Module Number", "Test Result", "Pmpp", "Imp", "Vmp", "Uoc", "Isc",
+                    "Fil factor", "Grade", "Recurrence", "Temperature Ambient", "Temperature Lamps",
+                    "Pmpp Reference", "Pmpp Deviation", "Uoc Reference", "Uoc Deviation", "Isc Reference",
+                    "Isc Deviation", "Temperature Ambient Reference", "Temperature Lamps Reference",
+                    "Reference Number", "Date", "Time", "Serial Number"]
+            ws.append(headers)
+            wb.save(excel_file_path)
+            print(f"Created new Excel file at {excel_file_path}")
+
+    def get_executable_dir(self):
+        if getattr(sys, 'frozen', False):
+            # If the application is run as a bundle (frozen)
+            executable_dir = os.path.dirname(sys.executable)
+        else:
+            # If the script is run normally
+            executable_dir = os.path.dirname(os.path.abspath(__file__))
+        return executable_dir
+
+
+
+    def CollectData(self, date, time, serial_number, max_power=0, Impp=0, Vmpp=0, Voc=0, Isc=0, FF=0, Grade="A"):
+        executable_dir = self.get_executable_dir()
+        
+        excel_file_path = os.path.join(executable_dir, 'output.xlsx')
+
+        self.create_excel_file_if_not_exists(excel_file_path)
+
+        wb = load_workbook(excel_file_path)
+
+        sheet = wb['Sheet2']
+
+        last_id = sheet.cell(row=sheet.max_row, column=1).value
+        last_module_number = sheet.cell(row=sheet.max_row, column=2).value 
+
+        next_id = int(last_id) + 1 if last_id is not None and last_id.isdigit() else 1
+        next_module_number = int(last_module_number) + 1 if last_module_number is not None and last_module_number.isdigit() else 312
+
+        row = (next_id,                        # ID
+            next_module_number,             # Module Number
+            0,                              # Test Result
+            max_power,                      # Pmpp
+            Impp,                           # Imp
+            Vmpp,                           # Vmp
+            Voc,                            # Uoc
+            Isc,                            # Isc
+            FF,                             # Fil factor
+            Grade,                          # Grade
+            0,                              # Recurrence
+            0,                              # Temperature Ambient
+            0,                              # Temperature Lamps
+            31.0654,                        # Pmpp Reference
+            0,                              # Pmpp Deviation
+            9.9332,                         # Uoc Reference
+            0,                              # Uoc Deviation
+            4.3456,                         # Isc Reference
+            0,                              # Isc Deviation
+            0,                              # Temperature Ambient Reference
+            2,                              # Temperature Lamps Reference
+            0,                              # Reference Number
+            date,                           # Date
+            time,                           # Time
+            serial_number                   # Serial Number
+            )
+
+        sheet.append(row)
+
+        # Save the workbook
+        wb.save(excel_file_path)
+
+
     def calculate_recurrence(self, serial_number):
         recurrence_count = (self.TableData["Serial Num"] == serial_number).sum()
 
