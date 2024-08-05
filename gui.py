@@ -144,7 +144,7 @@ class GUI:
                             "start voltage" : DoubleVar(value = 0.1),
                             "stop voltage" : DoubleVar(value = 32),
                             "step size voltage" : DoubleVar(value = 0.1),
-                            "dwell time voltage" : DoubleVar(value = 10),
+                            "dwell time voltage" : DoubleVar(value = 1),
                             "start current" : DoubleVar(value = 0.1),
                             "stop current" : DoubleVar(value = 15),
                             "step size current" : DoubleVar(value = 0.1),
@@ -297,7 +297,7 @@ class GUI:
         self.Voc_formated.set(f"{self.Voc_var.get():.2f}")
 
     # Function to calculate fill factor
-    def calculate_FF(self) :
+    def calculate_FF_Grade(self) :
         isc = self.Isc_var.get()
         voc = self.Voc_var.get()
         maxPower = self.max_power_var.get()
@@ -310,14 +310,16 @@ class GUI:
         self.FF_var.set(FF)
         self.FF_formated.set(f"{self.FF_var.get():.2f}")
 
-    # Function To find Grade
-    def calculate_grade(self) :
         if self.FF_var.get() <= 65 :
             self.grade_var.set("C")
         elif self.FF_var.get() <= 75 :
             self.grade_var.set("B")
         elif self.FF_var.get() <= 85 :
             self.grade_var.set("A")
+
+
+    # Function To find Grade
+
 
     # Funtion to update Time
     def update_time(self):
@@ -387,7 +389,7 @@ class GUI:
 
     # Method to get Serial Number
     def get_serialNum(self):
-        return self.serial_num_var.get()
+        return int(self.serial_num_var.get())
 
     def validate_serial(self, new_value):
         if new_value.isdigit():
@@ -505,7 +507,14 @@ class GUI:
 
 
     def calculate_recurrence(self, serial_number):
-        recurrence_count = (self.TableData["Serial Num"] == serial_number).sum()
+
+        executable_dir = self.get_executable_dir()
+        excel_file_path = os.path.join(executable_dir, 'output.xlsx')
+
+        df = pd.read_excel(excel_file_path)
+        print("Columns in the DataFrame:", df.columns)
+
+        recurrence_count = (df["Serial Number"] == serial_number).sum()
 
         return recurrence_count + 1
             
@@ -579,8 +588,7 @@ class GUI:
             self.progress_label.configure(text="100%")
             self.status_label.configure(text="  Saved", text_color="#06F30B")
             self.run_button.configure(state='normal',image=self.run_test_img)
-            self.calculate_FF()
-            self.calculate_grade()
+            self.calculate_FF_Grade()
             self.show_table()
             self.SaveData()
             return
