@@ -135,7 +135,7 @@ class GUI:
         self.Voc_var = DoubleVar(value= 0.00)
         self.FF_var = DoubleVar(value= 0.00)
         self.temp_var = DoubleVar(value=25)
-        self.grade_var = StringVar(value="A")
+        self.grade_var = StringVar(value="?")
         self.serial_num_var = StringVar()
 
         self.mode_var = tk.StringVar(value="CV")  # Default selection
@@ -277,7 +277,6 @@ class GUI:
         if self.running :
             self.update_max_power()
             self.calculate_isc_voc()
-            self.calculate_grade()
 
     # Calculate Isc and Voc
     def calculate_isc_voc(self):
@@ -313,7 +312,12 @@ class GUI:
 
     # Function To find Grade
     def calculate_grade(self) :
-        pass
+        if self.FF_var.get() <= 65 :
+            self.grade_var.set("C")
+        elif self.FF_var.get() <= 75 :
+            self.grade_var.set("B")
+        elif self.FF_var.get() <= 85 :
+            self.grade_var.set("A")
 
     # Funtion to update Time
     def update_time(self):
@@ -576,6 +580,7 @@ class GUI:
             self.status_label.configure(text="  Saved", text_color="#06F30B")
             self.run_button.configure(state='normal',image=self.run_test_img)
             self.calculate_FF()
+            self.calculate_grade()
             self.show_table()
             self.SaveData()
             return
