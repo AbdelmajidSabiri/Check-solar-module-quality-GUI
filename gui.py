@@ -1,5 +1,5 @@
 from pathlib import Path
-from tkinter import Tk, Canvas, Entry, Button, PhotoImage,ttk, DoubleVar,Label,StringVar, BooleanVar,messagebox,simpledialog
+from tkinter import Tk, Canvas, Entry, Button, PhotoImage,ttk, DoubleVar,Label,StringVar, IntVar,messagebox,simpledialog
 import tkinter as tk
 from tkinter.font import Font
 import customtkinter as ctk
@@ -136,6 +136,7 @@ class GUI:
         self.FF_var = DoubleVar(value= 0.00)
         self.temp_var = DoubleVar(value=25)
         self.grade_var = StringVar(value="?")
+        self.recurrence_var = IntVar(value = 0)
         self.serial_num_var = StringVar()
 
         self.mode_var = tk.StringVar(value="CV")  # Default selection
@@ -278,6 +279,8 @@ class GUI:
             self.update_max_power()
             self.calculate_isc_voc()
 
+    
+
     # Calculate Isc and Voc
     def calculate_isc_voc(self):
 
@@ -412,8 +415,8 @@ class GUI:
             self.run_button.configure(state="disabled", image=self.run_test_disabled_img)
             return False
 
-    # Function to Get Data and send it to CollectData function That Add it to excel file
-    def SaveData(self) :
+    # Function to Get Data and send it to SaveData function That Add it to excel file
+    def CollectData(self) :
 
         current_date = datetime.now()
         formatted_date = current_date.strftime("%m/%d/%Y")
@@ -428,7 +431,7 @@ class GUI:
         FF = self.FF_var.get()
         grade = self.grade_var.get()
 
-        self.CollectData(formatted_date,formatted_time,serial_number,max_power,Impp,Vmpp,Voc,Isc,FF,grade)
+        self.SaveData(formatted_date,formatted_time,serial_number,max_power,Impp,Vmpp,Voc,Isc,FF,grade)
         messagebox.showinfo("Information", "              Test Data Saved                ")
     
     def create_excel_file_if_not_exists(self,excel_file_path):
@@ -458,7 +461,7 @@ class GUI:
 
 
 
-    def CollectData(self, date, time, serial_number, max_power=0, Impp=0, Vmpp=0, Voc=0, Isc=0, FF=0, Grade="A"):
+    def SaveData(self, date, time, serial_number, max_power=0, Impp=0, Vmpp=0, Voc=0, Isc=0, FF=0, Grade="A"):
         executable_dir = self.get_executable_dir()
         
         excel_file_path = os.path.join(executable_dir, 'output.xlsx')
@@ -508,16 +511,15 @@ class GUI:
         wb.save(excel_file_path)
 
 
-    def calculate_recurrence(self, serial_number):
-
+    def calculate_recurrence(self):
+        
         executable_dir = self.get_executable_dir()
         excel_file_path = os.path.join(executable_dir, 'output.xlsx')
-
         df = pd.read_excel(excel_file_path)
 
-        recurrence_count = (df["Serial Number"] == serial_number).sum()
+        serial_number = self.get_serialNum()
+        self.recurrence_var.set((df["Serial Number"] == serial_number).sum() + 1)
 
-        return recurrence_count + 1
             
     # Add data to table
     def Add_data_table(self) :
@@ -534,7 +536,7 @@ class GUI:
         Vmpp = self.Vmpp_formated.get()
         FF = self.FF_formated.get()
         grade = self.grade_var.get()
-        recurrence_count = self.calculate_recurrence(serial_number)
+        recurrence_count = self.recurrence_var.get()
 
         new_data = {
         "Serial Num": serial_number,
@@ -587,8 +589,9 @@ class GUI:
         if not self.running  or index >= len(voltages) :
             self.running = False
             self.calculate_FF_Grade()
+            self.calculate_recurrence()
             self.show_table()
-            self.SaveData()
+            self.CollectData()
             self.progress_label.configure(text="100%")
             self.status_label.configure(text="  Saved", text_color="#06F30B")
             self.run_button.configure(state='normal',image=self.run_test_img)
@@ -1033,9 +1036,7 @@ class GUI:
         self.status_label = ctk.CTkLabel(master=self.dashboard_frame, text="Waiting", text_color="orange", font=("Arial", 14, "bold"), bg_color="white")
         self.status_label.place(x=1073, y=15)
 
-        # Temperature Label
-        self.temp_label = ctk.CTkLabel(master = self.dashboard_frame, text = f"{round(self.temp_var.get(),2)}", height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
-        self.temp_label.place(x=1003, y=400)
+ 
 
         self.Isc_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Isc_formated, height=5 , width=20 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
         self.Isc_label.place(x=1003, y=120)
@@ -1057,6 +1058,12 @@ class GUI:
 
         self.grade_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.grade_var, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
         self.grade_label.place(x=1003, y=360)
+
+        self.temp_label = ctk.CTkLabel(master = self.dashboard_frame, text = f"{round(self.temp_var.get(),2)}", height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
+        self.temp_label.place(x=1003, y=400)
+
+        self.recurrence_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.recurrence_var, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
+        self.recurrence_label.place(x=1005, y=440)
 
         self.Voltage_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Voltage_formated, height=5, width=60 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 15,"bold"))
         self.Voltage_label.place(x=143, y=502)
