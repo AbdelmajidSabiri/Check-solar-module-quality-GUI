@@ -310,11 +310,13 @@ class GUI:
         self.FF_var.set(FF)
         self.FF_formated.set(f"{self.FF_var.get():.2f}")
 
+        self.grade_var.set("C")
+
         if self.FF_var.get() <= 65 :
             self.grade_var.set("C")
         elif self.FF_var.get() <= 75 :
             self.grade_var.set("B")
-        elif self.FF_var.get() <= 85 :
+        else :
             self.grade_var.set("A")
 
 
@@ -512,7 +514,6 @@ class GUI:
         excel_file_path = os.path.join(executable_dir, 'output.xlsx')
 
         df = pd.read_excel(excel_file_path)
-        print("Columns in the DataFrame:", df.columns)
 
         recurrence_count = (df["Serial Number"] == serial_number).sum()
 
@@ -585,12 +586,13 @@ class GUI:
     def process_next_voltage(self,voltages,index):
         if not self.running  or index >= len(voltages) :
             self.running = False
-            self.progress_label.configure(text="100%")
-            self.status_label.configure(text="  Saved", text_color="#06F30B")
-            self.run_button.configure(state='normal',image=self.run_test_img)
             self.calculate_FF_Grade()
             self.show_table()
             self.SaveData()
+            self.progress_label.configure(text="100%")
+            self.status_label.configure(text="  Saved", text_color="#06F30B")
+            self.run_button.configure(state='normal',image=self.run_test_img)
+
             return
 
         voltage = voltages[index]
