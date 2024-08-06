@@ -4,6 +4,7 @@ import tkinter as tk
 from tkinter.font import Font
 import customtkinter as ctk
 import pyvisa
+import pyserial
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -1374,6 +1375,30 @@ class GUI:
         self.bk_device.reset_to_manual()
         self.window.destroy()
         self.window.quit()
+
+
+class ArduinoCmd:
+    def __init__(self):
+        self.arduino = serial.Serial('COM3', 9600, timeout=1)  # Update 'COM3' with your Arduino's COM port
+
+
+    def turn_light_on(self):
+        self.arduino.write(b'1')
+
+    def turn_light_off(self):
+        self.arduino.write(b'0')
+
+    
+    def update_temperature(self):
+        self.arduino.write(b'T')
+        if self.arduino.in_waiting > 0:
+            temp_data = self.arduino.readline().decode().strip()
+            if temp_data:
+                self.temp_var.set(temp_data)
+    def close(self):
+        self.arduino.close()
+
+
 
 # Instantiate the GUI class to start the application
 if __name__ == "__main__":
