@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter.font import Font
 import customtkinter as ctk
 import pyvisa
-import pyserial
+import serial
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -100,12 +100,38 @@ class Bkp8600(object):
             self.instr.write("SYSTem:LOCal")
 
 
+# class ArduinoCmd:
+#     def __init__(self):
+#         self.arduino = serial.Serial('COM3', 9600, timeout=1)  # Update 'COM3' with your Arduino's COM port
+
+
+#     def turn_light_on(self):
+#         self.arduino.write(b'1')
+
+#     def turn_light_off(self):
+#         self.arduino.write(b'0')
+
+    
+#     def update_temperature(self):
+#         self.arduino.write(b'T')
+#         if self.arduino.in_waiting > 0:
+#             temp_data = self.arduino.readline().decode().strip()
+            # if temp_data:
+#                 self.temp_var.set(temp_data)
+
+
+#     def close(self):
+#         self.arduino.close()
+
+
 class GUI:
 
     def __init__(self):
 
         self.bk_device = Bkp8600()
         self.bk_device.initialize()
+
+        # self.Arduino = ArduinoCmd()
 
         self.data_list_current_measured = []
         self.data_list_voltage_measured = []
@@ -144,9 +170,9 @@ class GUI:
 
         self.profiles = [{  "name" : "Profile 1",
                             "start voltage" : DoubleVar(value = 0.1),
-                            "stop voltage" : DoubleVar(value = 32),
+                            "stop voltage" : DoubleVar(value = 12),
                             "step size voltage" : DoubleVar(value = 0.1),
-                            "dwell time voltage" : DoubleVar(value = 1),
+                            "dwell time voltage" : DoubleVar(value = 10),
                             "start current" : DoubleVar(value = 0.1),
                             "stop current" : DoubleVar(value = 15),
                             "step size current" : DoubleVar(value = 0.1),
@@ -327,9 +353,9 @@ class GUI:
 
         self.grade_var.set("C")
 
-        if self.FF_var.get() <= 65 :
+        if self.FF_var.get() < 50 :
             self.grade_var.set("C")
-        elif self.FF_var.get() <= 75 :
+        elif self.FF_var.get() < 60 :
             self.grade_var.set("B")
         else :
             self.grade_var.set("A")
@@ -474,14 +500,16 @@ class GUI:
 
 
     def SaveData(self, date, time, serial_number, max_power=0, Impp=0, Vmpp=0, Voc=0, Isc=0, FF=0, Grade="A"):
+
+
         executable_dir = self.get_executable_dir()
         
         excel_file_path = os.path.join(executable_dir, 'output.xlsx')
 
         self.create_excel_file_if_not_exists(excel_file_path)
 
-        wb = load_workbook(excel_file_path)
 
+        wb = load_workbook(excel_file_path)
         sheet = wb['Sheet2']
 
         last_id = sheet.cell(row=sheet.max_row, column=1).value
@@ -521,6 +549,7 @@ class GUI:
 
         # Save the workbook
         wb.save(excel_file_path)
+
 
 
     def calculate_recurrence(self):
@@ -595,14 +624,15 @@ class GUI:
             self.data_list_power.clear()
 
             voltages = np.arange(start_voltage, stop_voltage + step_size_voltage, step_size_voltage)
-
-            self.process_next_voltage(voltages,0)
+            self.bk_device.set_voltage(voltages[0])
+            self.dashboard_frame.after(1000, self.process_next_voltage, voltages, 0)
 
     def process_next_voltage(self,voltages,index):
         if not self.running  or index >= len(voltages) :
             self.running = False
             self.calculate_FF_Grade()
             self.calculate_recurrence()
+            # self.Arduino.update_temperature()
             self.show_table()
             self.CollectData()
             self.progress_label.configure(text="100%")
@@ -622,10 +652,10 @@ class GUI:
             return
 
         # current, _ = self.get_data()
-        # current_measured,voltage_measured = self.get_data()
+        current_measured,voltage_measured = self.get_data()
         voltage = voltages[index]
-        current_measured = 10 * math.sin(2 * 0.1) + random.uniform(-1, 1)
-        voltage_measured = 20 * math.cos(2 * 0.1) + random.uniform(-1, 1)
+        # current_measured = 10 * math.sin(2 * 0.1) + random.uniform(-1, 1)
+        # voltage_measured = 20 * math.cos(2 * 0.1) + random.uniform(-1, 1)
 
         power = current_measured * voltage_measured
         
@@ -1373,30 +1403,9 @@ class GUI:
     # Funtion to close the application correctly
     def on_closing(self):
         self.bk_device.reset_to_manual()
+        # self.Arduino.colse()
         self.window.destroy()
         self.window.quit()
-
-
-class ArduinoCmd:
-    def __init__(self):
-        self.arduino = serial.Serial('COM3', 9600, timeout=1)  # Update 'COM3' with your Arduino's COM port
-
-
-    def turn_light_on(self):
-        self.arduino.write(b'1')
-
-    def turn_light_off(self):
-        self.arduino.write(b'0')
-
-    
-    def update_temperature(self):
-        self.arduino.write(b'T')
-        if self.arduino.in_waiting > 0:
-            temp_data = self.arduino.readline().decode().strip()
-            if temp_data:
-                self.temp_var.set(temp_data)
-    def close(self):
-        self.arduino.close()
 
 
 
