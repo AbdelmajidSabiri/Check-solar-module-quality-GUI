@@ -279,7 +279,18 @@ class GUI:
             self.update_max_power()
             self.calculate_isc_voc()
 
-    
+    def reset_variables(self) :
+        self.Current_var.set(0.00)
+        self.Voltage_var.set(0.00)
+        self.Power_var.set(0.00)
+        self.max_power_var.set(0.00)
+        self.Vmpp_var.set(0.00)
+        self.Impp_var.set(0.00)
+        self.Isc_var.set(0.00)
+        self.FF_var.set(0.00)
+        self.temp_var.set(25)
+        self.grade_var.set("?")
+        self.recurrence_var.set(0)
 
     # Calculate Isc and Voc
     def calculate_isc_voc(self):
@@ -561,6 +572,7 @@ class GUI:
 
     # Function to Start Test if RUN TEST button is pressed
     def run_test(self):
+        self.reset_variables()
         self.running = True
         self.progress = 0
         self.progress_bar.set(self.progress)
