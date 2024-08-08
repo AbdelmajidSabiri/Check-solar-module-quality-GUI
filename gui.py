@@ -4,6 +4,7 @@ import tkinter as tk
 from tkinter.font import Font
 import customtkinter as ctk
 import pyvisa
+# import pyvisa_py
 import serial
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -652,10 +653,10 @@ class GUI:
             return
 
         # current, _ = self.get_data()
-        current_measured,voltage_measured = self.get_data()
+        # current_measured,voltage_measured = self.get_data()
         voltage = voltages[index]
-        # current_measured = 10 * math.sin(2 * 0.1) + random.uniform(-1, 1)
-        # voltage_measured = 20 * math.cos(2 * 0.1) + random.uniform(-1, 1)
+        current_measured = 10 * math.sin(2 * 0.1) + random.uniform(-1, 1)
+        voltage_measured = 20 * math.cos(2 * 0.1) + random.uniform(-1, 1)
 
         power = current_measured * voltage_measured
         
@@ -1059,25 +1060,25 @@ class GUI:
 
         # Entry Text for serial number of solar module
         self.entry_serialNum = ctk.CTkEntry(master=self.dashboard_frame, placeholder_text="Serial Number",textvariable=self.serial_num_var ,border_width = 0, fg_color = "white", bg_color="white", width=230,validate="key",validatecommand=(self.dashboard_frame.register(self.validate_serial), "%P"),font=("Helvetica",14, "bold"))
-        self.entry_serialNum.place(x=120, y=15)
+        self.entry_serialNum.grid(row=1, column=0, padx=(120,0), pady=(14,0), sticky="w")
 
         # RUN TEST button to start test
         self.run_button = ctk.CTkButton(master=self.dashboard_frame,text = "RUN TEST",image=self.run_test_disabled_img, command=self.run_test, fg_color='transparent', text_color='#0000FF', font=("Arial Rounded MT Bold",14),hover="transparent",state='disabled')
-        self.run_button.place(x=540, y=9)
+        self.run_button.grid(row=1, column=4, padx=(180,0), pady=(8,0), sticky="w")
 
 
         # Progress bar to show the progress of the test
         self.progress_bar = ctk.CTkProgressBar(master=self.dashboard_frame, width = 150,height=8.5, bg_color= "white",progress_color = ("#00d9ff", "black"))
         self.progress_bar.set(self.progress)
-        self.progress_bar.place(x=708, y=26)
+        self.progress_bar.grid(row=1, column=5, padx=(40,0), pady=(10,0), sticky="w")
 
         # Progress label to display the percentage
         self.progress_label = ctk.CTkLabel(master=self.dashboard_frame, text="0%", font=("Arial", 13, "bold"), text_color='#2021fd', bg_color="white")
-        self.progress_label.place(x=868,y=14)
+        self.progress_label.grid(row=1, column=7, padx=(10,0), pady=(10,0), sticky="w")
 
         # Status Label to display the state of the test
         self.status_label = ctk.CTkLabel(master=self.dashboard_frame, text="Waiting", text_color="orange", font=("Arial", 14, "bold"), bg_color="white")
-        self.status_label.place(x=1073, y=15)
+        self.status_label.grid(row=1, column=8, padx=(180,0), pady=(10,0), sticky="w")
 
  
 
