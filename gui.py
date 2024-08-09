@@ -6,6 +6,7 @@ import customtkinter as ctk
 import pyvisa
 # import pyvisa_py
 import serial
+import serial.tools.list_ports
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -101,28 +102,44 @@ class Bkp8600(object):
             self.instr.write("SYSTem:LOCal")
 
 
-# class ArduinoCmd:
-#     def __init__(self):
-#         self.arduino = serial.Serial('COM3', 9600, timeout=1)  # Update 'COM3' with your Arduino's COM port
+class ArduinoCmd:
+    def __init__(self, port='COM3'):
+        self.arduino = None
+        self.arduino_found = False
+
+        self.try_connect(port)
+
+    def try_connect(self, port):
+        try:
+            # Attempt to open the specified COM port
+            self.arduino = serial.Serial(port, 9600, timeout=1)
+            self.arduino_found = True
+            print(f"Arduino successfully connected on port {port}.")
+        except serial.SerialException:
+            print(f"Unable to connect to Arduino on port {port}.")
+            self.arduino = None
+            self.arduino_found = False
 
 
-#     def turn_light_on(self):
-#         self.arduino.write(b'1')
+    def turn_light_on(self):
+        if self.arduino :
+            self.arduino.write(b'1')
 
-#     def turn_light_off(self):
-#         self.arduino.write(b'0')
+    def turn_light_off(self):
+        if self.arduino :
+            self.arduino.write(b'0')
 
     
-#     def update_temperature(self):
-#         self.arduino.write(b'T')
-#         if self.arduino.in_waiting > 0:
-#             temp_data = self.arduino.readline().decode().strip()
-            # if temp_data:
-#                 self.temp_var.set(temp_data)
+    def update_temperature(self):
+        self.arduino.write(b'T')
+        if self.arduino.in_waiting > 0:
+            temp_data = self.arduino.readline().decode().strip()
+            if temp_data:
+                self.temp_var.set(temp_data)
 
 
-#     def close(self):
-#         self.arduino.close()
+    def close(self):
+        self.arduino.close()
 
 
 class GUI:
@@ -132,7 +149,7 @@ class GUI:
         self.bk_device = Bkp8600()
         self.bk_device.initialize()
 
-        # self.Arduino = ArduinoCmd()
+        self.Arduino = ArduinoCmd()
 
         self.data_list_current_measured = []
         self.data_list_voltage_measured = []
@@ -685,11 +702,13 @@ class GUI:
 
     # Function to turn ON the light
     def ON_Lamps(self):
+        self.Arduino.turn_light_on()
         self.ON_button.configure(image = self.lamps_on_img)
         self.OFF_button.configure(image = self.lamps_button_img)
 
     # Function to turn OFF the light
     def OFF_Lamps(self):
+        self.Arduino.turn_light_off()
         self.ON_button.configure(image = self.lamps_button_img)
         self.OFF_button.configure(image = self.lamps_off_img)
 
@@ -1060,25 +1079,25 @@ class GUI:
 
         # Entry Text for serial number of solar module
         self.entry_serialNum = ctk.CTkEntry(master=self.dashboard_frame, placeholder_text="Serial Number",textvariable=self.serial_num_var ,border_width = 0, fg_color = "white", bg_color="white", width=230,validate="key",validatecommand=(self.dashboard_frame.register(self.validate_serial), "%P"),font=("Helvetica",14, "bold"))
-        self.entry_serialNum.grid(row=1, column=0, padx=(120,0), pady=(14,0), sticky="w")
+        self.entry_serialNum.place(x=120, y=15)
 
         # RUN TEST button to start test
         self.run_button = ctk.CTkButton(master=self.dashboard_frame,text = "RUN TEST",image=self.run_test_disabled_img, command=self.run_test, fg_color='transparent', text_color='#0000FF', font=("Arial Rounded MT Bold",14),hover="transparent",state='disabled')
-        self.run_button.grid(row=1, column=4, padx=(180,0), pady=(8,0), sticky="w")
+        self.run_button.place(x=540, y=9)
 
 
         # Progress bar to show the progress of the test
         self.progress_bar = ctk.CTkProgressBar(master=self.dashboard_frame, width = 150,height=8.5, bg_color= "white",progress_color = ("#00d9ff", "black"))
         self.progress_bar.set(self.progress)
-        self.progress_bar.grid(row=1, column=5, padx=(40,0), pady=(10,0), sticky="w")
+        self.progress_bar.place(x=708, y=26)
 
         # Progress label to display the percentage
         self.progress_label = ctk.CTkLabel(master=self.dashboard_frame, text="0%", font=("Arial", 13, "bold"), text_color='#2021fd', bg_color="white")
-        self.progress_label.grid(row=1, column=7, padx=(10,0), pady=(10,0), sticky="w")
+        self.progress_label.place(x=868,y=14)
 
         # Status Label to display the state of the test
         self.status_label = ctk.CTkLabel(master=self.dashboard_frame, text="Waiting", text_color="orange", font=("Arial", 14, "bold"), bg_color="white")
-        self.status_label.grid(row=1, column=8, padx=(180,0), pady=(10,0), sticky="w")
+        self.status_label.place(x=1073, y=15)
 
  
 
