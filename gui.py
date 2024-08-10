@@ -429,7 +429,7 @@ class GUI:
                     
             # Plot the current data
             self.ax.plot(self.data_list_voltage_measured,self.data_list_current_measured,color='Blue', linewidth=2, label='I-V curve')        
-            self.ax.plot(self.data_list_voltage_measured,self.data_list_power,color='Red', linewidth=2, label='I-P curve')
+            self.ax.plot(self.data_list_voltage_measured,self.data_list_power,color='Red', linewidth=2, label='P-V curve')
 
             self.ax.legend(loc='upper right')
 
@@ -454,10 +454,10 @@ class GUI:
 
     def validate_serial(self, new_value):
         if new_value.isdigit():
-            if len(new_value) > 8:
+            if len(new_value) > 6:
                 self.run_button.configure(state="disabled", image=self.run_test_disabled_img)
 
-            elif len(new_value) == 8:
+            elif len(new_value) == 6:
                 self.run_button.configure(state="normal", image=self.run_test_img)
 
             else:
