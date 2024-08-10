@@ -282,6 +282,17 @@ class GUI:
                                                  hover_color="white")
         self.bk_profiles_button.pack(pady=10, padx=0, anchor='w')
 
+        self.about_button = ctk.CTkButton(  master=self.left_frame, 
+                                            text="About",
+                                            command=self.About,
+                                            fg_color='white', 
+                                            text_color='#0000ff',
+                                            font=("Arial",14),
+                                            hover_color="white",
+                                            )
+        self.about_button.pack(pady=(510,0), padx=0, anchor='w')
+
+
         # Create a frame for the main content
         self.main_frame = ctk.CTkFrame(master=self.window, fg_color='#D7E1E7')
         self.main_frame.pack(side="right", expand=True, fill="both", padx=0, pady=0)
@@ -506,17 +517,6 @@ class GUI:
             wb.save(excel_file_path)
             print(f"Created new Excel file at {excel_file_path}")
 
-    def get_executable_dir(self):
-        if getattr(sys, 'frozen', False):
-            # If the application is run as a bundle (frozen)
-            executable_dir = os.path.dirname(sys.executable)
-        else:
-            # If the script is run normally
-            executable_dir = os.path.dirname(os.path.abspath(__file__))
-        return executable_dir
-
-
-
     def SaveData(self, date, time, serial_number, max_power=0, Impp=0, Vmpp=0, Voc=0, Isc=0, FF=0, Grade="A"):
 
         
@@ -738,6 +738,10 @@ class GUI:
         self.bk_profiles_button.configure(image = self.image_bk_profiles_ON_img, text_color = "#0000ff")
 
         self.dashboard_frame.pack_forget()
+
+    def About(self) :
+        messagebox.showinfo("About", "PV Module Testing Application - Designed by Mohamed EL Hamdani, Made by Abdelmajid Sabiri ESTE (08/2024)")
+
 
     def mode_changed(self) :
         if self.mode_var.get() == "CV" :
