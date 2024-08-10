@@ -519,15 +519,13 @@ class GUI:
 
     def SaveData(self, date, time, serial_number, max_power=0, Impp=0, Vmpp=0, Voc=0, Isc=0, FF=0, Grade="A"):
 
-
-        executable_dir = self.get_executable_dir()
         
-        excel_file_path = os.path.join(executable_dir, 'output.xlsx')
+        onedrive_path = os.path.join(os.getenv('USERPROFILE'), 'OneDrive', 'Documents', 'Data.xlsx')
 
-        self.create_excel_file_if_not_exists(excel_file_path)
+        self.create_excel_file_if_not_exists(onedrive_path)
 
 
-        wb = load_workbook(excel_file_path)
+        wb = load_workbook(onedrive_path)
         sheet = wb['Sheet2']
 
         last_id = sheet.cell(row=sheet.max_row, column=1).value
@@ -536,37 +534,37 @@ class GUI:
         next_id = int(last_id) + 1 if last_id is not None and str(last_id).isdigit() else 1
         next_module_number = int(last_module_number) + 1 if last_module_number is not None and str(last_module_number).isdigit() else 312
 
-        row = (next_id,                        # ID
-            next_module_number,             # Module Number
-            0,                              # Test Result
-            max_power,                      # Pmpp
-            Impp,                           # Imp
-            Vmpp,                           # Vmp
-            Voc,                            # Uoc
-            Isc,                            # Isc
-            FF,                             # Fil factor
-            Grade,                          # Grade
-            0,                              # Recurrence
-            0,                              # Temperature Ambient
-            0,                              # Temperature Lamps
-            31.0654,                        # Pmpp Reference
-            0,                              # Pmpp Deviation
-            9.9332,                         # Uoc Reference
-            0,                              # Uoc Deviation
-            4.3456,                         # Isc Reference
-            0,                              # Isc Deviation
-            0,                              # Temperature Ambient Reference
-            2,                              # Temperature Lamps Reference
-            0,                              # Reference Number
-            date,                           # Date
-            time,                           # Time
-            serial_number                   # Serial Number
+        row = (next_id,                             # ID
+            next_module_number,                     # Module Number
+            0,                                      # Test Result
+            max_power,                              # Pmpp
+            Impp,                                   # Imp
+            Vmpp,                                   # Vmp
+            Voc,                                    # Uoc
+            Isc,                                    # Isc
+            FF,                                     # Fil factor
+            Grade,                                  # Grade
+            0,                                      # Recurrence
+            0,                                      # Temperature Ambient
+            0,                                      # Temperature Lamps
+            31.0654,                                # Pmpp Reference
+            ((max_power - 31.0654)/31.0654)*100 ,   # Pmpp Deviation
+            9.9332,                                 # Uoc Reference
+            ((Voc - 9.9332)/9.9332)*100,            # Uoc Deviation
+            4.3456,                                 # Isc Reference
+            ((Isc - 4.3456)/4.3456) * 100,          # Isc Deviation
+            0,                                      # Temperature Ambient Reference
+            2,                                      # Temperature Lamps Reference
+            0,                                      # Reference Number
+            date,                                   # Date
+            time,                                   # Time
+            serial_number                           # Serial Number
             )
 
         sheet.append(row)
 
         # Save the workbook
-        wb.save(excel_file_path)
+        wb.save(onedrive_path)
 
 
 
