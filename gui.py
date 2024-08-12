@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter.font import Font
 import customtkinter as ctk
 import pyvisa
-# import pyvisa_py
+import pyvisa_py
 import serial
 import serial.tools.list_ports
 import matplotlib.pyplot as plt
@@ -165,7 +165,6 @@ class GUI:
         self.window.geometry("1420x800")
         self.window.title("Agamine Solar LAMINATE TESTING V 1.0")
         self.window.configure(fg_color = "#D7E1E7")
-
 
 
 
@@ -501,8 +500,11 @@ class GUI:
         self.SaveData(formatted_date,formatted_time,serial_number,max_power,Impp,Vmpp,Voc,Isc,FF,grade)
         messagebox.showinfo("Information", "              Test Data Saved                ")
     
-    def create_excel_file_if_not_exists(self,excel_file_path):
-        if not os.path.exists(excel_file_path):
+    def create_excel_file_if_not_exists(self):
+        
+        onedrive_path = os.path.join(os.getenv('USERPROFILE'), 'OneDrive', 'Documents', 'Data.xlsx')
+
+        if not os.path.exists(onedrive_path):
             wb = Workbook()
 
             ws = wb.active
@@ -514,15 +516,13 @@ class GUI:
                     "Isc Deviation", "Temperature Ambient Reference", "Temperature Lamps Reference",
                     "Reference Number", "Date", "Time", "Serial Number"]
             ws.append(headers)
-            wb.save(excel_file_path)
-            print(f"Created new Excel file at {excel_file_path}")
+            wb.save(onedrive_path)
+            print(f"Created new Excel file at {onedrive_path}")
 
     def SaveData(self, date, time, serial_number, max_power=0, Impp=0, Vmpp=0, Voc=0, Isc=0, FF=0, Grade="A"):
 
         
         onedrive_path = os.path.join(os.getenv('USERPROFILE'), 'OneDrive', 'Documents', 'Data.xlsx')
-
-        self.create_excel_file_if_not_exists(onedrive_path)
 
 
         wb = load_workbook(onedrive_path)
@@ -570,9 +570,10 @@ class GUI:
 
     def calculate_recurrence(self):
         
-        executable_dir = self.get_executable_dir()
-        excel_file_path = os.path.join(executable_dir, 'output.xlsx')
-        df = pd.read_excel(excel_file_path)
+        onedrive_path = os.path.join(os.getenv('USERPROFILE'), 'OneDrive', 'Documents', 'Data.xlsx')
+        self.create_excel_file_if_not_exists()
+
+        df = pd.read_excel(onedrive_path)
 
         serial_number = self.get_serialNum()
         self.recurrence_var.set((df["Serial Number"] == serial_number).sum() + 1)
