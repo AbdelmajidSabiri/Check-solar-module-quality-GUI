@@ -265,7 +265,7 @@ class GUI:
                                                 command=self.show_dashboard, 
                                                 fg_color='white', 
                                                 text_color='#0000ff', 
-                                                font=("Arial Rounded MT Bold",14), 
+                                                font=("Arial Rounded MT Bold",12), 
                                                 hover_color="white")
         self.dashboard_button.pack(pady=10, padx=0, anchor='w')
 
@@ -276,7 +276,7 @@ class GUI:
                                                  command=self.show_bk_profiles, 
                                                  fg_color='white', 
                                                  text_color='#b7b7fc', 
-                                                 font=("Arial Rounded MT Bold",14), 
+                                                 font=("Arial Rounded MT Bold",12), 
                                                  hover_color="white")
         self.bk_profiles_button.pack(pady=10, padx=0, anchor='w')
 
@@ -285,7 +285,7 @@ class GUI:
                                             command=self.About,
                                             fg_color='white', 
                                             text_color='#0000ff',
-                                            font=("Arial",14),
+                                            font=("Arial",12),
                                             hover_color="white",
                                             )
         self.about_button.pack(pady=(510,0), padx=0, anchor='w')
@@ -417,8 +417,8 @@ class GUI:
         self.ax.spines['top'].set_visible(False)
         self.ax.spines['right'].set_visible(False)
 
-        self.ax.set_xlabel("Voltage (V)", fontsize=12, fontweight='bold')
-        self.ax.set_ylabel("Current (A) / Power (W)", fontsize=12, fontweight='bold')
+        self.ax.set_xlabel("Voltage (V)", fontsize=10, fontweight='bold')
+        self.ax.set_ylabel("Current (A) / Power (W)", fontsize=10, fontweight='bold')
 
         self.ax.tick_params(axis='x', colors='#000000')
         self.ax.tick_params(axis='y', colors='#000000')
@@ -446,7 +446,7 @@ class GUI:
     # Function to setup chart
     def setup_chart(self) :
 
-        self.fig_chart, self.ax = plt.subplots(figsize=(8, 4.5))
+        self.fig_chart, self.ax = plt.subplots(figsize=(6.7, 4.05))
         self.fig_chart.patch.set_facecolor("white")
         self.fig_chart.patch.set_linewidth(2)
 
@@ -454,7 +454,7 @@ class GUI:
 
         self.canvas_chart = FigureCanvasTkAgg(self.fig_chart, master=self.dashboard_frame)
         self.canvas_chart.draw()
-        self.canvas_chart.get_tk_widget().place(x=65, y=95)
+        self.canvas_chart.get_tk_widget().place(x=40, y=75)
 
 
 
@@ -500,7 +500,6 @@ class GUI:
                 self.run_button.configure(state='normal',image=self.run_test_img)
                 messagebox.showinfo("Error", "Same Profile Data is missing")
 
-
     # Function to move to next voltage value (in order to accepte dwell time)
     def process_next_voltage(self,voltages,index):
         if not self.running  or index >= len(voltages) :
@@ -528,11 +527,10 @@ class GUI:
         if not self.running:
             return
 
-        # current, _ = self.get_data()
-        # current_measured,voltage_measured = self.get_data()
+        current_measured,voltage_measured = self.get_data()
         voltage = voltages[index]
-        current_measured = 10 * math.sin(2 * 0.1) + random.uniform(-1, 1)
-        voltage_measured = 20 * math.cos(2 * 0.1) + random.uniform(-1, 1)
+        # current_measured = 10 * math.sin(2 * 0.1) + random.uniform(-1, 1)
+        # voltage_measured = 20 * math.cos(2 * 0.1) + random.uniform(-1, 1)
 
         power = current_measured * voltage_measured
         
@@ -1052,147 +1050,145 @@ class GUI:
 
 
 
-        insert_SN_background = canvas.create_image(           300,55,image=self.insert_SN_img)
-        plot_background = canvas.create_image(     480,340,image = self.plot_img)
-        data_background = canvas.create_image(     1250,340,image = self.data_img)
-        plot_background = canvas.create_image(     480,640,image = self.vol_curr_pow_img)
-        lamp_ON_background = canvas.create_image(  1125,640,image = self.lamps_img)
-        lamp_OFF_background = canvas.create_image( 1380,640,image = self.lamps_img)
-        table_background = canvas.create_image(    770,875,image = self.table_img)
+        insert_SN_background = canvas.create_image(           250,50,image=self.insert_SN_img)
+        plot_background = canvas.create_image(     380,280,image = self.plot_img)
+        data_background = canvas.create_image(     1020,280,image = self.data_img)
+        vol_curr_pow_background = canvas.create_image(     380,535,image = self.vol_curr_pow_img)
+        lamp_ON_background = canvas.create_image(  930,535,image = self.lamps_img)
+        lamp_OFF_background = canvas.create_image( 1170,535,image = self.lamps_img)
+        table_background = canvas.create_image(    642,770,image = self.table_img)
+
         fram_indicator = canvas.create_image(      4,62.0,image=self.fram_indicator_img)
         vertical_line = canvas.create_image(       0,400,image=self.vertical_line_img)
-        progress_bar_background = canvas.create_image(        1000, 56, image=self.progress_bar_img )
-        test_status_background = canvas.create_image(1380,55, image = self.status_img)
-        line_data = canvas.create_image(1210, 120, image = self.line_data_img)
-        line_data = canvas.create_image(1340, 120, image = self.line_data_img)
-        isc_value_background = canvas.create_image(1275, 160, image = self.data_values_img)
-        Voc_value_background = canvas.create_image(1275, 210, image = self.data_values_img)
-        Mpp_value_background = canvas.create_image(1275, 260, image = self.data_values_img)
-        Ipm_value_background = canvas.create_image(1275, 310, image = self.data_values_img)
-        Vpm_value_background = canvas.create_image(1275, 360, image = self.data_values_img)
-        FF_value_background = canvas.create_image(1275, 410, image = self.data_values_img)
-        Grade_value_background = canvas.create_image(1275, 460, image = self.data_values_img)
-        temperature_value_background = canvas.create_image(1275, 510, image = self.data_values_img)
-        test_recurrence_background = canvas.create_image(1275, 560, image = self.data_values_img)
+        progress_bar_background = canvas.create_image(        760, 48, image=self.progress_bar_img )
+        test_status_background = canvas.create_image(1100,30, image = self.status_img)
+        line_data = canvas.create_image(970, 102, image = self.line_data_img)
+        line_data = canvas.create_image(1090, 102, image = self.line_data_img)
 
-        Vol_background = canvas.create_image(230,640, image = self.vol_curr_pow_values_img)
-        Curr_background = canvas.create_image(500,640, image = self.vol_curr_pow_values_img)
-        Pow_background = canvas.create_image(800,640, image = self.vol_curr_pow_values_img)
+        isc_value_background = canvas.create_image(1030, 140, image = self.data_values_img)
+        Voc_value_background = canvas.create_image(1030, 185, image = self.data_values_img)
+        Mpp_value_background = canvas.create_image(1030, 230, image = self.data_values_img)
+        Ipm_value_background = canvas.create_image(1030, 275, image = self.data_values_img)
+        Vpm_value_background = canvas.create_image(1030, 320, image = self.data_values_img)
+        FF_value_background = canvas.create_image(1030, 365, image = self.data_values_img)
+        Grade_value_background = canvas.create_image(1030, 410, image = self.data_values_img)
+        test_recurrence_background = canvas.create_image(1030, 455, image = self.data_values_img)
+
+        Vol_background = canvas.create_image(170,535, image = self.vol_curr_pow_values_img)
+        Curr_background = canvas.create_image(410,535, image = self.vol_curr_pow_values_img)
+        Pow_background = canvas.create_image(640,535, image = self.vol_curr_pow_values_img)
 
 
         
 
 
-        canvas.create_text(40,30, anchor="nw", text="Insert SN", fill="black", font=("",15))
-        canvas.create_text(1180,25, anchor="nw", text="Test status", fill="black", font=("",15))
-        canvas.create_text(1080,110, anchor="nw", text="Description", fill="#9ea5d2", font=("Helvetica",12, "bold"))
-        canvas.create_text(1250,110, anchor="nw", text="Value", fill="#9ea5d2", font=("Helvetica",12, "bold"))
-        canvas.create_text(1375,110, anchor="nw", text="Unit", fill="#9ea5d2", font=("Helvetica",12, "bold"))
+        canvas.create_text(25,20, anchor="nw", text="Insert SN", fill="black", font=("",13))
+        canvas.create_text(950,20, anchor="nw", text="Test status", fill="black", font=("",13))
+        canvas.create_text(850,92, anchor="nw", text="Description", fill="#9ea5d2", font=("Helvetica",10, "bold"))
+        canvas.create_text(1010,92, anchor="nw", text="Value", fill="#9ea5d2", font=("Helvetica",10, "bold"))
+        canvas.create_text(1130,92, anchor="nw", text="Unit", fill="#9ea5d2", font=("Helvetica",10, "bold"))
 
 
-        canvas.create_text(1180,150, anchor="nw", text="Isc", fill="#0000FF", font=("",10))
-        canvas.create_text(1180,200, anchor="nw", text="Voc", fill="#0000FF", font=("",10))
-        canvas.create_text(1180,250, anchor="nw", text="Mpp", fill="#0000FF", font=("",10))
-        canvas.create_text(1180,300, anchor="nw", text="Ipm", fill="#0000FF", font=("",10))
-        canvas.create_text(1180,350, anchor="nw", text="Vpm", fill="#0000FF", font=("",10))
-        canvas.create_text(1185,400, anchor="nw", text="FF", fill="#0000FF", font=("",10))
-        canvas.create_text(1185,450, anchor="nw", text="G", fill="#0000FF", font=("",10))
-        canvas.create_text(1185,500, anchor="nw", text="T", fill="#0000FF", font=("",10))
+        canvas.create_text(945,130, anchor="nw", text="Isc", fill="#0000FF", font=("",9))
+        canvas.create_text(945,175, anchor="nw", text="Voc", fill="#0000FF", font=("",9))
+        canvas.create_text(945,220, anchor="nw", text="Mpp", fill="#0000FF", font=("",9))
+        canvas.create_text(945,265, anchor="nw", text="Ipm", fill="#0000FF", font=("",9))
+        canvas.create_text(945,310, anchor="nw", text="Vpm", fill="#0000FF", font=("",9))
+        canvas.create_text(945,355, anchor="nw", text="FF", fill="#0000FF", font=("",9))
+        canvas.create_text(945,400, anchor="nw", text="G", fill="#0000FF", font=("",9))
 
-        canvas.create_text(1055,150, anchor="nw", text="Short Circuit Current", fill="Black", font=("",10))
-        canvas.create_text(1055,200, anchor="nw", text="Open Circuit Voltage", fill="Black", font=("",10))
-        canvas.create_text(1042,251, anchor="nw", text="Maximum Power Point", fill="Black", font=("",10))
-        canvas.create_text(1082,301, anchor="nw", text="Current at MPP", fill="Black", font=("",10))
-        canvas.create_text(1082,350, anchor="nw", text="Voltage at MPP", fill="Black", font=("",10))
-        canvas.create_text(1120,400, anchor="nw", text="Fil Factor", fill="Black", font=("",10))
-        canvas.create_text(1145,450, anchor="nw", text="Grade", fill="Black", font=("",10))
-        canvas.create_text(1108,500, anchor="nw", text="Temperature", fill="Black", font=("",10))
-        canvas.create_text(1090,550, anchor="nw", text="Test Recurrence", fill="Black", font=("",10))
+        canvas.create_text(830,130, anchor="nw", text="Short Circuit Current", fill="Black", font=("",9))
+        canvas.create_text(830,175, anchor="nw", text="Open Circuit Voltage", fill="Black", font=("",9))
+        canvas.create_text(820,220, anchor="nw", text="Maximum Power Point", fill="Black", font=("",9))
+        canvas.create_text(860,265, anchor="nw", text="Current at MPP", fill="Black", font=("",9))
+        canvas.create_text(860,310, anchor="nw", text="Voltage at MPP", fill="Black", font=("",9))
+        canvas.create_text(890,355, anchor="nw", text="Fil Factor", fill="Black", font=("",9))
+        canvas.create_text(910,400, anchor="nw", text="Grade", fill="Black", font=("",9))
+        canvas.create_text(880,445, anchor="nw", text="Test Recurrence", fill="Black", font=("",9))
 
-        canvas.create_text(1390,150, anchor="nw", text="A", fill="#0000FF", font=("Helvetica",12, "bold"))
-        canvas.create_text(1390,200, anchor="nw", text="V", fill="#0000FF", font=("Helvetica",12, "bold"))
-        canvas.create_text(1390,250, anchor="nw", text="W", fill="#0000FF", font=("Helvetica",12, "bold"))
-        canvas.create_text(1390,300, anchor="nw", text="A", fill="#0000FF", font=("Helvetica",12, "bold"))
-        canvas.create_text(1390,350, anchor="nw", text="V", fill="#0000FF", font=("Helvetica",12, "bold"))
-        canvas.create_text(1390,400, anchor="nw", text="%", fill="#0000FF", font=("Helvetica",12, "bold"))
-        canvas.create_text(1390,450, anchor="nw", text="⭐", fill="#0000FF", font=("Helvetica",12, "bold"))
-        canvas.create_text(1390,500, anchor="nw", text="°C", fill="#0000FF", font=("Helvetica",12, "bold"))
-        canvas.create_text(1390,550, anchor="nw", text="#", fill="#0000FF", font=("Helvetica",12, "bold"))
+        canvas.create_text(1140,130, anchor="nw", text="A", fill="#0000FF", font=("Helvetica",10, "bold"))
+        canvas.create_text(1140,175, anchor="nw", text="V", fill="#0000FF", font=("Helvetica",10, "bold"))
+        canvas.create_text(1140,220, anchor="nw", text="W", fill="#0000FF", font=("Helvetica",10, "bold"))
+        canvas.create_text(1140,265, anchor="nw", text="A", fill="#0000FF", font=("Helvetica",10, "bold"))
+        canvas.create_text(1140,310, anchor="nw", text="V", fill="#0000FF", font=("Helvetica",10, "bold"))
+        canvas.create_text(1140,355, anchor="nw", text="%", fill="#0000FF", font=("Helvetica",10, "bold"))
+        canvas.create_text(1140,400, anchor="nw", text="⭐", fill="#0000FF", font=("Helvetica",10, "bold"))
+        canvas.create_text(1140,445, anchor="nw", text="#", fill="#0000FF", font=("Helvetica",10, "bold"))
 
 
-        canvas.create_text(90,630, anchor="nw", text="Voltage", fill="Black", font=("",13))
-        canvas.create_text(360,630, anchor="nw", text="Current", fill="Black", font=("",13))
-        canvas.create_text(660,630, anchor="nw", text="Power", fill="Black", font=("",13))
+        canvas.create_text(60,527, anchor="nw", text="Voltage", fill="Black", font=("",11))
+        canvas.create_text(300,527, anchor="nw", text="Current", fill="Black", font=("",11))
+        canvas.create_text(538,527, anchor="nw", text="Power", fill="Black", font=("",11))
 
-        canvas.create_text(270,627, anchor="nw", text="V", fill="#0000FF", font=("Helvetica",14, "bold"))
-        canvas.create_text(540,627, anchor="nw", text="A", fill="#0000FF", font=("Helvetica",14, "bold"))
-        canvas.create_text(840,627, anchor="nw", text="W", fill="#0000FF", font=("Helvetica",14, "bold"))
+        canvas.create_text(200,527, anchor="nw", text="V", fill="#0000FF", font=("Helvetica",11, "bold"))
+        canvas.create_text(440,527, anchor="nw", text="A", fill="#0000FF", font=("Helvetica",11, "bold"))
+        canvas.create_text(665,527, anchor="nw", text="W", fill="#0000FF", font=("Helvetica",11, "bold"))
 
-        canvas.create_text(1193,630, anchor="nw", text="On", fill="#0000FF", font=("Helvetica",14, "bold"))
-        canvas.create_text(1449,630, anchor="nw", text="Off", fill="#0000FF", font=("Helvetica",14, "bold"))
+        canvas.create_text(992,527, anchor="nw", text="On", fill="#0000FF", font=("Helvetica",11, "bold"))
+        canvas.create_text(1227,527, anchor="nw", text="Off", fill="#0000FF", font=("Helvetica",11, "bold"))
 
 
         self.setup_chart()
 
         # Entry Text for serial number of solar module
-        self.entry_serialNum = ctk.CTkEntry(master=self.dashboard_frame, placeholder_text="Serial Number",textvariable=self.serial_num_var ,border_width = 0, fg_color = "white", bg_color="white", width=230,validate="key",validatecommand=(self.dashboard_frame.register(self.validate_serial), "%P"),font=("Helvetica",14, "bold"))
-        self.entry_serialNum.place(x=120, y=15)
+        self.entry_serialNum = ctk.CTkEntry(master=self.dashboard_frame, placeholder_text="Serial Number",textvariable=self.serial_num_var ,border_width = 0, fg_color = "#f6f6f6", bg_color="#f6f6f6", width=230,validate="key",validatecommand=(self.dashboard_frame.register(self.validate_serial), "%P"),font=("Helvetica",14, "bold"))
+        self.entry_serialNum.place(x=120, y=17)
 
         # RUN TEST button to start test
-        self.run_button = ctk.CTkButton(master=self.dashboard_frame,text = "RUN TEST",image=self.run_test_disabled_img, command=self.run_test, fg_color='transparent', text_color='#0000FF', font=("Arial Rounded MT Bold",14),hover="transparent",state='disabled')
-        self.run_button.place(x=540, y=9)
+        self.run_button = ctk.CTkButton(master=self.dashboard_frame,text = "RUN TEST",image=self.run_test_disabled_img, command=self.run_test, fg_color='#d2dce2', text_color='#0000FF', font=("Arial Rounded MT Bold",13),hover="transparent",state='disabled')
+        self.run_button.place(x=480, y=6)
 
 
         # Progress bar to show the progress of the test
         self.progress_bar = ctk.CTkProgressBar(master=self.dashboard_frame, width = 150,height=8.5, bg_color= "white",progress_color = ("#00d9ff", "black"))
         self.progress_bar.set(self.progress)
-        self.progress_bar.place(x=708, y=26)
+        self.progress_bar.place(x=660, y=26)
 
         # Progress label to display the percentage
         self.progress_label = ctk.CTkLabel(master=self.dashboard_frame, text="0%", font=("Arial", 13, "bold"), text_color='#2021fd', bg_color="white")
-        self.progress_label.place(x=868,y=14)
+        self.progress_label.place(x=820,y=14)
 
         # Status Label to display the state of the test
-        self.status_label = ctk.CTkLabel(master=self.dashboard_frame, text="Waiting", text_color="orange", font=("Arial", 14, "bold"), bg_color="white")
-        self.status_label.place(x=1073, y=15)
+        self.status_label = ctk.CTkLabel(master=self.dashboard_frame, text="Waiting", text_color="orange", font=("Arial", 12, "bold"), bg_color="white")
+        self.status_label.place(x=1077, y=17)
 
  
 
-        self.Isc_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Isc_formated, height=5 , width=20 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
-        self.Isc_label.place(x=1003, y=120)
+        self.Isc_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Isc_formated, height=5 , width=20 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 11.5,"bold"))
+        self.Isc_label.place(x=1010, y=132)
 
-        self.Voc_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Voc_formated, height=5 , width=20 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
-        self.Voc_label.place(x=1003, y=160)
+        self.Voc_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Voc_formated, height=5 , width=20 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 11.5,"bold"))
+        self.Voc_label.place(x=1010, y=177)
 
-        self.Mpp_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.max_power_formated, height=5 , width=20 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
-        self.Mpp_label.place(x=1003, y=200)
+        self.Mpp_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.max_power_formated, height=5 , width=20 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 11.5,"bold"))
+        self.Mpp_label.place(x=1010, y=222)
 
-        self.Impp_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Impp_formated, height=5 , width=20 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
-        self.Impp_label.place(x=1003, y=240)
+        self.Impp_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Impp_formated, height=5 , width=20 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 11.5,"bold"))
+        self.Impp_label.place(x=1010, y=267)
 
-        self.Vmpp_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Vmpp_formated, height=5 , width=20 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
-        self.Vmpp_label.place(x=1003, y=280)
+        self.Vmpp_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Vmpp_formated, height=5 , width=20 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 11.5,"bold"))
+        self.Vmpp_label.place(x=1010, y=312)
         
-        self.FF_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.FF_formated, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
-        self.FF_label.place(x=1003, y=320)
+        self.FF_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.FF_formated, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 11.5,"bold"))
+        self.FF_label.place(x=1010, y=357)
 
-        self.grade_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.grade_var, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
-        self.grade_label.place(x=1003, y=360)
+        self.grade_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.grade_var, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 11.5,"bold"))
+        self.grade_label.place(x=1010, y=402)
 
-        self.temp_label = ctk.CTkLabel(master = self.dashboard_frame, text = f"{round(self.temp_var.get(),2)}", height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
-        self.temp_label.place(x=1003, y=400)
+        # self.temp_label = ctk.CTkLabel(master = self.dashboard_frame, text = f"{round(self.temp_var.get(),2)}", height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 11.5,"bold"))
+        # self.temp_label.place(x=1003, y=400)
 
-        self.recurrence_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.recurrence_var, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13.5,"bold"))
-        self.recurrence_label.place(x=1005, y=440)
+        self.recurrence_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.recurrence_var, height=5 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 11.5,"bold"))
+        self.recurrence_label.place(x=1010, y=447)
 
-        self.Voltage_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Voltage_formated, height=5, width=60 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 15,"bold"))
-        self.Voltage_label.place(x=143, y=502)
+        self.Voltage_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Voltage_formated, height=5, width=60 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13,"bold"))
+        self.Voltage_label.place(x=133, y=527)
 
-        self.Current_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Current_formated, height=5 ,width=60 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 15,"bold"))
-        self.Current_label.place(x=368, y=502)
+        self.Current_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Current_formated, height=5 ,width=60 ,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13,"bold"))
+        self.Current_label.place(x=373, y=527)
 
-        self.Power_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Power_formated, height=5, width=60,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 15,"bold"))
-        self.Power_label.place(x=600, y=502)
+        self.Power_label = ctk.CTkLabel(master = self.dashboard_frame, textvariable = self.Power_formated, height=5, width=60,text_color="Black",bg_color = "#EBECF0" ,font=("Arial", 13,"bold"))
+        self.Power_label.place(x=605, y=527)
 
 
         style = ttk.Style()
@@ -1201,14 +1197,14 @@ class GUI:
                         borderwidth=0, 
                         background="#D7E1E7",
                         foreground="#000000",
-                        font=("Helvetica",11,"normal"))
+                        font=("Helvetica",8,"normal"))
 
         style.configure("Custom.Treeview.Heading",
                         borderwidth=0,  
                         relief="flat",
                         background="#C9D6DC",  
                         foreground="#000000", 
-                        font=("Helvetica",12,"bold")) 
+                        font=("Helvetica",9,"bold")) 
 
         # Configure selected item style
         style.map("Custom.Treeview",
@@ -1216,10 +1212,10 @@ class GUI:
                 foreground=[('selected', '#0000FF')])
 
         self.tree = ttk.Treeview(self.dashboard_frame, columns=self.columns, show="headings", height=2, style="Custom.Treeview")
-        self.tree.place(x=60, y=720, width=1405, height=280)
+        self.tree.place(x=40, y=600, width=1200, height=280)
           # Adjust width as needed
         for col in self.columns:
-            self.tree.column(col, anchor="center", width=105)
+            self.tree.column(col, anchor="center",width = 50)
             self.tree.heading(col, text=col)
 
 
@@ -1242,7 +1238,7 @@ class GUI:
                                         compound = "right",
                                         hover_color="white",
                                         bg_color = "white")
-        self.ON_button.place(x=814,y=490)
+        self.ON_button.place(x=844,y=510)
 
         self.OFF_button = ctk.CTkButton(master = self.dashboard_frame, 
                                         text="Turn Lamps", 
@@ -1254,7 +1250,7 @@ class GUI:
                                         font=("Arial",14),
                                         hover_color="white",
                                         bg_color="white")
-        self.OFF_button.place(x=1018,y=490)
+        self.OFF_button.place(x=1080,y=510)
 
     # Function to Setup content of bk_profiles Frame
     def setup_bk_profiles_content(self):
