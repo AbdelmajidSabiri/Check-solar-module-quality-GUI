@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter.font import Font
 import customtkinter as ctk
 import pyvisa
-import pyvisa_py
+# import pyvisa_py
 import serial
 import serial.tools.list_ports
 import matplotlib.pyplot as plt
@@ -114,9 +114,7 @@ class ArduinoCmd:
             # Attempt to open the specified COM port
             self.arduino = serial.Serial(port, 9600, timeout=1)
             self.arduino_found = True
-            print(f"Arduino successfully connected on port {port}.")
         except serial.SerialException:
-            print(f"Unable to connect to Arduino on port {port}.")
             self.arduino = None
             self.arduino_found = False
 
@@ -311,10 +309,32 @@ class GUI:
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)  # Handle window closing event
         self.window.mainloop()
 
+
+    # Function to get relative path of images
     def get_image_path(self, image_name):
         script_dir = os.path.dirname(os.path.abspath(__file__))
         image_path = os.path.join(script_dir, 'images', image_name)
         return image_path
+
+    # Funtion to Get data from Bk-precision
+    def get_data(self):
+        try:
+            measured_current = self.bk_device.get_current()
+            voltage = self.bk_device.get_voltage()
+            if measured_current and voltage :
+                return measured_current, voltage
+            else :
+                return 0.00,0.00
+        except Exception as e:
+            print(f"Error retrieving data: {e}")
+            return 0.00, 0.00
+
+    # Method to get Serial Number
+    def get_serialNum(self):
+        return int(self.serial_num_var.get())
+
+
+
 
     # Funtion to Get Max power
     def update_max_power(self) :
@@ -333,21 +353,8 @@ class GUI:
         if self.running :
             self.update_max_power()
             self.calculate_isc_voc()
-
-    def reset_variables(self) :
-        self.Current_var.set(0.00)
-        self.Voltage_var.set(0.00)
-        self.Power_var.set(0.00)
-        self.max_power_var.set(0.00)
-        self.Vmpp_var.set(0.00)
-        self.Impp_var.set(0.00)
-        self.Isc_var.set(0.00)
-        self.FF_var.set(0.00)
-        self.temp_var.set(25)
-        self.grade_var.set("?")
-        self.recurrence_var.set(0)
-
-    # Calculate Isc and Voc
+ 
+   # Calculate Isc and Voc
     def calculate_isc_voc(self):
 
         if self.data_list_current_measured:
@@ -364,7 +371,7 @@ class GUI:
             self.Voc_var.set(0.00)
 
         self.Voc_formated.set(f"{self.Voc_var.get():.2f}")
-
+  
     # Function to calculate fill factor
     def calculate_FF_Grade(self) :
         isc = self.Isc_var.get()
@@ -386,32 +393,21 @@ class GUI:
         elif self.FF_var.get() < 60 :
             self.grade_var.set("B")
         else :
-            self.grade_var.set("A")
+            self.grade_var.set("A")  
 
+    # Function to calculate recurrence
+    def calculate_recurrence(self):
+        
+        onedrive_path = os.path.join(os.getenv('USERPROFILE'), 'OneDrive', 'Documents', 'Data.xlsx')
+        self.create_excel_file_if_not_exists()
 
-    # Function To find Grade
+        df = pd.read_excel(onedrive_path)
 
+        serial_number = self.get_serialNum()
+        self.recurrence_var.set((df["Serial Number"] == serial_number).sum() + 1)
+  
+  
 
-    # Funtion to update Time
-    def update_time(self):
-        current_time = datetime.now().strftime('%H:%M:%S')   
-        current_date = datetime.now().strftime('%d/%m/%Y')        
-        self.time_label.configure(text=current_time)  
-        self.date_label.configure(text = current_date)                        
-        self.dashboard_frame.after(1000, self.update_time)    
-
-    # Funtion to Get data from Bk-precision
-    def get_data(self):
-        try:
-            measured_current = self.bk_device.get_current()
-            voltage = self.bk_device.get_voltage()
-            if measured_current and voltage :
-                return measured_current, voltage
-            else :
-                return 0.00,0.00
-        except Exception as e:
-            print(f"Error retrieving data: {e}")
-            return 0.00, 0.00
 
     # Function to set design of plot
     def configure_plot(self):
@@ -458,28 +454,94 @@ class GUI:
         self.canvas_chart.draw()
         self.canvas_chart.get_tk_widget().place(x=65, y=95)
 
-    # Method to get Serial Number
-    def get_serialNum(self):
-        return int(self.serial_num_var.get())
 
-    def validate_serial(self, new_value):
-        if new_value.isdigit():
-            if len(new_value) > 6:
-                self.run_button.configure(state="disabled", image=self.run_test_disabled_img)
 
-            elif len(new_value) == 6:
-                self.run_button.configure(state="normal", image=self.run_test_img)
 
-            else:
-                self.run_button.configure(state="disabled", image=self.run_test_disabled_img)
-            return True
+    # Function to Start Test if RUN TEST button is pressed
+    def run_test(self):
+        self.reset_variables()
+        self.running = True
+        self.progress = 0
+        self.progress_bar.set(self.progress)
+        self.status_label.configure(text="Running...", text_color="orange")
+        self.run_button.configure(state='disabled' ,image=self.test_running_img)
 
-        elif new_value == "":
-            return True
 
-        else :
-            self.run_button.configure(state="disabled", image=self.run_test_disabled_img)
-            return False
+        if self.mode_var.get() == "CV":
+            start_voltage = self.working_profile["start voltage"].get()
+            stop_voltage = self.working_profile["stop voltage"].get()
+            step_size_voltage = self.working_profile["step size voltage"].get()
+            dwell_time_voltage = self.working_profile["dwell time voltage"].get()
+            current_limit = self.working_profile["current limit"].get()
+            self.plot_interval = dwell_time_voltage
+            self.bk_device.set_CV(current_limit)
+
+            self.data_list_voltage_measured.clear()
+            self.data_list_current_measured.clear()
+            self.data_list_power.clear()
+
+            voltages = np.arange(start_voltage, stop_voltage + step_size_voltage, step_size_voltage)
+            self.bk_device.set_voltage(voltages[0])
+            self.dashboard_frame.after(1000, self.process_next_voltage, voltages, 0)
+
+    # Function to move to next voltage value (in order to accepte dwell time)
+    def process_next_voltage(self,voltages,index):
+        if not self.running  or index >= len(voltages) :
+            self.running = False
+            self.calculate_FF_Grade()
+            self.calculate_recurrence()
+            # self.Arduino.update_temperature()
+            self.show_table()
+            self.CollectData()
+            self.progress_label.configure(text="100%")
+            self.status_label.configure(text="  Saved", text_color="#06F30B")
+            self.run_button.configure(state='normal',image=self.run_test_img)
+
+            return
+
+        voltage = voltages[index]
+        self.bk_device.set_voltage(voltage)
+
+        # Schedule the next update
+        self.dashboard_frame.after(int(self.plot_interval * 1000), lambda: self.update_data_and_plot(voltages,index))
+
+    # Function to update date and change it in the chart
+    def update_data_and_plot(self,voltages,index):
+        if not self.running:
+            return
+
+        # current, _ = self.get_data()
+        # current_measured,voltage_measured = self.get_data()
+        voltage = voltages[index]
+        current_measured = 10 * math.sin(2 * 0.1) + random.uniform(-1, 1)
+        voltage_measured = 20 * math.cos(2 * 0.1) + random.uniform(-1, 1)
+
+        power = current_measured * voltage_measured
+        
+
+        self.Current_var.set(current_measured)
+        self.Voltage_var.set(voltage_measured)
+        self.Power_var.set(power)
+        self.Current_formated.set(f"{self.Current_var.get():.2f}")
+        self.Voltage_formated.set(f"{self.Voltage_var.get():.2f}")
+        self.Power_formated.set(f"{self.Power_var.get():.2f}")
+        
+        self.data_list_voltage_measured.append(voltage_measured)
+        self.data_list_current_measured.append(current_measured)
+        self.data_list_power.append(power)
+
+        self.update_data()
+
+        self.progress += 1 / len(voltages)
+        self.progress_bar.set(self.progress)
+        self.progress_label.configure(text=f"{int(self.progress * 100)}%")
+
+        self.animate_chart(current_measured, voltage_measured)
+
+        self.process_next_voltage(voltages, index + 1)
+
+
+
 
     # Function to Get Data and send it to SaveData function That Add it to excel file
     def CollectData(self) :
@@ -500,10 +562,10 @@ class GUI:
         self.SaveData(formatted_date,formatted_time,serial_number,max_power,Impp,Vmpp,Voc,Isc,FF,grade)
         messagebox.showinfo("Information", "              Test Data Saved                ")
     
+    # Function to create excel file in not found
     def create_excel_file_if_not_exists(self):
         
         onedrive_path = os.path.join(os.getenv('USERPROFILE'), 'OneDrive', 'Documents', 'Data.xlsx')
-
         if not os.path.exists(onedrive_path):
             wb = Workbook()
 
@@ -517,8 +579,8 @@ class GUI:
                     "Reference Number", "Date", "Time", "Serial Number"]
             ws.append(headers)
             wb.save(onedrive_path)
-            print(f"Created new Excel file at {onedrive_path}")
 
+    # Function fo save data in the excel file
     def SaveData(self, date, time, serial_number, max_power=0, Impp=0, Vmpp=0, Voc=0, Isc=0, FF=0, Grade="A"):
 
         
@@ -566,20 +628,7 @@ class GUI:
         # Save the workbook
         wb.save(onedrive_path)
 
-
-
-    def calculate_recurrence(self):
-        
-        onedrive_path = os.path.join(os.getenv('USERPROFILE'), 'OneDrive', 'Documents', 'Data.xlsx')
-        self.create_excel_file_if_not_exists()
-
-        df = pd.read_excel(onedrive_path)
-
-        serial_number = self.get_serialNum()
-        self.recurrence_var.set((df["Serial Number"] == serial_number).sum() + 1)
-
-            
-    # Add data to table
+    # Function to Add data to table bellow the screen
     def Add_data_table(self) :
 
         current_date = datetime.now()
@@ -615,88 +664,20 @@ class GUI:
         new_row = pd.DataFrame([new_data])
         self.TableData = pd.concat([self.TableData, new_row], ignore_index=True)
 
+    #   Function to reset variabels after test finished
+    def reset_variables(self) :
+        self.Current_var.set(0.00)
+        self.Voltage_var.set(0.00)
+        self.Power_var.set(0.00)
+        self.max_power_var.set(0.00)
+        self.Vmpp_var.set(0.00)
+        self.Impp_var.set(0.00)
+        self.Isc_var.set(0.00)
+        self.FF_var.set(0.00)
+        self.temp_var.set(25)
+        self.grade_var.set("?")
+        self.recurrence_var.set(0)
 
-
-    # Function to Start Test if RUN TEST button is pressed
-    def run_test(self):
-        self.reset_variables()
-        self.running = True
-        self.progress = 0
-        self.progress_bar.set(self.progress)
-        self.status_label.configure(text="Running...", text_color="orange")
-        self.run_button.configure(state='disabled' ,image=self.test_running_img)
-
-
-        if self.mode_var.get() == "CV":
-            start_voltage = self.working_profile["start voltage"].get()
-            stop_voltage = self.working_profile["stop voltage"].get()
-            step_size_voltage = self.working_profile["step size voltage"].get()
-            dwell_time_voltage = self.working_profile["dwell time voltage"].get()
-            current_limit = self.working_profile["current limit"].get()
-            self.plot_interval = dwell_time_voltage
-            self.bk_device.set_CV(current_limit)
-
-            self.data_list_voltage_measured.clear()
-            self.data_list_current_measured.clear()
-            self.data_list_power.clear()
-
-            voltages = np.arange(start_voltage, stop_voltage + step_size_voltage, step_size_voltage)
-            self.bk_device.set_voltage(voltages[0])
-            self.dashboard_frame.after(1000, self.process_next_voltage, voltages, 0)
-
-    def process_next_voltage(self,voltages,index):
-        if not self.running  or index >= len(voltages) :
-            self.running = False
-            self.calculate_FF_Grade()
-            self.calculate_recurrence()
-            # self.Arduino.update_temperature()
-            self.show_table()
-            self.CollectData()
-            self.progress_label.configure(text="100%")
-            self.status_label.configure(text="  Saved", text_color="#06F30B")
-            self.run_button.configure(state='normal',image=self.run_test_img)
-
-            return
-
-        voltage = voltages[index]
-        self.bk_device.set_voltage(voltage)
-
-        # Schedule the next update
-        self.dashboard_frame.after(int(self.plot_interval * 10), lambda: self.update_data_and_plot(voltages,index))
-
-    def update_data_and_plot(self,voltages,index):
-        if not self.running:
-            return
-
-        # current, _ = self.get_data()
-        # current_measured,voltage_measured = self.get_data()
-        voltage = voltages[index]
-        current_measured = 10 * math.sin(2 * 0.1) + random.uniform(-1, 1)
-        voltage_measured = 20 * math.cos(2 * 0.1) + random.uniform(-1, 1)
-
-        power = current_measured * voltage_measured
-        
-
-        self.Current_var.set(current_measured)
-        self.Voltage_var.set(voltage_measured)
-        self.Power_var.set(power)
-        self.Current_formated.set(f"{self.Current_var.get():.2f}")
-        self.Voltage_formated.set(f"{self.Voltage_var.get():.2f}")
-        self.Power_formated.set(f"{self.Power_var.get():.2f}")
-        
-        self.data_list_voltage_measured.append(voltage_measured)
-        self.data_list_current_measured.append(current_measured)
-        self.data_list_power.append(power)
-
-        self.update_data()
-
-        self.progress += 1 / len(voltages)
-        self.progress_bar.set(self.progress)
-        self.progress_label.configure(text=f"{int(self.progress * 100)}%")
-
-        self.animate_chart(current_measured, voltage_measured)
-
-        self.process_next_voltage(voltages, index + 1)
 
 
     # Function to turn ON the light
@@ -710,6 +691,8 @@ class GUI:
         self.Arduino.turn_light_off()
         self.ON_button.configure(image = self.lamps_button_img)
         self.OFF_button.configure(image = self.lamps_off_img)
+
+
 
     #Function to show table
     def show_table(self) :
@@ -740,10 +723,32 @@ class GUI:
 
         self.dashboard_frame.pack_forget()
 
-    def About(self) :
-        messagebox.showinfo("About", "PV Module Testing Application - Designed by Mohamed EL Hamdani, Made by Abdelmajid Sabiri ESTE (08/2024)")
 
 
+
+    # Function to intialise new profile
+    def initialize_new_profile(self):
+
+        return {
+            "name" : self.selected_option.get(),
+            "start voltage": tk.DoubleVar(value=0),
+            "stop voltage": tk.DoubleVar(value=0),
+            "step size voltage": tk.DoubleVar(value=0),
+            "dwell time voltage": tk.DoubleVar(value=0),
+            "start current": tk.DoubleVar(value=0),
+            "stop current": tk.DoubleVar(value=0),
+            "step size current": tk.DoubleVar(value=0),
+            "dwell time current": tk.DoubleVar(value=0),
+            "current limit": tk.DoubleVar(value=0),
+            "voltage limit": tk.DoubleVar(value=0),
+            "power limit": tk.DoubleVar(value=0),
+            "temperature limit": tk.DoubleVar(value=0),
+            "current resolution": tk.DoubleVar(value=0),
+            "voltage resolution": tk.DoubleVar(value=0),
+            "active profile": 0,
+        }
+
+    # Function to change mode between CC,CV,CR and CP
     def mode_changed(self) :
         if self.mode_var.get() == "CV" :
             self.cv_radio.configure(fg_color = "#00ff00")
@@ -818,29 +823,7 @@ class GUI:
         elif self.mode_var.get() == "CR" :
             self.cr_radio.configure(fg_color = "#00ff00")
     
-
-
-    def initialize_new_profile(self):
-
-        return {
-            "name" : self.selected_option.get(),
-            "start voltage": tk.DoubleVar(value=0),
-            "stop voltage": tk.DoubleVar(value=0),
-            "step size voltage": tk.DoubleVar(value=0),
-            "dwell time voltage": tk.DoubleVar(value=0),
-            "start current": tk.DoubleVar(value=0),
-            "stop current": tk.DoubleVar(value=0),
-            "step size current": tk.DoubleVar(value=0),
-            "dwell time current": tk.DoubleVar(value=0),
-            "current limit": tk.DoubleVar(value=0),
-            "voltage limit": tk.DoubleVar(value=0),
-            "power limit": tk.DoubleVar(value=0),
-            "temperature limit": tk.DoubleVar(value=0),
-            "current resolution": tk.DoubleVar(value=0),
-            "voltage resolution": tk.DoubleVar(value=0),
-            "active profile": 0,
-        }
-    
+    # Function to state of entries and buttons depending on mode selected    
     def check_profile(self) :
         if self.selected_option.get() == "Profile 1" or self.selected_option.get() == "Profile 2" :
             self.entry_start_current.configure(state = "readonly")
@@ -879,6 +862,7 @@ class GUI:
             self.save_profile_button.configure(state = "normal",image = self.save_profile_img)
             self.delete_profile_button.configure(state = "normal", image = self.delete_profile_img)
 
+    # Function to change profile
     def change_profile(self, selected_value):
 
         if self.selected_option.get().startswith("Profile") :
@@ -907,6 +891,7 @@ class GUI:
                 
         self.check_profile()
 
+    # Function to save profile
     def save_profile(self) :
 
         last_profile_number = int(self.options_list[-2].split()[1])
@@ -917,6 +902,7 @@ class GUI:
         self.options_list.insert(-1, new_profile_name)
         self.option_menu.configure(values=self.options_list)
 
+    # Function to delete profile Added
     def delete_profile(self) :
         if self.selected_option.get().startswith("Profile") :
             self.profiles.pop(self.selected_index)
@@ -927,6 +913,7 @@ class GUI:
 
             self.change_profile("Profile 1")
 
+    # Function to make profile chosen as a working profile
     def activate_profile(self) :
         if self.selected_profile["active profile"] == 1:
             self.activate_profile_button.configure(image = self.disabled_profile_img, text = "Disabled", text_color='#FF0303')
@@ -937,6 +924,7 @@ class GUI:
             self.selected_profile["active profile"] = 1
             self.working_profile = self.selected_profile
 
+    # Function to update entries if selected profile changed
     def update_entries(self):
         self.entry_start_current.configure(textvariable = self.selected_profile["start current"] )
         self.entry_stop_current.configure(textvariable = self.selected_profile["stop current"])
@@ -955,12 +943,41 @@ class GUI:
 
 
 
+
+    # Function to validate serial number entred (6 numbers & containe only numbers)
+    def validate_serial(self, new_value):
+        if new_value.isdigit():
+            if len(new_value) > 6:
+                self.run_button.configure(state="disabled", image=self.run_test_disabled_img)
+
+            elif len(new_value) == 6:
+                self.run_button.configure(state="normal", image=self.run_test_img)
+
+            else:
+                self.run_button.configure(state="disabled", image=self.run_test_disabled_img)
+            return True
+
+        elif new_value == "":
+            return True
+
+        else :
+            self.run_button.configure(state="disabled", image=self.run_test_disabled_img)
+            return False
+
+    # Function to takes user password
     def prompt_for_password(self):
         password = simpledialog.askstring("Password", "\n\n\t\t\tEnter password:\t\t\t\t\n")
         if password == "agamine":
             return True
         else:
             return False
+
+    # Function to display infos about the application
+    def About(self) :
+        messagebox.showinfo("About", "PV Module Testing Application - Designed by Mohamed EL Hamdani, Made by Abdelmajid Sabiri ESTE (08/2024)")
+
+
+
 
     # Funtion to Setup content of Dashboard Frame
     def setup_dashboard_content(self):
