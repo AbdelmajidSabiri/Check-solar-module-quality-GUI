@@ -481,10 +481,25 @@ class GUI:
             self.data_list_voltage_measured.clear()
             self.data_list_current_measured.clear()
             self.data_list_power.clear()
-    
-            voltages = np.arange(start_voltage, stop_voltage + step_size_voltage, step_size_voltage)
-            self.bk_device.set_voltage(voltages[0])
-            self.dashboard_frame.after(1000, self.process_next_voltage, voltages, 0)
+            if step_size_voltage and stop_voltage and start_voltage and dwell_time_voltage:
+
+                if start_voltage < stop_voltage :
+                    voltages = np.arange(start_voltage, stop_voltage + step_size_voltage, step_size_voltage)
+                    self.bk_device.set_voltage(voltages[0])
+                    self.dashboard_frame.after(1000, self.process_next_voltage, voltages, 0)
+                else :
+                    self.running = False
+                    self.progress_label.configure(text="100%")
+                    self.status_label.configure(text="  Saved", text_color="#06F30B")
+                    self.run_button.configure(state='normal',image=self.run_test_img)
+                    messagebox.showinfo("Error", "Start voltage must be less than Stop voltage")
+            else :
+                self.running = False
+                self.progress_label.configure(text="100%")
+                self.status_label.configure(text="  Saved", text_color="#06F30B")
+                self.run_button.configure(state='normal',image=self.run_test_img)
+                messagebox.showinfo("Error", "Same Profile Data is missing")
+
 
     # Function to move to next voltage value (in order to accepte dwell time)
     def process_next_voltage(self,voltages,index):
@@ -498,6 +513,7 @@ class GUI:
             self.progress_label.configure(text="100%")
             self.status_label.configure(text="  Saved", text_color="#06F30B")
             self.run_button.configure(state='normal',image=self.run_test_img)
+            messagebox.showinfo("Information", "              Test Data Saved                ")
 
             return
 
@@ -562,7 +578,6 @@ class GUI:
         grade = self.grade_var.get()
 
         self.SaveData(formatted_date,formatted_time,serial_number,max_power,Impp,Vmpp,Voc,Isc,FF,grade)
-        messagebox.showinfo("Information", "              Test Data Saved                ")
     
     # Function to create excel file in not found
     def create_excel_file_if_not_exists(self):
