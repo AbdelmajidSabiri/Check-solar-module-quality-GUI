@@ -417,8 +417,8 @@ class GUI:
         self.ax.spines['top'].set_visible(False)
         self.ax.spines['right'].set_visible(False)
 
-        self.ax.set_xlabel("Voltage (V)", fontsize=10, fontweight='bold')
-        self.ax.set_ylabel("Current (A) / Power (W)", fontsize=10, fontweight='bold')
+        self.ax.set_xlabel("Voltage (V)", fontsize=8, fontweight='bold')
+        self.ax.set_ylabel("Current (A) / Power (W)", fontsize=8, fontweight='bold')
 
         self.ax.tick_params(axis='x', colors='#000000')
         self.ax.tick_params(axis='y', colors='#000000')
@@ -446,7 +446,7 @@ class GUI:
     # Function to setup chart
     def setup_chart(self) :
 
-        self.fig_chart, self.ax = plt.subplots(figsize=(6.7, 4.05))
+        self.fig_chart, self.ax = plt.subplots(figsize=(6.7, 4))
         self.fig_chart.patch.set_facecolor("white")
         self.fig_chart.patch.set_linewidth(2)
 
@@ -454,7 +454,7 @@ class GUI:
 
         self.canvas_chart = FigureCanvasTkAgg(self.fig_chart, master=self.dashboard_frame)
         self.canvas_chart.draw()
-        self.canvas_chart.get_tk_widget().place(x=40, y=75)
+        self.canvas_chart.get_tk_widget().place(x=43, y=77)
 
 
 
@@ -481,7 +481,7 @@ class GUI:
             self.data_list_voltage_measured.clear()
             self.data_list_current_measured.clear()
             self.data_list_power.clear()
-            if step_size_voltage and stop_voltage and start_voltage and dwell_time_voltage:
+            if step_size_voltage and stop_voltage and dwell_time_voltage:
 
                 if start_voltage < stop_voltage :
                     voltages = np.arange(start_voltage, stop_voltage + step_size_voltage, step_size_voltage)
@@ -499,6 +499,7 @@ class GUI:
                 self.status_label.configure(text="  Saved", text_color="#06F30B")
                 self.run_button.configure(state='normal',image=self.run_test_img)
                 messagebox.showinfo("Error", "Same Profile Data is missing")
+
 
     # Function to move to next voltage value (in order to accepte dwell time)
     def process_next_voltage(self,voltages,index):
@@ -527,10 +528,10 @@ class GUI:
         if not self.running:
             return
 
-        current_measured,voltage_measured = self.get_data()
+        # current_measured,voltage_measured = self.get_data()
         voltage = voltages[index]
-        # current_measured = 10 * math.sin(2 * 0.1) + random.uniform(-1, 1)
-        # voltage_measured = 20 * math.cos(2 * 0.1) + random.uniform(-1, 1)
+        current_measured = 10 * math.sin(2 * 0.1) + random.uniform(-1, 1)
+        voltage_measured = 20 * math.cos(2 * 0.1) + random.uniform(-1, 1)
 
         power = current_measured * voltage_measured
         
@@ -580,12 +581,19 @@ class GUI:
     # Function to create excel file in not found
     def create_excel_file_if_not_exists(self):
         
-        onedrive_path = os.path.join(os.getenv('USERPROFILE'), 'OneDrive', 'Documents', 'Data.xlsx')
-        if not os.path.exists(onedrive_path):
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+
+        data_folder = os.path.join(base_dir, 'data')
+        if not os.path.exists(data_folder):
+            os.makedirs(data_folder)
+
+        excel_file_path = os.path.join(data_folder, 'Data.xlsx')
+
+        if not os.path.exists(excel_file_path):
             wb = Workbook()
 
             ws = wb.active
-            ws.title = "Sheet2"
+            ws.title = "Sheet1"
 
             headers = ["ID", "Module Number", "Test Result", "Pmpp", "Imp", "Vmp", "Uoc", "Isc",
                     "Fil factor", "Grade", "Recurrence", "Temperature Ambient", "Temperature Lamps",
@@ -593,17 +601,18 @@ class GUI:
                     "Isc Deviation", "Temperature Ambient Reference", "Temperature Lamps Reference",
                     "Reference Number", "Date", "Time", "Serial Number"]
             ws.append(headers)
-            wb.save(onedrive_path)
+            wb.save(excel_file_path)
 
     # Function fo save data in the excel file
     def SaveData(self, date, time, serial_number, max_power=0, Impp=0, Vmpp=0, Voc=0, Isc=0, FF=0, Grade="A"):
 
         
-        onedrive_path = os.path.join(os.getenv('USERPROFILE'), 'OneDrive', 'Documents', 'Data.xlsx')
+        self.create_excel_file_if_not_exists()
+        excel_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'Data.xlsx')
 
 
-        wb = load_workbook(onedrive_path)
-        sheet = wb['Sheet2']
+        wb = load_workbook(excel_file_path)
+        sheet = wb['Sheet1']
 
         last_id = sheet.cell(row=sheet.max_row, column=1).value
         last_module_number = sheet.cell(row=sheet.max_row, column=2).value 
@@ -641,7 +650,7 @@ class GUI:
         sheet.append(row)
 
         # Save the workbook
-        wb.save(onedrive_path)
+        wb.save(excel_file_path)
 
     # Function to Add data to table bellow the screen
     def Add_data_table(self) :
@@ -794,10 +803,10 @@ class GUI:
             self.bk_canvas.itemconfig(self.Bk_profiles_entry_data_step_size_current, image=self.Bk_profilles_entry_data_img)
             self.bk_canvas.itemconfig(self.Bk_profiles_entry_data_dwell_time_current, image=self.Bk_profilles_entry_data_img)
 
-            self.entry_start_voltage.place(x=711, y=443)
-            self.entry_stop_voltage.place(x=711, y=483)
-            self.entry_step_size_voltage.place(x=711, y=523)
-            self.entry_dwell_time_voltage.place(x=711, y=563)
+            self.entry_start_voltage.place(x=723, y=466)
+            self.entry_stop_voltage.place(x=723, y=506)
+            self.entry_step_size_voltage.place(x=723, y=546)
+            self.entry_dwell_time_voltage.place(x=723, y=586)
 
 
             self.entry_start_current.place_forget()
@@ -843,10 +852,10 @@ class GUI:
             self.entry_step_size_voltage.place_forget()
             self.entry_dwell_time_voltage.place_forget()
 
-            self.entry_start_current.place(x=711, y=218)
-            self.entry_stop_current.place(x=711, y=258)
-            self.entry_step_size_current.place(x=711, y=298)
-            self.entry_dwell_time_current.place(x=711, y=338)
+            self.entry_start_current.place(x=723, y=246)
+            self.entry_stop_current.place(x=723, y=286)
+            self.entry_step_size_current.place(x=723, y=326)
+            self.entry_dwell_time_current.place(x=723, y=366)
 
 
 
@@ -1197,14 +1206,14 @@ class GUI:
                         borderwidth=0, 
                         background="#D7E1E7",
                         foreground="#000000",
-                        font=("Helvetica",8,"normal"))
+                        font=("Helvetica",9,"normal"))
 
         style.configure("Custom.Treeview.Heading",
                         borderwidth=0,  
                         relief="flat",
                         background="#C9D6DC",  
                         foreground="#000000", 
-                        font=("Helvetica",9,"bold")) 
+                        font=("Helvetica",10,"bold")) 
 
         # Configure selected item style
         style.map("Custom.Treeview",
@@ -1293,67 +1302,69 @@ class GUI:
 
         fram_indicator = self.bk_canvas.create_image(4,182,image=self.fram_indicator_img)
         vertical_line = self.bk_canvas.create_image(0,400,image=self.vertical_line_img)
-        Bk_profiles_frame = self.bk_canvas.create_image(800,460,image=self.Bk_profilles_frame_img)
-        Bk_profiles_frame_top = self.bk_canvas.create_image(800,160,image=self.Bk_profilles_frame_top_img)
-        mode_selection_frame = self.bk_canvas.create_image(310,360,image=self.mode_selection_frame_img)
-        set_measurement_frame = self.bk_canvas.create_image(310,640,image=self.set_measurement_frame_img)        
-        self.current_sweep_frame = self.bk_canvas.create_image(790,363,image=self.current_sweep_frame_img)
-        self.voltage_sweep_frame = self.bk_canvas.create_image(790,640,image=self.voltage_sweep_frame_active_img)
-        safety_data_frame = self.bk_canvas.create_image(1275,418,image=self.safety_data_frame_img)
+        Bk_profiles_frame = self.bk_canvas.create_image(630,400,image=self.Bk_profilles_frame_img)
+        Bk_profiles_frame_top = self.bk_canvas.create_image(630,150,image=self.Bk_profilles_frame_top_img)
+        mode_selection_frame = self.bk_canvas.create_image(255,320,image=self.mode_selection_frame_img)
+        set_measurement_frame = self.bk_canvas.create_image(255,540,image=self.set_measurement_frame_img)        
+        self.current_sweep_frame = self.bk_canvas.create_image(640,320,image=self.current_sweep_frame_img)
+        self.voltage_sweep_frame = self.bk_canvas.create_image(640,540,image=self.voltage_sweep_frame_active_img)
+        safety_data_frame = self.bk_canvas.create_image(1030,360,image=self.safety_data_frame_img)
 
 
 
 
-        self.Bk_profiles_entry_data_start_current = self.bk_canvas.create_image(925,290,image = self.Bk_profilles_entry_data_img)
-        self.Bk_profiles_entry_data_stop_current = self.bk_canvas.create_image(925,340,image = self.Bk_profilles_entry_data_img)
-        self.Bk_profiles_entry_data_step_size_current = self.bk_canvas.create_image(925,390,image = self.Bk_profilles_entry_data_img)
-        self.Bk_profiles_entry_data_dwell_time_current = self.bk_canvas.create_image(925,440,image = self.Bk_profilles_entry_data_img)
+        self.Bk_profiles_entry_data_start_current = self.bk_canvas.create_image(750,260,image = self.Bk_profilles_entry_data_img)
+        self.Bk_profiles_entry_data_stop_current = self.bk_canvas.create_image(750,300,image = self.Bk_profilles_entry_data_img)
+        self.Bk_profiles_entry_data_step_size_current = self.bk_canvas.create_image(750,340,image = self.Bk_profilles_entry_data_img)
+        self.Bk_profiles_entry_data_dwell_time_current = self.bk_canvas.create_image(750,380,image = self.Bk_profilles_entry_data_img)
 
-        self.Bk_profiles_entry_data_start_voltage = self.bk_canvas.create_image(925,570,image = self.Bk_profilles_entry_data_active_img)
-        self.Bk_profiles_entry_data_stop_voltage = self.bk_canvas.create_image(925,620,image = self.Bk_profilles_entry_data_active_img)
-        self.Bk_profiles_entry_data_step_size_voltage = self.bk_canvas.create_image(925,670,image = self.Bk_profilles_entry_data_active_img)
-        self.Bk_profiles_entry_data_dwell_time_voltage = self.bk_canvas.create_image(925,720,image = self.Bk_profilles_entry_data_active_img)
+        self.Bk_profiles_entry_data_start_voltage = self.bk_canvas.create_image(750,480,image = self.Bk_profilles_entry_data_active_img)
+        self.Bk_profiles_entry_data_stop_voltage = self.bk_canvas.create_image(750,520,image = self.Bk_profilles_entry_data_active_img)
+        self.Bk_profiles_entry_data_step_size_voltage = self.bk_canvas.create_image(750,560,image = self.Bk_profilles_entry_data_active_img)
+        self.Bk_profiles_entry_data_dwell_time_voltage = self.bk_canvas.create_image(750,600,image = self.Bk_profilles_entry_data_active_img)
 
 
-        self.Bk_profiles_entry_data_current_resolution = self.bk_canvas.create_image(440,620,image = self.Bk_profilles_entry_data_active_img)
-        self.Bk_profiles_entry_data_voltage_resolution = self.bk_canvas.create_image(440,670,image = self.Bk_profilles_entry_data_active_img)
+        self.Bk_profiles_entry_data_current_resolution = self.bk_canvas.create_image(350,515,image = self.Bk_profilles_entry_data_active_img)
+        self.Bk_profiles_entry_data_voltage_resolution = self.bk_canvas.create_image(350,555,image = self.Bk_profilles_entry_data_active_img)
 
         
-        self.Bk_profiles_entry_data_current_limit = self.bk_canvas.create_image(1415,350,image = self.Bk_profilles_entry_data_active_img)
-        self.Bk_profiles_entry_data_voltage_limit = self.bk_canvas.create_image(1415,400,image = self.Bk_profilles_entry_data_active_img)
-        self.Bk_profiles_entry_data_power_limit = self.bk_canvas.create_image(1415,450,image = self.Bk_profilles_entry_data_active_img)
-        self.Bk_profiles_entry_data_temperature_limit = self.bk_canvas.create_image(1415,500,image = self.Bk_profilles_entry_data_active_img)
+        self.Bk_profiles_entry_data_current_limit = self.bk_canvas.create_image(1130,315,image = self.Bk_profilles_entry_data_active_img)
+        self.Bk_profiles_entry_data_voltage_limit = self.bk_canvas.create_image(1130,355,image = self.Bk_profilles_entry_data_active_img)
+        self.Bk_profiles_entry_data_power_limit = self.bk_canvas.create_image(1130,395,image = self.Bk_profilles_entry_data_active_img)
+        self.Bk_profiles_entry_data_temperature_limit = self.bk_canvas.create_image(1130,435,image = self.Bk_profilles_entry_data_active_img)
 
 
 
-        self.bk_canvas.create_text(60,40, anchor="nw", text="BK Profile Settings", fill="black", font=("Helvetica",16,"bold"))
-        self.bk_canvas.create_text(880,146, anchor="nw", text="Profile", fill="black", font=("Helvetica",14,"bold"))
+        self.bk_canvas.create_text(60,55, anchor="nw", text="BK Profile Settings", fill="black", font=("Helvetica",16,"bold"))
+        self.bk_canvas.create_text(675,140, anchor="nw", text="Profile", fill="black", font=("Helvetica",11,"bold"))
+        self.bk_canvas.create_text(100,140, anchor="nw", text="Set Profile", fill="black", font=("Helvetica",11,"bold"))
 
 
 
-        self.set_current_sweep = self.bk_canvas.create_text(615,250, anchor="nw", text="Set\nCurrent Sweep", fill="black", font=("Helvetica",12,"bold"))
-        self.set_voltage_sweep = self.bk_canvas.create_text(615,530, anchor="nw", text="Set\nVoltage Sweep", fill="#00A3FF", font=("Helvetica",12,"bold"))
-        self.bk_canvas.create_text(132,530, anchor="nw", text="Set\nMeasurement Precision", fill="black", font=("Helvetica",12,"bold"))
-        self.bk_canvas.create_text(1090,250, anchor="nw", text="Set\nSafety and Protection", fill="black", font=("Helvetica",12,"bold"))
-        self.bk_canvas.create_text(125,280, anchor="nw", text="Mode Selection", fill="black", font=("Helvetica",12,"bold"))
 
-        self.bk_canvas.create_text(770,280, anchor="nw", text="Start Current", fill="black", font=("Helvetica",11,"bold"))
-        self.bk_canvas.create_text(770,330, anchor="nw", text="Stop Current", fill="black", font=("Helvetica",11,"bold"))
-        self.bk_canvas.create_text(770,380, anchor="nw", text="Step Size", fill="black", font=("Helvetica",11,"bold"))
-        self.bk_canvas.create_text(770,430, anchor="nw", text="Dwell Time", fill="black", font=("Helvetica",11,"bold"))
+        self.set_current_sweep = self.bk_canvas.create_text(500,230, anchor="nw", text="Set\nCurrent Sweep", fill="black", font=("Helvetica",10,"bold"))
+        self.set_voltage_sweep = self.bk_canvas.create_text(500,450, anchor="nw", text="Set\nVoltage Sweep", fill="#00A3FF", font=("Helvetica",10,"bold"))
+        self.bk_canvas.create_text(112,450, anchor="nw", text="Set\nMeasurement Precision", fill="black", font=("Helvetica",10,"bold"))
+        self.bk_canvas.create_text(885,230, anchor="nw", text="Set\nSafety and Protection", fill="black", font=("Helvetica",10,"bold"))
+        self.bk_canvas.create_text(105,260, anchor="nw", text="Mode Selection", fill="black", font=("Helvetica",10,"bold"))
 
-        self.bk_canvas.create_text(770,560, anchor="nw", text="Start Voltage", fill="black", font=("Helvetica",11,"bold"))
-        self.bk_canvas.create_text(770,610, anchor="nw", text="Stop Voltage", fill="black", font=("Helvetica",11,"bold"))
-        self.bk_canvas.create_text(770,660, anchor="nw", text="Step Size", fill="black", font=("Helvetica",11,"bold"))
-        self.bk_canvas.create_text(770,710, anchor="nw", text="Dwell Time", fill="black", font=("Helvetica",11,"bold"))
+        self.bk_canvas.create_text(615,250, anchor="nw", text="Start Current", fill="black", font=("Helvetica",10,"bold"))
+        self.bk_canvas.create_text(615,290, anchor="nw", text="Stop Current", fill="black", font=("Helvetica",10,"bold"))
+        self.bk_canvas.create_text(615,330, anchor="nw", text="Step Size", fill="black", font=("Helvetica",10,"bold"))
+        self.bk_canvas.create_text(615,370, anchor="nw", text="Dwell Time", fill="black", font=("Helvetica",10,"bold"))
 
-        self.bk_canvas.create_text(1225,340, anchor="nw", text="  Current Limit", fill="black", font=("Helvetica",11,"bold"))
-        self.bk_canvas.create_text(1225,390, anchor="nw", text="  Voltage Limit", fill="black", font=("Helvetica",11,"bold"))
-        self.bk_canvas.create_text(1225,440, anchor="nw", text="  Power Limit", fill="black", font=("Helvetica",11,"bold"))
-        self.bk_canvas.create_text(1225,490, anchor="nw", text="Temperature Limit", fill="black", font=("Helvetica",11,"bold"))
+        self.bk_canvas.create_text(615,470, anchor="nw", text="Start Voltage", fill="black", font=("Helvetica",10,"bold"))
+        self.bk_canvas.create_text(615,510, anchor="nw", text="Stop Voltage", fill="black", font=("Helvetica",10,"bold"))
+        self.bk_canvas.create_text(615,550, anchor="nw", text="Step Size", fill="black", font=("Helvetica",10,"bold"))
+        self.bk_canvas.create_text(615,590, anchor="nw", text="Dwell Time", fill="black", font=("Helvetica",10,"bold"))
 
-        self.bk_canvas.create_text(235,610, anchor="nw", text="Current Resolution", fill="black", font=("Helvetica",11,"bold"))
-        self.bk_canvas.create_text(235,660, anchor="nw", text="Voltage Resolution", fill="black", font=("Helvetica",11,"bold"))
+        self.bk_canvas.create_text(960,305, anchor="nw", text="Current Limit", fill="black", font=("Helvetica",10,"bold"))
+        self.bk_canvas.create_text(960,345, anchor="nw", text="Voltage Limit", fill="black", font=("Helvetica",10,"bold"))
+        self.bk_canvas.create_text(960,385, anchor="nw", text="Power Limit", fill="black", font=("Helvetica",10,"bold"))
+        self.bk_canvas.create_text(960,425, anchor="nw", text="Temperature Limit", fill="black", font=("Helvetica",10,"bold"))
+
+        self.bk_canvas.create_text(180,504, anchor="nw", text="Current Resolution", fill="black", font=("Helvetica",10,"bold"))
+        self.bk_canvas.create_text(180,544, anchor="nw", text="Voltage Resolution", fill="black", font=("Helvetica",10,"bold"))
 
     
         self.option_menu = ctk.CTkOptionMenu(self.bk_profiles_frame, 
@@ -1367,7 +1378,7 @@ class GUI:
                                             font = ("Helvetica",11,"bold"),
                                             button_color = "#f6f7f9",
                                             button_hover_color = "#E9E9E9")
-        self.option_menu.place(x=150,y=113)
+        self.option_menu.place(x=185,y=136)
 
         self.cv_radio = ctk.CTkRadioButton(
             self.bk_profiles_frame,
@@ -1384,7 +1395,7 @@ class GUI:
             border_color = "Black",
             border_width_unchecked=1.5,
             )
-        self.cv_radio.place(x=220,y=220)
+        self.cv_radio.place(x=230,y=260)
         
         self.cc_radio = ctk.CTkRadioButton(
             self.bk_profiles_frame,
@@ -1400,7 +1411,7 @@ class GUI:
             border_color="Black",
             border_width_unchecked=1.5,
         )
-        self.cc_radio.place(x=220,y=250)
+        self.cc_radio.place(x=230,y=290)
         
         self.cp_radio = ctk.CTkRadioButton(
             self.bk_profiles_frame,
@@ -1416,7 +1427,7 @@ class GUI:
             border_color = "Black",
             border_width_unchecked=1.5,
         )
-        self.cp_radio.place(x=220,y=280)
+        self.cp_radio.place(x=230,y=320)
         
         self.cr_radio = ctk.CTkRadioButton(
             self.bk_profiles_frame,
@@ -1432,14 +1443,14 @@ class GUI:
             border_color = "Black",
             border_width_unchecked=1.5,
         )
-        self.cr_radio.place(x=220,y=310)
+        self.cr_radio.place(x=230,y=350)
 
         self.save_profile_button = ctk.CTkButton(master=self.bk_profiles_frame, text = "Save Profile" ,image=self.save_profile_img, command=self.save_profile, fg_color='#BBBBBB',bg_color="#BBBBBB", text_color='black', font=("Helvetica",14, "bold"),hover="transparent",compound="right",text_color_disabled = "#999999")
         self.delete_profile_button = ctk.CTkButton(master=self.bk_profiles_frame, text = "Delete Profile" ,image=self.delete_profile_img, command=self.delete_profile, fg_color='#BBBBBB',bg_color="#BBBBBB", text_color='black', font=("Helvetica",14, "bold"),hover="transparent",compound="right",text_color_disabled = "#999999")
         self.activate_profile_button = ctk.CTkButton(master=self.bk_profiles_frame, text = "Activated" ,image=self.activate_profile_img, command=self.activate_profile, fg_color='#BBBBBB',bg_color="#BBBBBB", text_color='#03FF0D', font=("Helvetica",15, "bold"),hover="transparent",compound="right")
-        self.save_profile_button.place(x=380, y=102)
-        self.delete_profile_button.place(x=1060, y=107)
-        self.activate_profile_button.place(x=753, y=108)
+        self.save_profile_button.place(x=395, y=120)
+        self.delete_profile_button.place(x=1000, y=124)
+        self.activate_profile_button.place(x=723, y=129)
 
         
 
@@ -1448,50 +1459,50 @@ class GUI:
         self.entry_step_size_current = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, textvariable= self.selected_profile["step size current"],fg_color = "#D1FCFF", bg_color="#D1FCFF", width=50, text_color = "#0000FF",font = ("Helvetica",13,"bold"))
         self.entry_dwell_time_current = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, textvariable= self.selected_profile["dwell time current"],fg_color = "#D1FCFF", bg_color="#D1FCFF", width=50, text_color = "#0000FF",font = ("Helvetica",13,"bold"))
 
-        self.entry_start_current_unit = self.bk_canvas.create_text(952,280, anchor="nw", text="A", fill="#0000FF", font=("Helvetica",13, "bold"),state="hidden")
-        self.entry_stop_current_unit = self.bk_canvas.create_text(952,330, anchor="nw", text="A", fill="#0000FF", font=("Helvetica",12,"bold"),state="hidden")
-        self.entry_step_size_current_unit = self.bk_canvas.create_text(952, 380, anchor="nw", text="A", fill="#0000FF", font=("Helvetica",12,"bold"),state="hidden")
-        self.entry_dwell_time_current_unit = self.bk_canvas.create_text(952, 430, anchor="nw", text="S", fill="#0000FF", font=("Helvetica",12,"bold"),state="hidden")
+        self.entry_start_current_unit = self.bk_canvas.create_text(773,250, anchor="nw", text="A", fill="#0000FF", font=("Helvetica",11, "bold"),state="hidden")
+        self.entry_stop_current_unit = self.bk_canvas.create_text(773,290, anchor="nw", text="A", fill="#0000FF", font=("Helvetica",11,"bold"),state="hidden")
+        self.entry_step_size_current_unit = self.bk_canvas.create_text(773, 330, anchor="nw", text="A", fill="#0000FF", font=("Helvetica",11,"bold"),state="hidden")
+        self.entry_dwell_time_current_unit = self.bk_canvas.create_text(773, 370, anchor="nw", text="S", fill="#0000FF", font=("Helvetica",11,"bold"),state="hidden")
 
 
         self.entry_start_voltage = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, textvariable= self.selected_profile["start voltage"],fg_color = "#D1FCFF", bg_color="#D1FCFF", width=50, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
         self.entry_stop_voltage = ctk.CTkEntry(master=self.bk_profiles_frame,border_width =0,textvariable= self.selected_profile["stop voltage"], fg_color = "#D1FCFF", bg_color="#D1FCFF", width=50, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
         self.entry_step_size_voltage = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0,textvariable= self.selected_profile["step size voltage"], fg_color = "#D1FCFF", bg_color="#D1FCFF", width=50, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
         self.entry_dwell_time_voltage = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, textvariable= self.selected_profile["dwell time voltage"],fg_color = "#D1FCFF", bg_color="#D1FCFF", width=50, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
-        self.entry_start_voltage.place(x=711, y=443)
-        self.entry_stop_voltage.place(x=711, y=483)
-        self.entry_step_size_voltage.place(x=711, y=523)
-        self.entry_dwell_time_voltage.place(x=711, y=563)
+        self.entry_start_voltage.place(x=723, y=466)
+        self.entry_stop_voltage.place(x=723, y=506)
+        self.entry_step_size_voltage.place(x=723, y=546)
+        self.entry_dwell_time_voltage.place(x=723, y=586)
 
-        self.entry_start_voltage_unit = self.bk_canvas.create_text(952,562, anchor="nw", text="V", fill="#0000FF", font=("Helvetica",13, "bold"))
-        self.entry_stop_voltage_unit = self.bk_canvas.create_text(952,612, anchor="nw", text="V", fill="#0000FF", font=("Helvetica",12,"bold"))
-        self.entry_step_size_voltage_unit = self.bk_canvas.create_text(952, 662, anchor="nw", text="V", fill="#0000FF", font=("Helvetica",12,"bold"))
-        self.entry_dwell_time_voltage_unit = self.bk_canvas.create_text(952, 712, anchor="nw", text="S", fill="#0000FF", font=("Helvetica",12,"bold"))
+        self.entry_start_voltage_unit = self.bk_canvas.create_text(773,472, anchor="nw", text="V", fill="#0000FF", font=("Helvetica",11, "bold"))
+        self.entry_stop_voltage_unit = self.bk_canvas.create_text(773,512, anchor="nw", text="V", fill="#0000FF", font=("Helvetica",11,"bold"))
+        self.entry_step_size_voltage_unit = self.bk_canvas.create_text(773, 552, anchor="nw", text="V", fill="#0000FF", font=("Helvetica",11,"bold"))
+        self.entry_dwell_time_voltage_unit = self.bk_canvas.create_text(773, 592, anchor="nw", text="S", fill="#0000FF", font=("Helvetica",11,"bold"))
 
 
         self.entry_current_limit = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, textvariable= self.selected_profile["current limit"],fg_color = "#D1FCFF", bg_color = "#D1FCFF", width=50, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
         self.entry_voltage_limit = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, textvariable= self.selected_profile["voltage limit"],fg_color = "#D1FCFF", bg_color = "#D1FCFF", width=50, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
         self.entry_power_limit = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, textvariable= self.selected_profile["power limit"],fg_color = "#D1FCFF", bg_color = "#D1FCFF", width=50, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
         self.entry_temperature_limit = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, textvariable= self.selected_profile["temperature limit"],fg_color = "#D1FCFF", bg_color = "#D1FCFF", width=50, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
-        self.entry_temperature_limit.place(x=1103, y=386)
-        self.entry_power_limit.place(x=1103, y=346)
-        self.entry_voltage_limit.place(x=1103, y=306)
-        self.entry_current_limit.place(x=1103, y=266)
+        self.entry_current_limit.place(x=1103, y=301)
+        self.entry_voltage_limit.place(x=1103, y=341)
+        self.entry_power_limit.place(x=1103, y=381)
+        self.entry_temperature_limit.place(x=1103, y=421)
 
-        self.entry_current_limit_unit = self.bk_canvas.create_text(1443,340, anchor="nw", text="A", fill="#0000FF", font=("Helvetica",13, "bold"))
-        self.entry_voltage_limit_unit = self.bk_canvas.create_text(1443,390, anchor="nw", text="V", fill="#0000FF", font=("Helvetica",12,"bold"))
-        self.entry_power_limit_unit = self.bk_canvas.create_text(1443, 440, anchor="nw", text="W", fill="#0000FF", font=("Helvetica",12,"bold"))
-        self.entry_temperature_limit_unit = self.bk_canvas.create_text(1441, 490, anchor="nw", text="°C", fill="#0000FF", font=("Helvetica",12,"bold"))
+        self.entry_current_limit_unit = self.bk_canvas.create_text(1153,305, anchor="nw", text="A", fill="#0000FF", font=("Helvetica",11, "bold"))
+        self.entry_voltage_limit_unit = self.bk_canvas.create_text(1153,345, anchor="nw", text="V", fill="#0000FF", font=("Helvetica",11,"bold"))
+        self.entry_power_limit_unit = self.bk_canvas.create_text(1152, 385, anchor="nw", text="W", fill="#0000FF", font=("Helvetica",11,"bold"))
+        self.entry_temperature_limit_unit = self.bk_canvas.create_text(1151.5, 425, anchor="nw", text="°C", fill="#0000FF", font=("Helvetica",11,"bold"))
 
 
 
         self.entry_current_resolution = ctk.CTkEntry(master=self.bk_profiles_frame,border_width =0, textvariable= self.selected_profile["current resolution"],fg_color = "#D1FCFF", bg_color = "#D1FCFF", width=50, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
         self.entry_voltage_resolution = ctk.CTkEntry(master=self.bk_profiles_frame,border_width = 0, textvariable= self.selected_profile["voltage resolution"],fg_color = "#D1FCFF", bg_color = "#D1FCFF", width=50, text_color = "#0000FF",font = ("Helvetica",13,"bold"),)
-        self.entry_current_resolution.place(x=323, y=483)
-        self.entry_voltage_resolution.place(x=323, y=523)
+        self.entry_current_resolution.place(x=323, y=501)
+        self.entry_voltage_resolution.place(x=323, y=541)
 
-        self.entry_current_resolution_unit = self.bk_canvas.create_text(470, 610, anchor="nw", text="A", fill="#0000FF", font=("Helvetica",12,"bold"))
-        self.entry_voltage_resolution_unit = self.bk_canvas.create_text(470, 660, anchor="nw", text="V", fill="#0000FF", font=("Helvetica",12,"bold"))
+        self.entry_current_resolution_unit = self.bk_canvas.create_text(374, 505, anchor="nw", text="A", fill="#0000FF", font=("Helvetica",11,"bold"))
+        self.entry_voltage_resolution_unit = self.bk_canvas.create_text(374, 545, anchor="nw", text="V", fill="#0000FF", font=("Helvetica",11,"bold"))
 
 
         self.check_profile()
