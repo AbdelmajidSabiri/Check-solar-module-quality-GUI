@@ -335,8 +335,24 @@ class GUI:
     def get_serialNum(self):
         return int(self.serial_num_var.get())
 
+    def get_month_folder(self):
+        current_month = datetime.now().strftime("%B")
 
+        if getattr(sys, 'frozen', False):
+            base_dir = os.path.dirname(sys.executable)
+        else:
+            base_dir = os.path.dirname(os.path.abspath(__file__)) 
 
+        data_folder = os.path.join(base_dir, 'Data')
+        if not os.path.exists(data_folder):
+            os.makedirs(data_folder)
+
+        month_folder = os.path.join(data_folder, current_month)
+
+        if not os.path.exists(month_folder):
+            os.makedirs(month_folder)
+
+        return month_folder
 
     # Funtion to Get Max power
     def update_max_power(self) :
@@ -399,11 +415,13 @@ class GUI:
 
     # Function to calculate recurrence
     def calculate_recurrence(self):
-        
-        onedrive_path = os.path.join(os.getenv('USERPROFILE'), 'OneDrive', 'Documents', 'Data.xlsx')
+
         self.create_excel_file_if_not_exists()
 
-        df = pd.read_excel(onedrive_path)
+        month_folder = self.get_month_folder()
+        excel_file_path = os.path.join(month_folder, 'Data.xlsx')
+
+        df = pd.read_excel(excel_file_path)
 
         serial_number = self.get_serialNum()
         self.recurrence_var.set((df["Serial Number"] == serial_number).sum() + 1)
@@ -500,7 +518,6 @@ class GUI:
                 self.run_button.configure(state='normal',image=self.run_test_img)
                 messagebox.showinfo("Error", "Same Profile Data is missing")
 
-
     # Function to move to next voltage value (in order to accepte dwell time)
     def process_next_voltage(self,voltages,index):
         if not self.running  or index >= len(voltages) :
@@ -528,10 +545,10 @@ class GUI:
         if not self.running:
             return
 
-        # current_measured,voltage_measured = self.get_data()
+        current_measured,voltage_measured = self.get_data()
         voltage = voltages[index]
-        current_measured = 10 * math.sin(2 * 0.1) + random.uniform(-1, 1)
-        voltage_measured = 20 * math.cos(2 * 0.1) + random.uniform(-1, 1)
+        # current_measured = 10 * math.sin(2 * 0.1) + random.uniform(-1, 1)
+        # voltage_measured = 20 * math.cos(2 * 0.1) + random.uniform(-1, 1)
 
         power = current_measured * voltage_measured
         
@@ -580,14 +597,11 @@ class GUI:
     
     # Function to create excel file in not found
     def create_excel_file_if_not_exists(self):
+
         
-        base_dir = os.path.dirname(os.path.abspath(__file__))
+        month_folder = self.get_month_folder()
 
-        data_folder = os.path.join(base_dir, 'data')
-        if not os.path.exists(data_folder):
-            os.makedirs(data_folder)
-
-        excel_file_path = os.path.join(data_folder, 'Data.xlsx')
+        excel_file_path = os.path.join(month_folder, 'Data.xlsx')
 
         if not os.path.exists(excel_file_path):
             wb = Workbook()
@@ -606,10 +620,8 @@ class GUI:
     # Function fo save data in the excel file
     def SaveData(self, date, time, serial_number, max_power=0, Impp=0, Vmpp=0, Voc=0, Isc=0, FF=0, Grade="A"):
 
-        
-        self.create_excel_file_if_not_exists()
-        excel_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'Data.xlsx')
-
+        month_folder = self.get_month_folder()
+        excel_file_path = os.path.join(month_folder, 'Data.xlsx')
 
         wb = load_workbook(excel_file_path)
         sheet = wb['Sheet1']
@@ -1011,14 +1023,14 @@ class GUI:
     # Function to takes user password
     def prompt_for_password(self):
         password = simpledialog.askstring("Password", "\n\n\t\t\tEnter password:\t\t\t\t\n")
-        if password == "agamine":
+        if password == "agamine12":
             return True
         else:
             return False
 
     # Function to display infos about the application
     def About(self) :
-        messagebox.showinfo("About", "PV Module Testing Application - Designed by Mohamed EL Hamdani, Made by Abdelmajid Sabiri ESTE (08/2024)")
+        messagebox.showinfo("About", "PV Module Testing Application \n\nDesigned by Mohamed EL Hamdani\n     Email : service4@agamine.com \n\nMade by Abdelmajid Sabiri\n      Email : abdelmajidsabiri77@gmail.com\n      University : EST Essaouira\n\n Date of creation : 08/2024")
 
 
 
