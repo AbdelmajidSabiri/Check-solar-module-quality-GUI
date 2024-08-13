@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter.font import Font
 import customtkinter as ctk
 import pyvisa
-# import pyvisa_py
+import pyvisa_py
 import serial
 import serial.tools.list_ports
 import matplotlib.pyplot as plt
@@ -181,6 +181,7 @@ class GUI:
         self.grade_var = StringVar(value="?")
         self.recurrence_var = IntVar(value = 0)
         self.serial_num_var = StringVar()
+        self.result_var = StringVar(value = "Passe")
 
         self.mode_var = tk.StringVar(value="CV")  # Default selection
 
@@ -426,8 +427,9 @@ class GUI:
         serial_number = self.get_serialNum()
         self.recurrence_var.set((df["Serial Number"] == serial_number).sum() + 1)
   
-  
-
+    # Function to find result of test
+    def find_result(self) :
+        pass  
 
     # Function to set design of plot
     def configure_plot(self):
@@ -524,6 +526,7 @@ class GUI:
             self.running = False
             self.calculate_FF_Grade()
             self.calculate_recurrence()
+            self.find_result()
             # self.Arduino.update_temperature()
             self.show_table()
             self.CollectData()
@@ -592,8 +595,9 @@ class GUI:
         Vmpp = self.Vmpp_var.get()
         FF = self.FF_var.get()
         grade = self.grade_var.get()
+        result = self.result_var.get()
 
-        self.SaveData(formatted_date,formatted_time,serial_number,max_power,Impp,Vmpp,Voc,Isc,FF,grade)
+        self.SaveData(formatted_date,formatted_time,serial_number,max_power,Impp,Vmpp,Voc,Isc,FF,grade,result)
     
     # Function to create excel file in not found
     def create_excel_file_if_not_exists(self):
@@ -618,7 +622,7 @@ class GUI:
             wb.save(excel_file_path)
 
     # Function fo save data in the excel file
-    def SaveData(self, date, time, serial_number, max_power=0, Impp=0, Vmpp=0, Voc=0, Isc=0, FF=0, Grade="A"):
+    def SaveData(self, date, time, serial_number, max_power=0, Impp=0, Vmpp=0, Voc=0, Isc=0, FF=0, Grade="A",result = "Passe"):
 
         month_folder = self.get_month_folder()
         excel_file_path = os.path.join(month_folder, 'Data.xlsx')
@@ -634,7 +638,7 @@ class GUI:
 
         row = (next_id,                             # ID
             next_module_number,                     # Module Number
-            0,                                      # Test Result
+            result,                                 # Test Result
             max_power,                              # Pmpp
             Impp,                                   # Imp
             Vmpp,                                   # Vmp
@@ -680,10 +684,11 @@ class GUI:
         FF = self.FF_formated.get()
         grade = self.grade_var.get()
         recurrence_count = self.recurrence_var.get()
+        result = self.result_var.get()
 
         new_data = {
         "Serial Num": serial_number,
-        "Results" : "Rejected",
+        "Results" : result,
         "Date": formatted_date,
         "Test Time": formatted_time,
         "Mpp": max_power,
@@ -716,6 +721,7 @@ class GUI:
 
 
 
+
     # Function to turn ON the light
     def ON_Lamps(self):
         self.Arduino.turn_light_on()
@@ -727,6 +733,7 @@ class GUI:
         self.Arduino.turn_light_off()
         self.ON_button.configure(image = self.lamps_button_img)
         self.OFF_button.configure(image = self.lamps_off_img)
+
 
 
 
@@ -758,6 +765,7 @@ class GUI:
         self.bk_profiles_button.configure(image = self.image_bk_profiles_ON_img, text_color = "#0000ff")
 
         self.dashboard_frame.pack_forget()
+
 
 
 
