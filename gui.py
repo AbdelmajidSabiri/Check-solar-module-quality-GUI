@@ -1014,14 +1014,12 @@ class GUI:
     # Function to validate serial number entred (6 numbers & containe only numbers)
     def validate_serial(self, new_value):
         if new_value.isdigit():
-            if len(new_value) > 6:
+            if len(new_value) < 6:
                 self.run_button.configure(state="disabled", image=self.run_test_disabled_img)
 
             elif len(new_value) == 6:
                 self.run_button.configure(state="normal", image=self.run_test_img)
 
-            else:
-                self.run_button.configure(state="disabled", image=self.run_test_disabled_img)
             return True
 
         elif new_value == "":
