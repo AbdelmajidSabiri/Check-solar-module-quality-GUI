@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter.font import Font
 import customtkinter as ctk
 import pyvisa
-import pyvisa_py
+# import pyvisa_py
 import serial
 import serial.tools.list_ports
 import matplotlib.pyplot as plt
@@ -286,10 +286,10 @@ class GUI:
                                             command=self.About,
                                             fg_color='white', 
                                             text_color='#0000ff',
-                                            font=("Arial",12),
+                                            font=("Arial",13),
                                             hover_color="white",
                                             )
-        self.about_button.pack(pady=(510,0), padx=0, anchor='w')
+        self.about_button.pack(pady=(560,0), padx=0, anchor='w')
 
 
         # Create a frame for the main content
@@ -357,7 +357,6 @@ class GUI:
 
     # Funtion to Get Max power
     def update_max_power(self) :
-
         if self.Power_var.get() > self.max_power_var.get():
             self.max_power_var.set(self.Power_var.get())
             self.Impp_var.set(self.Current_var.get())
@@ -520,6 +519,9 @@ class GUI:
                 self.run_button.configure(state='normal',image=self.run_test_img)
                 messagebox.showinfo("Error", "Same Profile Data is missing")
 
+        elif self.mode_var.get() == "CC":
+            pass
+
     # Function to move to next voltage value (in order to accepte dwell time)
     def process_next_voltage(self,voltages,index):
         if not self.running  or index >= len(voltages) :
@@ -548,10 +550,10 @@ class GUI:
         if not self.running:
             return
 
-        current_measured,voltage_measured = self.get_data()
+        # current_measured,voltage_measured = self.get_data()
         voltage = voltages[index]
-        # current_measured = 10 * math.sin(2 * 0.1) + random.uniform(-1, 1)
-        # voltage_measured = 20 * math.cos(2 * 0.1) + random.uniform(-1, 1)
+        current_measured = 10 * math.sin(2 * 0.1) + random.uniform(-1, 1)
+        voltage_measured = 20 * math.cos(2 * 0.1) + random.uniform(-1, 1)
 
         power = current_measured * voltage_measured
         
@@ -596,8 +598,9 @@ class GUI:
         FF = self.FF_var.get()
         grade = self.grade_var.get()
         result = self.result_var.get()
+        recurrence = self.recurrence_var.get()
 
-        self.SaveData(formatted_date,formatted_time,serial_number,max_power,Impp,Vmpp,Voc,Isc,FF,grade,result)
+        self.SaveData(formatted_date,formatted_time,serial_number,max_power,Impp,Vmpp,Voc,Isc,FF,grade,result,recurrence)
     
     # Function to create excel file in not found
     def create_excel_file_if_not_exists(self):
@@ -622,7 +625,7 @@ class GUI:
             wb.save(excel_file_path)
 
     # Function fo save data in the excel file
-    def SaveData(self, date, time, serial_number, max_power=0, Impp=0, Vmpp=0, Voc=0, Isc=0, FF=0, Grade="A",result = "Passe"):
+    def SaveData(self, date, time, serial_number, max_power=0, Impp=0, Vmpp=0, Voc=0, Isc=0, FF=0, Grade="A",result = "Passe",recurrence = 1):
 
         month_folder = self.get_month_folder()
         excel_file_path = os.path.join(month_folder, 'Data.xlsx')
@@ -646,7 +649,7 @@ class GUI:
             Isc,                                    # Isc
             FF,                                     # Fil factor
             Grade,                                  # Grade
-            0,                                      # Recurrence
+            recurrence,                             # Recurrence
             0,                                      # Temperature Ambient
             0,                                      # Temperature Lamps
             31.0654,                                # Pmpp Reference
@@ -1041,8 +1044,6 @@ class GUI:
         messagebox.showinfo("About", "PV Module Testing Application \n\nDesigned by Mohamed EL Hamdani\n     Email : service4@agamine.com \n\nMade by Abdelmajid Sabiri\n      Email : abdelmajidsabiri77@gmail.com\n      University : EST Essaouira\n\n Date of creation : 08/2024")
 
 
-
-
     # Funtion to Setup content of Dashboard Frame
     def setup_dashboard_content(self):
         
@@ -1083,11 +1084,11 @@ class GUI:
         plot_background = canvas.create_image(     380,280,image = self.plot_img)
         data_background = canvas.create_image(     1020,280,image = self.data_img)
         vol_curr_pow_background = canvas.create_image(     380,535,image = self.vol_curr_pow_img)
-        lamp_ON_background = canvas.create_image(  930,535,image = self.lamps_img)
-        lamp_OFF_background = canvas.create_image( 1170,535,image = self.lamps_img)
+        lamp_ON_background = canvas.create_image(  900,535,image = self.lamps_img)
+        lamp_OFF_background = canvas.create_image( 1140,535,image = self.lamps_img)
         table_background = canvas.create_image(    642,770,image = self.table_img)
 
-        fram_indicator = canvas.create_image(      4,62.0,image=self.fram_indicator_img)
+        fram_indicator = canvas.create_image(      4,45.0,image=self.fram_indicator_img)
         vertical_line = canvas.create_image(       0,400,image=self.vertical_line_img)
         progress_bar_background = canvas.create_image(        760, 48, image=self.progress_bar_img )
         test_status_background = canvas.create_image(1100,30, image = self.status_img)
@@ -1153,8 +1154,8 @@ class GUI:
         canvas.create_text(440,527, anchor="nw", text="A", fill="#0000FF", font=("Helvetica",11, "bold"))
         canvas.create_text(665,527, anchor="nw", text="W", fill="#0000FF", font=("Helvetica",11, "bold"))
 
-        canvas.create_text(992,527, anchor="nw", text="On", fill="#0000FF", font=("Helvetica",11, "bold"))
-        canvas.create_text(1227,527, anchor="nw", text="Off", fill="#0000FF", font=("Helvetica",11, "bold"))
+        canvas.create_text(962,527, anchor="nw", text="On", fill="#0000FF", font=("Helvetica",11, "bold"))
+        canvas.create_text(1197,527, anchor="nw", text="Off", fill="#0000FF", font=("Helvetica",11, "bold"))
 
 
         self.setup_chart()
@@ -1267,7 +1268,7 @@ class GUI:
                                         compound = "right",
                                         hover_color="white",
                                         bg_color = "white")
-        self.ON_button.place(x=844,y=510)
+        self.ON_button.place(x=814,y=510)
 
         self.OFF_button = ctk.CTkButton(master = self.dashboard_frame, 
                                         text="Turn Lamps", 
@@ -1279,7 +1280,7 @@ class GUI:
                                         font=("Arial",14),
                                         hover_color="white",
                                         bg_color="white")
-        self.OFF_button.place(x=1080,y=510)
+        self.OFF_button.place(x=1050,y=510)
 
     # Function to Setup content of bk_profiles Frame
     def setup_bk_profiles_content(self):
@@ -1320,7 +1321,7 @@ class GUI:
 
 
 
-        fram_indicator = self.bk_canvas.create_image(4,182,image=self.fram_indicator_img)
+        fram_indicator = self.bk_canvas.create_image(4,148,image=self.fram_indicator_img)
         vertical_line = self.bk_canvas.create_image(0,400,image=self.vertical_line_img)
         Bk_profiles_frame = self.bk_canvas.create_image(630,400,image=self.Bk_profilles_frame_img)
         Bk_profiles_frame_top = self.bk_canvas.create_image(630,150,image=self.Bk_profilles_frame_top_img)
