@@ -763,11 +763,13 @@ class GUI:
 
     # Function to show content of Bk Profiles frame if BK PROFILES button is pressed
     def show_bk_profiles(self):
-        self.bk_profiles_frame.pack(fill="both", expand=True)
-        self.dashboard_button.configure(image = self.image_dashboard_OFF_img, text_color = "#b7b7fc")
-        self.bk_profiles_button.configure(image = self.image_bk_profiles_ON_img, text_color = "#0000ff")
-
-        self.dashboard_frame.pack_forget()
+        if self.prompt_for_password() :
+            self.bk_profiles_frame.pack(fill="both", expand=True)
+            self.dashboard_button.configure(image = self.image_dashboard_OFF_img, text_color = "#b7b7fc")
+            self.bk_profiles_button.configure(image = self.image_bk_profiles_ON_img, text_color = "#0000ff")
+            self.dashboard_frame.pack_forget()
+        else :
+            pass
 
 
 
@@ -946,15 +948,11 @@ class GUI:
                 self.activate_profile_button.configure(image = self.disabled_profile_img, text = "Disabled", text_color='#FF0303')
                 self.update_entries()
         else:
-            if self.prompt_for_password():
-                self.activate_profile_button.configure(image = self.disabled_profile_img, text = "Disabled", text_color='#FF0303')
-                self.new_profile = self.initialize_new_profile()
-                self.selected_profile = self.new_profile.copy()
-                self.update_entries()
-            else :
-                self.selected_option.set("Profile 1")
-                self.selected_profile = self.profiles[0]
-                self.update_entries()
+            self.activate_profile_button.configure(image = self.disabled_profile_img, text = "Disabled", text_color='#FF0303')
+            self.new_profile = self.initialize_new_profile()
+            self.selected_profile = self.new_profile.copy()
+            self.update_entries()
+
                 
         self.check_profile()
 
