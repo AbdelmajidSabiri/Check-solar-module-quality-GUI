@@ -428,7 +428,10 @@ class GUI:
   
     # Function to find result of test
     def find_result(self) :
-        pass  
+        if self.FF_var.get() < 60 :
+            self.result_var.set("Fail")
+        else :
+            self.result_var.set("Passe")
 
     # Function to set design of plot
     def configure_plot(self):
@@ -550,10 +553,10 @@ class GUI:
         if not self.running:
             return
 
-        # current_measured,voltage_measured = self.get_data()
+        current_measured,voltage_measured = self.get_data()
         voltage = voltages[index]
-        current_measured = 10 * math.sin(2 * 0.1) + random.uniform(-1, 1)
-        voltage_measured = 20 * math.cos(2 * 0.1) + random.uniform(-1, 1)
+        # current_measured = 10 * math.sin(2 * 0.1) + random.uniform(-1, 1)
+        # voltage_measured = 20 * math.cos(2 * 0.1) + random.uniform(-1, 1)
 
         power = current_measured * voltage_measured
         
